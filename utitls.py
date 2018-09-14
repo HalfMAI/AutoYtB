@@ -41,7 +41,7 @@ def getSubInfoWithSubChannelId(channelId):
     ret = None
     for subscribe in configJson().get('subscribeList', []):
         if subscribe.get('youtubeChannelId') == channelId:
-            ret = subscribe.get('bilibili_cookiesStr')
+            ret = subscribe
             break
     return ret
 
