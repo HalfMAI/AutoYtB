@@ -1,0 +1,21 @@
+{
+    "serverIP": "XXXXX",
+    "serverPort": "80",
+    "subSecert": "",
+    "subscribeList": [
+        {
+            "bilibili_cookiesStr": "xxxxxxxxxxx",
+            "forwardLink": "",
+            "bilibili_areaid": "33",
+            "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",
+            "twitcast": "kaguramea"
+        },
+        {
+            "bilibili_cookiesStr": "xxxxxxxxxxxx",
+            "forwardLink": "",
+            "bilibili_areaid": "33",
+            "youtubeChannelId": "xxxxxxxxxxx",
+            "twitcast": ""
+        }
+    ]
+}
