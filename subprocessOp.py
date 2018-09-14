@@ -14,7 +14,8 @@ def __runCMDSync(cmd):
 
 def _getYotube_m3u8_sync(youtubeLink):
     out, err, errcode = __runCMDSync('youtube-dl -g {} --no-check-certificate'.format(youtubeLink))
-    out = out.decode('utf-8').strip('\n')
+    out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+    out = out.strip('\n')
     if not out.endswith('.m3u8'):
         errcode = -1
         utitls.myLogger("getYotube_m3u8 ERROR:%s" % out)
@@ -40,7 +41,7 @@ def _forwardStream_sync(link, outputRTMP):
     else:
         utitls.myLogger("_forwardStream_sync ERROR")
 
-    __g_rtmpLink.remove(outputRTMP)
+    # __g_rtmpLink.remove(outputRTMP)
 
 
 def _forwardStreamCMD(inputM3U8, outputRTMP):
