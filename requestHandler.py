@@ -2,10 +2,14 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlsplit,parse_qs
 import xml.etree.ElementTree as ET
 import traceback
+import json
+import time
 
 from utitls import verifySecert, myLogger, configJson
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
+
+from questInfo import checkIfInQuest, getQuestListStr
 
 class RequestHandler(BaseHTTPRequestHandler):
 
@@ -26,33 +30,47 @@ class RequestHandler(BaseHTTPRequestHandler):
             if forwardLink_list and restreamRtmpLink_list:
                 tmp_forwardLink = forwardLink_list[0]
                 tmp_rtmpLink = restreamRtmpLink_list[0]
-                isOK = True
+                isForwardLinkFormateOK = True
 
-                if 'send.acg.tv/' in tmp_rtmpLink:
-                    tmp_rtmpLink = tmp_rtmpLink + "&key=" + params.get('key', [''])[0]
+                if 'rtmp://' in tmp_rtmpLink:
+                    if 'send.acg.tv/' in tmp_rtmpLink:
+                        tmp_rtmpLink = tmp_rtmpLink + "&key=" + params.get('key', [''])[0]
 
-                print(tmp_forwardLink, tmp_rtmpLink)
-                if 'twitcasting.tv/' in tmp_forwardLink:
-                    #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
-                    tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
-                    tmp_twitcasID = tmp_twitcasID.split('/')[0]
-                    print(tmp_twitcasID)
+                    if 'twitcasting.tv/' in tmp_forwardLink:
+                        #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
+                        tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
+                        tmp_twitcasID = tmp_twitcasID.split('/')[0]
+                        tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+                    elif tmp_forwardLink.endswith('.m3u8')  \
+                        or 'youtube.com/' in tmp_forwardLink or 'youtu.be/' in tmp_forwardLink:
+                        tmp_forwardLink = tmp_forwardLink
+                    else:
+                        isForwardLinkFormateOK = False
 
-                    tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
-                elif tmp_forwardLink.endswith('.m3u8') or 'youtube.com/' in tmp_forwardLink or 'youtu.be/' in tmp_forwardLink:
-                    tmp_forwardLink = tmp_forwardLink
+                    if isForwardLinkFormateOK:
+                        if checkIfInQuest(tmp_rtmpLink) == False:
+                            async_forwardStream(tmp_forwardLink, tmp_rtmpLink)
+                            time.sleep(5)
+                            if checkIfInQuest(tmp_rtmpLink):
+                                rc = 200
+                                rb = json.dumps({"code": 0, "msg": "开播任务成功:\nforwardLink: {},\nrestreamRtmpLink: {}\n\n当前已有任务列表：".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
+                            else:
+                                rc = 200
+                                rb = json.dumps({"code": -1, "msg": "开播失败，请检查输入信息"})
+                        else:
+                            rc = 200
+                            rb = json.dumps({"code": -2, "msg": "开播失败，此推流已经在任务中"})
+                    else:
+                        rc = 200
+                        rb = json.dumps({"code": -3, "msg": "转播来源地址不合法,只支持以下地址：youtube,twitcasting, m3u8地址"})
                 else:
-                    isOK = False
-
-                if isOK:
                     rc = 200
-                    rb = 'forwardLink:{},\nrestreamRtmpLink:{}'.format(tmp_forwardLink, tmp_rtmpLink)
-                    async_forwardStream(tmp_forwardLink, tmp_rtmpLink)
+                    rb = json.dumps({"code": 0, "msg": "RTMP 地址格式 错误，正确格式：rtmp://XXXXXXXXXXXX,如果是B站地址就是两个连接合起来"})
 
         self.send_response(rc)
         self.end_headers()
         if None != rb:
-            self.wfile.write(rb.encode())
+            self.wfile.write(rb.encode('utf-8'))
 
 
     def do_POST(self):

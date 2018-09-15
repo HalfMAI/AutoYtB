@@ -26,7 +26,7 @@ def subscribeTheList_sync(isSubscribe):
         if tmp_subscribeId != "":
             tmp_callback_url = 'http://' + ip + '/subscribe'
             if isSubscribe:
-                time.sleep(1)
+                time.sleep(5)   #wait the server starting up
                 subscribe(tmp_callback_url, tmp_subscribeId)
             else:
                 unsubscribe(tmp_callback_url, tmp_subscribeId)
@@ -37,6 +37,7 @@ def main():
     try:
         Async_subscribeTheList(True)
         startWebServer()
+        subscribeTheList_sync(False)
 
     except Exception as e:
         subscribeTheList_sync(False)
@@ -50,4 +51,5 @@ if __name__ == "__main__":
             utitls.myLogger('RESTART WERSERVER')
             time.sleep(5)
     except KeyboardInterrupt:
-        utitls.myLogger('Running END-------------------------')
+        subscribeTheList_sync(False)
+        utitls.myLogger('Running END-------------------------\n')

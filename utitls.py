@@ -3,6 +3,8 @@ import hashlib
 import secrets
 import json
 import datetime
+import traceback
+
 from multiprocessing import Process
 
 K_CONFIG_JSON_PATH = 'config.json'
@@ -52,5 +54,9 @@ def saveConfigJson(config_dict):
 
 
 def runFuncAsyncProcess(target_func, args):
-    t = Process(target=target_func, args=args)
-    t.start()
+    try:
+        t = Process(target=target_func, args=args)
+        t.start()
+    except Exception as e:
+        myLogger(traceback.format_exc())
+        myLogger(str(e))

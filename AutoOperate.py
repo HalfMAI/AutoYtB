@@ -1,5 +1,5 @@
 from bilibiliProxy import BilibiliProxy
-from subprocessOp import _forwardStream_sync
+from subprocessOp import _forwardStream_sync, _getYotube_m3u8_sync
 import utitls
 
 def bilibiliStartLive(channelId, room_title, area_id=None):
@@ -24,6 +24,8 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
 def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id=None):
     utitls.runFuncAsyncProcess(_forwardToBilibili_Sync, (channelId, link, room_title, area_id))
 def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None):
-    b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
-    _forwardStream_sync(link, rtmp_link)
-    b.stopLive(t_room_id)
+    _,_, errcode = _getYotube_m3u8_sync(link)
+    if errcode == 0:
+        b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
+        _forwardStream_sync(link, rtmp_link)
+        b.stopLive(t_room_id)
