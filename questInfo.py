@@ -49,7 +49,7 @@ def _getObjWithRTMPLink(rtmpLink):
     tmp_quest_list = _getQuestList()
     ret = None
     for item in tmp_quest_list:
-        if item.get('rtmpLink'):
+        if item.get('rtmpLink') == rtmpLink:
             ret = item
             break
     return ret
