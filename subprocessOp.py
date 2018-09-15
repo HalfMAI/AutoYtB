@@ -30,6 +30,8 @@ def _forwardStream_sync(link, outputRTMP):
     if questInfo.checkIfInQuest(outputRTMP):
         utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n link:%s, \n rtmpLink:%s" % (link, outputRTMP))
         return
+    questInfo.addQuest(link, outputRTMP)
+
     if outputRTMP.startswith('rtmp://') == False:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
         return
@@ -40,12 +42,11 @@ def _forwardStream_sync(link, outputRTMP):
             link = m3u8Link
 
     if link.endswith('.m3u8') or '.m3u8' in link:
-        questInfo.addQuest(link, outputRTMP)
         _forwardStreamCMD_sync(link, outputRTMP)
-        questInfo.removeQuest(outputRTMP)
     else:
-        utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s", link)
-
+        utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
+        
+    questInfo.removeQuest(outputRTMP)
 
 def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
@@ -54,11 +55,11 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     tmp_cmdStartTime = time.time()
     while tmp_retryTime > 0:
         out, err, errcode = __runCMDSync('ffmpeg -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
-        # maybe can ignore the error if it when wrong after 60s?
-        if time.time() - tmp_cmdStartTime < 60:
+        # maybe can ignore the error if ran after 5min?
+        if time.time() - tmp_cmdStartTime < 300:
             tmp_retryTime -= 1   # make it can exit
             tmp_cmdStartTime = time.time()
         time.sleep(5)
         utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
-        utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:%s, %s" % (inputM3U8, outputRTMP))
+        utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
     return out, err, errcode

@@ -5,6 +5,7 @@ import utitls
 import time
 import sys
 import traceback
+import questInfo
 
 def startWebServer():
     # ip = utitls.configJson().get('serverIP')
@@ -26,7 +27,7 @@ def subscribeTheList_sync(isSubscribe):
         if tmp_subscribeId != "":
             tmp_callback_url = 'http://' + ip + '/subscribe'
             if isSubscribe:
-                time.sleep(5)   #wait the server starting up
+                time.sleep(1)   #wait the server starting up
                 subscribe(tmp_callback_url, tmp_subscribeId)
             else:
                 unsubscribe(tmp_callback_url, tmp_subscribeId)
@@ -35,12 +36,12 @@ def subscribeTheList_sync(isSubscribe):
 
 def main():
     try:
+        #init the quest list
+        questInfo.initQuestList()
         Async_subscribeTheList(True)
         startWebServer()
-        subscribeTheList_sync(False)
 
     except Exception as e:
-        subscribeTheList_sync(False)
         utitls.myLogger(traceback.format_exc())
         utitls.myLogger(str(e))
 

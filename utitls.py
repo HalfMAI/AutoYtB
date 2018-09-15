@@ -5,13 +5,14 @@ import json
 import datetime
 import traceback
 
+import threading
 from multiprocessing import Process
 
 K_CONFIG_JSON_PATH = 'config.json'
 k_LOG_PATH = 'mainLog.log'
 
 def myLogger(logStr):
-    resStr = str(datetime.datetime.now()) + "   " + str(logStr)
+    resStr = str(datetime.datetime.now()) + " [MyLOGGER]  " + str(logStr)
     try:
         print(resStr)
     except Exception as e:
@@ -55,6 +56,7 @@ def saveConfigJson(config_dict):
 
 def runFuncAsyncProcess(target_func, args):
     try:
+        # t = threading.Thread(target=target_func, args=args)        
         t = Process(target=target_func, args=args)
         t.start()
     except Exception as e:
