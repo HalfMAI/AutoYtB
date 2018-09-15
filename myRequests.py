@@ -32,7 +32,6 @@ def getYoutubeVideoInfo(youtubeURL):
     return title, thumbnail_url
 
 
-
 def isTwitcastingLiving(id):
     res = _baseGet('http://api.twitcasting.tv/api/livestatus?user=' + id)
     if res == None:

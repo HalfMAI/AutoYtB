@@ -3,6 +3,8 @@ from urllib.parse import urlsplit,parse_qs
 import xml.etree.ElementTree as ET
 import traceback
 import json
+import os
+from mimetypes import types_map
 
 from utitls import verifySecert, myLogger, configJson
 from subprocessOp import async_forwardStream
@@ -10,6 +12,8 @@ from AutoOperate import Async_forwardToBilibili
 
 from questInfo import checkIfInQuest, getQuestListStr
 
+
+K_WEB_STATIC_DIC = os.path.join(os.curdir, 'simple_web')
 class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -17,6 +21,22 @@ class RequestHandler(BaseHTTPRequestHandler):
         rc = 404
         rb = None
         params = parse_qs(urlsplit(request_path).query)
+
+        try:
+            if request_path.startswith('/simple_web/'):
+                fname, ext = os.path.splitext(request_path)
+                if ext in (".html", ".css"):
+                    with open(os.path.join(K_WEB_STATIC_DIC, request_path)) as f:
+                        self.send_response(200)
+                        self.send_header('Content-type', types_map[ext])
+                        self.end_headers()
+                        self.wfile.write(f.read())
+                return
+        except IOError:
+            self.send_error(404)
+            self.end_headers()
+        return
+
 
         if request_path.startswith('/subscribe?'):
             hub_challenge_list = params.get('hub.challenge', None)

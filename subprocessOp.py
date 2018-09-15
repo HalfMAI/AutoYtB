@@ -45,7 +45,7 @@ def _forwardStream_sync(link, outputRTMP):
         _forwardStreamCMD_sync(link, outputRTMP)
     else:
         utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
-        
+
     questInfo.removeQuest(outputRTMP)
 
 def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
@@ -55,11 +55,11 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     tmp_cmdStartTime = time.time()
     while tmp_retryTime > 0:
         out, err, errcode = __runCMDSync('ffmpeg -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
-        # maybe can ignore the error if ran after 5min?
-        if time.time() - tmp_cmdStartTime < 300:
+        # maybe can ignore the error if ran after 2min?
+        if time.time() - tmp_cmdStartTime < 120:
             tmp_retryTime -= 1   # make it can exit
             tmp_cmdStartTime = time.time()
-        time.sleep(5)
+        time.sleep(5)   #rtmp buffer can hold 3 secounds, so it will cut 2 secounds
         utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
         utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
     return out, err, errcode
