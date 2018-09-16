@@ -51,15 +51,15 @@ def _forwardStream_sync(link, outputRTMP):
 def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
     out, err, errcode = None, None, None
-    tmp_retryTime = 3
+    tmp_retryTime = 5
     tmp_cmdStartTime = time.time()
     while tmp_retryTime > 0:
-        out, err, errcode = __runCMDSync('ffmpeg -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
+        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
         # maybe can ignore the error if ran after 2min?
         if time.time() - tmp_cmdStartTime < 120:
             tmp_retryTime -= 1   # make it can exit
-            tmp_cmdStartTime = time.time()
-        time.sleep(5)   #rtmp buffer can hold 3 secounds, so it will cut 2 secounds
+        tmp_cmdStartTime = time.time()  #import should not miss it.
+        time.sleep(3)   #rtmp buffer can hold 3 secounds or less
         utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
         utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
     return out, err, errcode

@@ -68,3 +68,14 @@ def getQuestListStr():
             'rtmp://*****' + tmp_rtmpLink
         )
     return ret
+
+def getQuestList_AddStarts():
+    ret = []
+    tmp_quest_list = _getQuestList()
+    for item in tmp_quest_list:
+        questDict = {
+            'forwardLinkOrign': item.get('forwardLinkOrign', ""),
+            'rtmpLink': ('rtmp://*****' + item.get('rtmpLink', "")[-5:])
+        }
+        ret.append(questDict)
+    return ret

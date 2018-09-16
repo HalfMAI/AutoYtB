@@ -1,8 +1,6 @@
 <html >
   <head>
     <meta charset="UTF-8">
-    <!-- <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding"> -->
 
     <style>
       p{ white-space: pre; }
@@ -23,6 +21,7 @@
 
       function requestReStream() {
         document.getElementById("requestReStreamBtn").disabled = true;
+        document.getElementById("requestQuestListBtn").disabled = true;
         setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
         setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
 
@@ -37,12 +36,14 @@
         })
       }
       function requestQuestList() {
+        document.getElementById("requestReStreamBtn").disabled = true;
         document.getElementById("requestQuestListBtn").disabled = true;
+        setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
         setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
         var tmp_requestURL = "../questlist";
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
-          var tmp_retStr = "";
+          var tmp_retStr = "任务列表为：\n";
           res_json.forEach(function(item){
             tmp_retStr += "------------------\n";
             tmp_retStr += "forwardLinkOrign：" + item['forwardLinkOrign'] + "\n";
@@ -53,9 +54,8 @@
       }
     </script>
 
-    <title>手动转播界面</title>
+    <title>手动转播</title>
   </head>
-  <p>手动转播界面</p>
   <p>
     转播地址例子：
       Youtube地址：
@@ -74,8 +74,8 @@
       B站的地址是两串合起来的，像youtube那些也是path+key,两串合起来
       rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX
   </p>
-  <label >转播源地址：</label> <input type="text" id="forwardLink" name="forwardLink"><br /><br />
-  <label >推流目标地址:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink"><br /><br />
+  <label >转播源地址：</label> <input type="text" id="forwardLink" name="forwardLink" size="128"><br /><br />
+  <label >推流目标地址:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
   <button id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
   <button id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
 

@@ -10,7 +10,7 @@ from utitls import verifySecert, myLogger, configJson
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr, _getQuestList
+from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -48,7 +48,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 rb = hub_challenge_list[0]
         elif request_path.startswith('/questlist'):
             rc = 200
-            rb = json.dumps(_getQuestList())
+            rb = json.dumps(getQuestList_AddStarts())
         elif request_path.startswith('/live_restream?'):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
@@ -141,7 +141,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                         myLogger("%s, %s, %s, %s, %s, %s " % (
                                     tmp_entry_title, tmp_entry_videoId, tmp_entry_channelId, tmp_entry_link, tmp_entry_publishedTime, tmp_entry_updatedTime)
                                 )
-                        Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, configJson().get('area_id'))
+
+                        if checkIfInQuest(tmp_entry_link) == False:
+                            #try to restream
+                            Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, configJson().get('area_id'))
                     except Exception:
                         myLogger(traceback.format_exc())
                         self.send_response(rc)
