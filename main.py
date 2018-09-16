@@ -27,7 +27,7 @@ def subscribeTheList_sync(isSubscribe):
         if tmp_subscribeId != "":
             tmp_callback_url = 'http://' + ip + '/subscribe'
             if isSubscribe:
-                time.sleep(1)   #wait the server starting up
+                time.sleep(1)   #wait the server starting upfname
                 subscribe(tmp_callback_url, tmp_subscribeId)
             else:
                 unsubscribe(tmp_callback_url, tmp_subscribeId)

@@ -63,7 +63,7 @@ def getQuestListStr():
             tmp_rtmpLink = item.get('rtmpLink', "")[-5:]
         except IndexError:
             tmp_rtmpLink = "XXXXXXXXX"
-        ret += '--------\nforwardLinkOrign:{}\n--------rtmpLink:{};'.format(
+        ret += '--------\nforwardLinkOrign:{}\n--------rtmpLink:{};\n\n'.format(
             item.get('forwardLinkOrign', ""),
             'rtmp://*****' + tmp_rtmpLink
         )

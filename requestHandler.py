@@ -10,10 +10,9 @@ from utitls import verifySecert, myLogger, configJson
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr
+from questInfo import checkIfInQuest, getQuestListStr, _getQuestList
 
 
-K_WEB_STATIC_DIC = os.path.join(os.curdir, 'simple_web')
 class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -23,26 +22,33 @@ class RequestHandler(BaseHTTPRequestHandler):
         params = parse_qs(urlsplit(request_path).query)
 
         try:
-            if request_path.startswith('/simple_web/'):
+            if request_path.startswith('/web/'):
                 fname, ext = os.path.splitext(request_path)
                 if ext in (".html", ".css"):
-                    with open(os.path.join(K_WEB_STATIC_DIC, request_path)) as f:
+                    tmp_filePath = os.path.join(os.getcwd())
+                    for v in request_path.split('/'):
+                        tmp_filePath = os.path.join(tmp_filePath, v)
+                    print(tmp_filePath)
+                    with open(tmp_filePath, 'r', encoding='utf-8') as f:
                         self.send_response(200)
                         self.send_header('Content-type', types_map[ext])
                         self.end_headers()
-                        self.wfile.write(f.read())
+                        self.wfile.write(f.read().encode('utf-8'))
                 return
-        except IOError:
+        except Exception:
+            myLogger(traceback.format_exc())
             self.send_error(404)
             self.end_headers()
-        return
-
+            return
 
         if request_path.startswith('/subscribe?'):
             hub_challenge_list = params.get('hub.challenge', None)
             if None != hub_challenge_list:
                 rc = 202
                 rb = hub_challenge_list[0]
+        elif request_path.startswith('/questlist'):
+            rc = 200
+            rb = json.dumps(_getQuestList())
         elif request_path.startswith('/live_restream?'):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
@@ -71,20 +77,24 @@ class RequestHandler(BaseHTTPRequestHandler):
                         if checkIfInQuest(tmp_rtmpLink) == False:
                             #try to restream
                             async_forwardStream(tmp_forwardLink, tmp_rtmpLink)
-                            rb = json.dumps({"code": -1, "msg": "Request Success, PLEASE REFRESH TO CHECK THE STATUS!!!!!!!!!!!!    \
-                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\nCurrentQuests：{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
+                            rb = json.dumps({"code": -1, "msg": "请求成功，请查看任务状态看是否添加成功，不成功的话请再次请求任务。\
+                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n当前任务：{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                         else:
-                            rb = json.dumps({"code": 0, "msg": "Already Restream Successful. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
+                            rb = json.dumps({"code": 0, "msg": "当前推流已经在任务中. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                     else:
-                        rb = json.dumps({"code": -3, "msg": "forwardLink Formate ERROR, Only Support URL FROM：youtube, twitcasting, m3u8"})
+                        rb = json.dumps({"code": -3, "msg": "来源地址格式错误, 请查看上面支持的格式"})
                 else:
                     rc = 200
-                    rb = json.dumps({"code": -4, "msg": "RTMP Formate ERROR!!! bilibili RTMPLink EXAMPLE：rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX"})
+                    rb = json.dumps({"code": -4, "msg": "RTMPLink格式错误!!! bilibili的RTMPLink格式是两串合起来。\nEXAMPLE：rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX"})
 
         self.send_response(rc)
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
         if None != rb:
-            self.wfile.write(rb.encode())
+            try:
+                self.wfile.write(rb.encode('utf-8'))
+            except Exception:
+                print(traceback.format_exc())
 
 
     def do_POST(self):
