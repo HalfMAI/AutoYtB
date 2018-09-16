@@ -39,6 +39,7 @@ pip install requests
 
 
 ## 运行前的配置
+打开Config.json
 ```
 {
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
@@ -69,3 +70,15 @@ nohup python3.7 -u main.py > logfile.txt &
 
 ### 如何手动开播
 访问地址：http://{服务器IP或域名}/web/restream.html
+
+### TODO LIST
+- [ ] 环境自动安装脚本
+- [ ] 添加手动下播功能？需要使用sercert来做检验是否管理员？
+- [ ] 订阅列表添加到config.json的可视化界面和接口吧
+- [ ] twitcast 支持？
+- [ ] openREC 支持？
+- [ ] showroom 支持？
+- [ ] Mirrativ 支持？
+- [ ] 17live 支持？
+- [ ] RELITIY 支持？？
+- [ ] 使用microsoft flow 监控推特自动监控上面的其它平台？？
