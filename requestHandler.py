@@ -59,13 +59,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if tmp_quest != None:
                     try:
                         os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
-                        rb = {"code": 0, "msg": "操作成功"}
+                        rb = json.dumps({"code": 0, "msg": "操作成功"})
                     except Exception:
-                        rb = {"code": -2, "msg": "错误PID，操作失败!!"}
+                        rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
                 else:
-                    rb = {"code": -3, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)}
+                    rb = json.dumps({"code": -3, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
             else:
-                rb = {"code": -1, "msg": "secert 错误，操作失败!!"}
+                rb = json.dumps({"code": -1, "msg": "secert 错误，操作失败!!"})
         elif request_path.startswith('/live_restream?'):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
