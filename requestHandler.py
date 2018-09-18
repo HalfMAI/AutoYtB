@@ -54,7 +54,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             rc = 200
             tmp_rtmpLink_list = params.get('rtmpLink', None)
             if tmp_rtmpLink_list:
-                tmp_rtmpLink = tmp_rtmpLink_list[0]
+                tmp_rtmpLink = tmp_rtmpLink_list[0].strip()
                 tmp_quest = _getObjWithRTMPLink(tmp_rtmpLink)
                 if tmp_quest != None:
                     try:
@@ -68,8 +68,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
             if forwardLink_list and restreamRtmpLink_list:
-                tmp_forwardLink = forwardLink_list[0]
-                tmp_rtmpLink = restreamRtmpLink_list[0]
+                tmp_forwardLink = forwardLink_list[0].strip()
+                tmp_rtmpLink = restreamRtmpLink_list[0].strip()
                 isForwardLinkFormateOK = True
 
                 if 'rtmp://' in tmp_rtmpLink:

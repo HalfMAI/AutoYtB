@@ -40,19 +40,18 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
         return
     questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
-    if outputRTMP.startswith('rtmp://') == False:
+    if outputRTMP.startswith('rtmp://'):
+        if 'youtube.com/' in link or 'youtu.be/' in link:
+            m3u8Link, err, errcode = _getYotube_m3u8_sync(link)
+            if errcode == 0:
+                link = m3u8Link
+
+        if link.endswith('.m3u8') or '.m3u8' in link:
+            _forwardStreamCMD_sync(link, outputRTMP)
+        else:
+            utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
+    else:        
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
-        return
-
-    if 'youtube.com/' in link or 'youtu.be/' in link:
-        m3u8Link, err, errcode = _getYotube_m3u8_sync(link)
-        if errcode == 0:
-            link = m3u8Link
-
-    if link.endswith('.m3u8') or '.m3u8' in link:
-        _forwardStreamCMD_sync(link, outputRTMP)
-    else:
-        utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
 
     questInfo.removeQuest(outputRTMP)
 
