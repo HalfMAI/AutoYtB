@@ -37,9 +37,24 @@ make altinstall
 pip install requests
 ```
 
+### 如何把当前代码传到服务器上
+这里是使用github的方法clone到服务器上面，所以服务器需要先安装git
+git的安装
+```
+yum install git-all
+```
+安装后运行以下代码则会下载源代码到当前目录，运行源在AutoYtB目录里
+```
+git clone https://github.com/HalfMAI/AutoYtB.git
+```
+### 如何更新代码
+进行到AutoYtB目录里面，运行以下代码
+```
+git pull
+```
 
-## 运行前的配置
-打开Config.json
+# 运行前的配置
+打开目录中的Config.json
 ```
 {
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
@@ -64,6 +79,11 @@ pip install requests
 }
 ```
 ### 如何运行
+1.cd 到对应的目录，如果是按上面执行的话就是要先cd到AutoYtB文件夹
+```
+cd AutoYtB
+```
+2.运行以下命令
 ```
 nohup python3.7 -u main.py > logfile.txt &
 ```
@@ -72,6 +92,7 @@ nohup python3.7 -u main.py > logfile.txt &
 访问地址：http://{服务器IP或域名}/web/restream.html
 
 ### TODO LIST
+- [ ] 手动关闭某个流的任务？但没有办法拿到对应的subproccessPID，有什么好方法呢？
 - [ ] 环境自动安装脚本
 - [ ] 添加手动下播功能？需要使用sercert来做检验是否管理员？
 - [ ] 订阅列表添加到config.json的可视化界面和接口吧
