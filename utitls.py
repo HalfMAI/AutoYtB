@@ -6,7 +6,6 @@ import datetime
 import traceback
 
 import threading
-# from multiprocessing import Process
 
 K_CONFIG_JSON_PATH = 'config.json'
 k_LOG_PATH = 'mainLog.log'
@@ -54,11 +53,9 @@ def saveConfigJson(config_dict):
         json.dump(config_dict, wf, indent=4, sort_keys=True)
 
 
-def runFuncAsyncProcess(target_func, args):
+def runFuncAsyncThread(target_func, args):
     try:
         t = threading.Thread(target=target_func, args=args)
-        # t = Process(target=target_func, args=args)
-        # print(t.pid())
         t.start()
     except Exception as e:
         myLogger(traceback.format_exc())
