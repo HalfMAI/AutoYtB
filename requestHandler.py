@@ -52,16 +52,18 @@ class RequestHandler(BaseHTTPRequestHandler):
             rb = json.dumps(getQuestList_AddStarts())
         elif request_path.startswith('/kill_quest?'):
             rc = 200
-            tmp_rtmpLink = params.get('rtmpLink')
-            tmp_quest = _getObjWithRTMPLink(tmp_rtmpLink)
-            if tmp_quest != None:
-                try:
-                    os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
-                    rb = json.dumps({"code": 0, "msg": "操作成功"})
-                except Exception:
-                    rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
-            else:
-                rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
+            tmp_rtmpLink_list = params.get('rtmpLink', None)
+            if tmp_rtmpLink_list:
+                tmp_rtmpLink = tmp_rtmpLink_list[0]
+                tmp_quest = _getObjWithRTMPLink(tmp_rtmpLink)
+                if tmp_quest != None:
+                    try:
+                        os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
+                        rb = json.dumps({"code": 0, "msg": "操作成功"})
+                    except Exception:
+                        rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
+                else:
+                    rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
         elif request_path.startswith('/live_restream?'):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
@@ -71,9 +73,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 isForwardLinkFormateOK = True
 
                 if 'rtmp://' in tmp_rtmpLink:
-                    if 'send.acg.tv/' in tmp_rtmpLink:
-                        tmp_rtmpLink = tmp_rtmpLink + "&key=" + params.get('key', [''])[0]
-
                     if 'twitcasting.tv/' in tmp_forwardLink:
                         #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
                         tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]

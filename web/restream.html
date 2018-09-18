@@ -31,7 +31,7 @@
         _disableAllBtn();
         var tmp_forwardLink = document.getElementById("forwardLink").value;
         var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
-        var tmp_requestURL = "../live_restream?forwardLink=" + tmp_forwardLink + "&restreamRtmpLink=" + tmp_restreamRtmpLink;
+        var tmp_requestURL = "../live_restream?forwardLink=" + encodeURIComponent(tmp_forwardLink) + "&restreamRtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
           tmp_responseMessageElement.innerHTML = "";
@@ -58,7 +58,7 @@
         _disableAllBtn();
         var tmp_sercert = prompt("请输入需要关闭的RTMP流", "rtmp://XXXXXXXXXXXXX");
         var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
-        var tmp_requestURL = "../kill_quest?rtmpLink=" + tmp_restreamRtmpLink;
+        var tmp_requestURL = "../kill_quest?rtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
           tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
