@@ -58,7 +58,7 @@
         _disableAllBtn();
         var tmp_sercert = prompt("请输入服务器sercert", "XXXXXXXXXXXXX");
         var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
-        var tmp_requestURL = "../kill_quest?" + tmp_restreamRtmpLink + '&sercert=' + tmp_sercert;
+        var tmp_requestURL = "../kill_quest?rtmpLink=" + tmp_restreamRtmpLink + '&sercert=' + tmp_sercert;
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
           tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
