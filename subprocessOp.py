@@ -57,7 +57,7 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     out, err, errcode = None, None, None
     tmp_retryTime = 0
     tmp_cmdStartTime = time.time()
-    while tmp_retryTime <= 30:  # must be <=
+    while tmp_retryTime <= 10:  # must be <=
         out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
         # maybe can ignore the error if ran after 2min?
         if time.time() - tmp_cmdStartTime < 120:
@@ -65,7 +65,7 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
         else:
             tmp_retryTime = 0      # let every Connect success reset the retrytime
         tmp_cmdStartTime = time.time()  #import should not miss it.
-        time.sleep(3)   #rtmp buffer can hold 3 secounds or less
+        time.sleep(6)   #rtmp buffer can hold 3 secounds or less
         utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
         utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
     return out, err, errcode

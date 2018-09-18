@@ -61,7 +61,7 @@ def getQuestListStr():
     tmp_quest_list = getQuestList_AddStarts()
     for quest in tmp_quest_list:
         ret += '---------Quest Start------------\n'
-        for k,v in quest.quests():
+        for k,v in quest.items():
             ret += '{}: {}\n'.format(k, v)
         ret += '---------Quest End--------------\n'
     return ret
