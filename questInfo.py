@@ -24,12 +24,13 @@ def checkIfInQuest(rtmpLink):
     else:
         return False
 
-def addQuest(forwardLinkOrign, rtmpLink):
+def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
     forwardLinkOrign = str(forwardLinkOrign)
     rtmpLink = str(rtmpLink)
     questDict = {
         'forwardLinkOrign': forwardLinkOrign,
-        'rtmpLink': rtmpLink
+        'rtmpLink': rtmpLink,
+        'isSubscribeQuest': isSubscribeQuest
     }
     utitls.myLogger('AddQuest LOG:\n AddQuest QUEST:%s' % questDict)
     tmp_quest_list = _getQuestList()
@@ -37,45 +38,38 @@ def addQuest(forwardLinkOrign, rtmpLink):
     _saveQuestList(tmp_quest_list)
 
 def removeQuest(rtmpLink):
-    item = _getObjWithRTMPLink(rtmpLink)
-    if item:
-        utitls.myLogger('RemoveQuest LOG:\n Removed QUEST:%s' % item)
+    quest = _getObjWithRTMPLink(rtmpLink)
+    if quest:
+        utitls.myLogger('RemoveQuest LOG:\n Removed QUEST:%s' % quest)
         tmp_quest_list = _getQuestList()
-        print(tmp_quest_list, item)
-        tmp_quest_list.remove(item)
+        tmp_quest_list.remove(quest)
         _saveQuestList(tmp_quest_list)
 
 def _getObjWithRTMPLink(rtmpLink):
     tmp_quest_list = _getQuestList()
     ret = None
-    for item in tmp_quest_list:
-        if item.get('rtmpLink') == rtmpLink:
-            ret = item
+    for quest in tmp_quest_list:
+        if quest.get('rtmpLink') == rtmpLink:
+            ret = quest
             break
     return ret
 
 
 def getQuestListStr():
     ret = ''
-    tmp_quest_list = _getQuestList()
-    for item in tmp_quest_list:
-        try:
-            tmp_rtmpLink = item.get('rtmpLink', "")[-5:]
-        except IndexError:
-            tmp_rtmpLink = "XXXXXXXXX"
-        ret += '--------\nforwardLinkOrign:{}\n--------rtmpLink:{};\n\n'.format(
-            item.get('forwardLinkOrign', ""),
-            'rtmp://*****' + tmp_rtmpLink
-        )
+    tmp_quest_list = getQuestList_AddStarts()
+    for quest in tmp_quest_list:
+        ret += '---------Quest Start------------\n'
+        for k,v in quest.quests():
+            ret += '{}: {}\n'.format(k, v)
+        ret += '---------Quest End--------------\n'
     return ret
 
 def getQuestList_AddStarts():
     ret = []
     tmp_quest_list = _getQuestList()
-    for item in tmp_quest_list:
-        questDict = {
-            'forwardLinkOrign': item.get('forwardLinkOrign', ""),
-            'rtmpLink': ('rtmp://*****' + item.get('rtmpLink', "")[-5:])
-        }
+    for quest in tmp_quest_list:
+        questDict = quest
+        questDict['rtmpLink'] = 'rtmp://********************' + quest.get('rtmpLink', "")[-8:]
         ret.append(questDict)
     return ret

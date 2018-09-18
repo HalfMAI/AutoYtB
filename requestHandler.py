@@ -76,7 +76,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     if isForwardLinkFormateOK:
                         if checkIfInQuest(tmp_rtmpLink) == False:
                             #try to restream
-                            async_forwardStream(tmp_forwardLink, tmp_rtmpLink)
+                            async_forwardStream(tmp_forwardLink, tmp_rtmpLink, False)
                             rb = json.dumps({"code": -1, "msg": "请求成功，请查看任务状态看是否添加成功，不成功的话请再次请求任务。\
                             \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n当前任务：{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                         else:

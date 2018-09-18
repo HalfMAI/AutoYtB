@@ -18,7 +18,7 @@ def startWebServer():
 
 
 def Async_subscribeTheList(isSubscribe):
-    utitls.runFuncAsyncProcess(subscribeTheList_sync, (isSubscribe,))
+    utitls.runFuncAsyncThread(subscribeTheList_sync, (isSubscribe,))
 def subscribeTheList_sync(isSubscribe):
     subscribeList = utitls.configJson().get('subscribeList')
     ip = utitls.configJson().get('serverIP')
@@ -27,7 +27,7 @@ def subscribeTheList_sync(isSubscribe):
         if tmp_subscribeId != "":
             tmp_callback_url = 'http://' + ip + '/subscribe'
             if isSubscribe:
-                time.sleep(1)   #wait the server starting upfname
+                time.sleep(1)   #wait the server starting prepare
                 subscribe(tmp_callback_url, tmp_subscribeId)
             else:
                 unsubscribe(tmp_callback_url, tmp_subscribeId)

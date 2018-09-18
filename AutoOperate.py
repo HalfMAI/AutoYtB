@@ -1,11 +1,10 @@
 from bilibiliProxy import BilibiliProxy
 from subprocessOp import _forwardStream_sync, _getYotube_m3u8_sync
 import utitls
+import time
 
 def bilibiliStartLive(channelId, room_title, area_id=None):
     curSub = utitls.getSubInfoWithSubChannelId(channelId)
-    print(channelId, room_title, area_id)
-    print(curSub)
     curBiliAccCookie = curSub['bilibili_cookiesStr']
 
     tmp_area_id = area_id
@@ -14,18 +13,32 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
 
     b = BilibiliProxy(curBiliAccCookie)
     t_room_id = b.getLiveRoomId()
-    b.stopLive(t_room_id)   #stop first maybe useful?
+    # b.stopLive(t_room_id)   #Just don't care the Live status, JUST STARTLIVE
 
     b.updateRoomTitle(t_room_id, room_title)
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
     return b, t_room_id, rtmp_link
 
 
-def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id=None):
-    utitls.runFuncAsyncProcess(_forwardToBilibili_Sync, (channelId, link, room_title, area_id))
-def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None):
-    _,_, errcode = _getYotube_m3u8_sync(link)
-    if errcode == 0:
+def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id=None, isSubscribeQuest=True):
+    utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (channelId, link, room_title, area_id, isSubscribeQuest))
+def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscribeQuest=True):
+    resloveURLOK = False
+    tmp_retryTime = 6
+    while tmp_retryTime > 0:
+        if 'youtube.com/' in link or 'youtu.be/' in link:
+            m3u8Link, err, errcode = _getYotube_m3u8_sync(link)
+            if errcode == 0:
+                link = m3u8Link
+                resloveURLOK = True
+                break
+            else:
+                tmp_retryTime -= 1
+                time.sleep(10)
+        else:
+            utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
+            return
+
+    if resloveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
-        _forwardStream_sync(link, rtmp_link)
-        b.stopLive(t_room_id)
+        _forwardStream_sync(link, rtmp_link, isSubscribeQuest)

@@ -1,18 +1,21 @@
 import subprocess
 import time
+import traceback
 
 import utitls
 import questInfo
 
 def __runCMDSync(cmd):
-     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-     # !!!!!!!!!!!!!!p.pid
-     # for line in p.stdout:
-     #     utitls.myLogger(line)
-     out, err = p.communicate()
-     errcode = p.returncode
-     utitls.myLogger("\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(cmd, out, err, errcode))
-     return out, err, errcode
+    try:
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        utitls.myLogger("__runCMDSyncWithCMD:{}\nWithPID：{}".format(cmd, p.pid))
+        out, err = p.communicate()
+        errcode = p.returncode
+        utitls.myLogger("\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(cmd, out, err, errcode))
+    except Exception as e:
+        out, err, errcode = None, e, -1
+        utitls.myLogger(traceback.format_exc())
+    return out, err, errcode
 
 
 def _getYotube_m3u8_sync(youtubeLink):
@@ -24,13 +27,14 @@ def _getYotube_m3u8_sync(youtubeLink):
         utitls.myLogger("_getYotube_m3u8_sync ERROR:%s" % out)
     return out, err, errcode
 
-def async_forwardStream(link, outputRTMP):
-    utitls.runFuncAsyncProcess(_forwardStream_sync, (link, outputRTMP))
-def _forwardStream_sync(link, outputRTMP):
-    if questInfo.checkIfInQuest(outputRTMP):
+
+def async_forwardStream(link, outputRTMP, isSubscribeQuest):
+    utitls.runFuncAsyncThread(_forwardStream_sync, (link, outputRTMP, isSubscribeQuest))
+def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
+    if questInfo.checkIfInQuest(outputRTMP, isSubscribeQuest):
         utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n link:%s, \n rtmpLink:%s" % (link, outputRTMP))
         return
-    questInfo.addQuest(link, outputRTMP)
+    questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://') == False:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
