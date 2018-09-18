@@ -32,6 +32,7 @@ def updateQuestWithPID(pid, rtmpLink):
         if quest.get('rtmpLink') == rtmpLink:
             quest['pid'] = pid
             break
+    _saveQuestList(tmp_quest_list)
 
 
 def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):

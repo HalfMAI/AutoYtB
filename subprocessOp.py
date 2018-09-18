@@ -9,7 +9,7 @@ def __runCMDSync(cmd):
     try:
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         try:
-            rtmpLink = cmd.split(' ')[-1]
+            rtmpLink = cmd.split(' ')[-1].strip('"')
             if rtmpLink.startswith('rtmp://'):
                 questInfo.updateQuestWithPID(p.pid, rtmpLink)
         except Exception: pass
@@ -50,7 +50,7 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
             _forwardStreamCMD_sync(link, outputRTMP)
         else:
             utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
-    else:        
+    else:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
 
     questInfo.removeQuest(outputRTMP)

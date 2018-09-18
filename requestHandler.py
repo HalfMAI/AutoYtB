@@ -61,6 +61,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
                         rb = json.dumps({"code": 0, "msg": "操作成功"})
                     except Exception:
+                        myLogger(traceback.format_exc())
                         rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
                 else:
                     rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
