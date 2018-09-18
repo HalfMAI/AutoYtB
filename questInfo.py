@@ -18,7 +18,8 @@ def _saveQuestList(questList):
         json.dump(tmp_dict, wf, indent=4, sort_keys=True)
 
 
-def checkIfInQuest(rtmpLink):
+def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
+    #TODO do something with isSubscribeQuest?
     if _getObjWithRTMPLink(rtmpLink):
         return True
     else:
