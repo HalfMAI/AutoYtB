@@ -7,6 +7,14 @@
     </style>
 
     <script type='text/javascript'>
+      function _disableAllBtn() {
+          document.getElementById("requestReStreamBtn").disabled = true;
+          document.getElementById("requestQuestListBtn").disabled = true;
+          document.getElementById("requestKillPidBtn").disabled = true;
+          setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
+          setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
+          setTimeout(function(){document.getElementById("requestKillPidBtn").disabled = false;}, 5000);
+      }
       function _requestWithURL(url, res) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
@@ -20,11 +28,7 @@
       }
 
       function requestReStream() {
-        document.getElementById("requestReStreamBtn").disabled = true;
-        document.getElementById("requestQuestListBtn").disabled = true;
-        setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
-        setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
-
+        _disableAllBtn();
         var tmp_forwardLink = document.getElementById("forwardLink").value;
         var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
         var tmp_requestURL = "../live_restream?forwardLink=" + tmp_forwardLink + "&restreamRtmpLink=" + tmp_restreamRtmpLink;
@@ -36,10 +40,7 @@
         })
       }
       function requestQuestList() {
-        document.getElementById("requestReStreamBtn").disabled = true;
-        document.getElementById("requestQuestListBtn").disabled = true;
-        setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
-        setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
+        _disableAllBtn();
         var tmp_requestURL = "../questlist";
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
@@ -51,6 +52,16 @@
             tmp_retStr += "isSubscribeQuest: " + item['isSubscribeQuest'] + "\n";
           });
           tmp_responseMessageElement.innerHTML = tmp_retStr;
+        })
+      }
+      function requestKillPid() {
+        _disableAllBtn();
+        var tmp_sercert = prompt("请输入服务器sercert", "XXXXXXXXXXXXX");
+        var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
+        var tmp_requestURL = "../kill_quest?" + tmp_restreamRtmpLink + '&sercert=' + tmp_sercert;
+        _requestWithURL(tmp_requestURL, function(res_json){
+          var tmp_responseMessageElement = document.getElementById("responseMessage");
+          tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
         })
       }
     </script>
@@ -79,6 +90,7 @@
   <label >推流目标地址:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
   <button id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
   <button id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
+  <button id="requestKillPidBtn" onclick="requestKillPid()">强行关闭任务</button>
 
   <p id="responseMessage"><p/>
 </html>

@@ -25,6 +25,15 @@ def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
     else:
         return False
 
+
+def updateQuestWithPID(pid, rtmpLink):
+    tmp_quest_list = _getQuestList()
+    for quest in tmp_quest_list:
+        if quest.get('rtmpLink') == rtmpLink:
+            quest['pid'] = pid
+            break
+
+
 def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
     forwardLinkOrign = str(forwardLinkOrign)
     rtmpLink = str(rtmpLink)

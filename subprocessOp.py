@@ -8,7 +8,11 @@ import questInfo
 def __runCMDSync(cmd):
     try:
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        utitls.myLogger("__runCMDSyncWithCMD:{}\nWithPID：{}".format(cmd, p.pid))
+        try:
+            rtmpLink = cmd.split(' ')[-1]
+            if rtmpLink.startswith('rtmp://'):
+                questInfo.updateQuestWithPID(p.pid, rtmpLink)
+        except Exception: pass
         out, err = p.communicate()
         errcode = p.returncode
         utitls.myLogger("\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(cmd, out, err, errcode))

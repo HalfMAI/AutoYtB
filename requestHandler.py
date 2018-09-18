@@ -4,13 +4,14 @@ import xml.etree.ElementTree as ET
 import traceback
 import json
 import os
+import signal
 from mimetypes import types_map
 
 from utitls import verifySecert, myLogger, configJson
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts
+from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, _getObjWithRTMPLink
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -49,6 +50,19 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif request_path.startswith('/questlist'):
             rc = 200
             rb = json.dumps(getQuestList_AddStarts())
+        elif request_path.startswith('/kill_quest?'):
+            tmp_rtmpLink = params.get('rtmpLink')
+            pid = _getObjWithRTMPLink(tmp_rtmpLink).get('pid', None)
+            sercert = params.get('sercert')
+            rc = 200
+            if sercert == configJson().get('subSecert'):
+                if pid:
+                    os.kill(pid, signal.SIGKILL)
+                    rb = {"code": 0, "msg": "操作成功"}
+                else:
+                    rb = {"code": -2, "msg": "错误PID，操作失败!!"}
+            else:
+                rb = {"code": -1, "msg": "secert 错误，操作失败!!"}
         elif request_path.startswith('/live_restream?'):
             forwardLink_list = params.get('forwardLink', None)
             restreamRtmpLink_list = params.get('restreamRtmpLink', None)
