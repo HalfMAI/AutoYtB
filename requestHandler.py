@@ -51,16 +51,19 @@ class RequestHandler(BaseHTTPRequestHandler):
             rc = 200
             rb = json.dumps(getQuestList_AddStarts())
         elif request_path.startswith('/kill_quest?'):
-            tmp_rtmpLink = params.get('rtmpLink')
-            pid = _getObjWithRTMPLink(tmp_rtmpLink).get('pid', None)
-            sercert = params.get('sercert')
             rc = 200
+            tmp_rtmpLink = params.get('rtmpLink')
+            sercert = params.get('sercert')
             if sercert == configJson().get('subSecert'):
-                if pid:
-                    os.kill(pid, signal.SIGKILL)
-                    rb = {"code": 0, "msg": "操作成功"}
+                tmp_quest = _getObjWithRTMPLink(tmp_rtmpLink)
+                if tmp_quest != None:
+                    try:
+                        os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
+                        rb = {"code": 0, "msg": "操作成功"}
+                    except Exception:
+                        rb = {"code": -2, "msg": "错误PID，操作失败!!"}
                 else:
-                    rb = {"code": -2, "msg": "错误PID，操作失败!!"}
+                    rb = {"code": -3, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)}
             else:
                 rb = {"code": -1, "msg": "secert 错误，操作失败!!"}
         elif request_path.startswith('/live_restream?'):
