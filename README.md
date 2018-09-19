@@ -35,13 +35,13 @@ make altinstall
 
 youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
-pip install youtube-dl
+pip3.7 install youtube-dl
 ```
 
 ### 代码依赖库
 如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
-pip install requests
+pip3.7 install requests
 ```
 
 
