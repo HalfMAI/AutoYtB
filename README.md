@@ -3,6 +3,12 @@
 
 感谢autolive的参考 : https://github.com/7rikka/autoLive
 
+## 一键安装，适合完全新手，而且服务器也没有别的其它设置的
+```
+wget https://raw.githubusercontent.com/HalfMAI/AutoYtB/master/newInstall.sh && chmod +x newInstall.sh && bash newInstall.sh
+```
+如果服务器有别的设置的话建议参考下列各个软件进行选择性安装
+
 ## 软件依赖和环境安装
 #### youtube-dl, ffmpeg, python3
 
