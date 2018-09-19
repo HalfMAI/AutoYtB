@@ -23,7 +23,7 @@ def __runCMDSync(cmd):
 
 
 def _getYotube_m3u8_sync(youtubeLink):
-    out, err, errcode = __runCMDSync('youtube-dl -g {} --no-check-certificate'.format(youtubeLink))
+    out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -g {}'.format(youtubeLink))
     out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
     out = out.strip('\n').strip()
     if not out.endswith('.m3u8'):

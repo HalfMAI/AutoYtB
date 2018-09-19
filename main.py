@@ -1,18 +1,24 @@
 from http.server import HTTPServer
+from socketserver import ThreadingMixIn
 from requestHandler import RequestHandler
 from myRequests import subscribe, unsubscribe
 import utitls
 import time
-import sys
+# import sys
 import traceback
 import questInfo
+
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+    pass
 
 def startWebServer():
     # ip = utitls.configJson().get('serverIP')
     port = utitls.configJson().get('serverPort')
-    server = HTTPServer(('', int(port)), RequestHandler)
+    server = ThreadedHTTPServer(('', int(port)), RequestHandler)
     utitls.myLogger('WebServerStarted, Listening on localhost:%s' % port)
-    sys.stderr = open('logfile.txt', 'a+', 1)
+    # sys.stderr = open('logfile.txt', 'a+', 1)
     server.serve_forever()
     return server.shutdown()
 
