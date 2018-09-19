@@ -62,7 +62,8 @@ def _getObjWithRTMPLink(rtmpLink):
     tmp_quest_list = _getQuestList()
     ret = None
     for quest in tmp_quest_list:
-        if quest.get('rtmpLink') == rtmpLink:
+        # just check the key. Bilibili's rtmp will be different if rtmp link is got from startlive api
+        if quest.get('rtmpLink').split('/')[-1] == rtmpLink.split('/')[-1]:
             ret = quest
             break
     return ret
