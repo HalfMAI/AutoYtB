@@ -6,23 +6,24 @@
 ## 软件依赖和环境安装
 #### youtube-dl, ffmpeg, python3
 
-youtube-dl安装
-```
-pip install youtube-dl
-```
-
 ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr centos7的安装方法
 ```
 sudo yum install epel-release -y
 sudo yum update -y
-sudo yum install gcc openssl-devel bzip2-devel libffi libffi-devel
+sudo yum -y install gcc openssl-devel bzip2-devel libffi libffi-devel
 shutdown -r now
 
 sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
 sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
 sudo yum -y install ffmpeg
 ```
+
 python3安装,这里安装的是3.7独立安装，运行时调用的是python3.7而不是python3。
+如果系统没有 wget 请先运行
+```
+yum install -y wget
+```
+然后再运行下面的
 ```
 cd /usr/src
 wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
@@ -32,25 +33,30 @@ cd Python-3.7.0
 make altinstall
 ```
 
-### 代码依赖库
+youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
-pip install requests
+pip3.7 install youtube-dl
+```
+
+### 代码依赖库
+如果系统没有pip，请在安装python3.7后再更改为pip3.7
+```
+pip3.7 install requests
+```
+
+
+### 开启防火墙,这里打开的是80端口，需要根据对应配置的端口来设置
+```
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
 ```
 
 ### 如何把当前代码传到服务器上
-这里是使用github的方法clone到服务器上面，所以服务器需要先安装git
-git的安装
 ```
-yum install git-all
-```
-安装后运行以下代码则会下载源代码到当前目录，运行源在AutoYtB目录里
-```
-git clone https://github.com/HalfMAI/AutoYtB.git
-```
-### 如何更新代码
-进行到AutoYtB目录里面，运行以下代码
-```
-git pull
+cd ~
+wget https://github.com/HalfMAI/AutoYtB/archive/master.zip
+unzip master.zip
+cd AutoYtB-master/
 ```
 
 # 运行前的配置
@@ -92,9 +98,8 @@ nohup python3.7 -u main.py > logfile.txt &
 访问地址：http://{服务器IP或域名}/web/restream.html
 
 ### TODO LIST
-- [ ] 手动关闭某个流的任务？但没有办法拿到对应的subproccessPID，有什么好方法呢？
-- [ ] 环境自动安装脚本
-- [ ] 添加手动下播功能？需要使用sercert来做检验是否管理员？
+- [X] 环境自动安装脚本
+- [X] 添加手动下播功能，只需要对应rtmp就可以了
 - [ ] 订阅列表添加到config.json的可视化界面和接口吧
 - [ ] twitcast 支持？
 - [ ] openREC 支持？
