@@ -10,7 +10,7 @@ ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr cent
 ```
 sudo yum install epel-release -y
 sudo yum update -y
-sudo yum install gcc openssl-devel bzip2-devel libffi libffi-devel
+sudo yum -y install gcc openssl-devel bzip2-devel libffi libffi-devel
 shutdown -r now
 
 sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
@@ -21,7 +21,7 @@ sudo yum -y install ffmpeg
 python3安装,这里安装的是3.7独立安装，运行时调用的是python3.7而不是python3。
 如果系统没有 wget 请先运行
 ```
-yum install wget
+yum install -y wget
 ```
 然后再运行下面的
 ```
@@ -55,7 +55,7 @@ firewall-cmd --reload
 这里是使用github的方法clone到服务器上面，所以服务器需要先安装git
 git的安装
 ```
-yum install git-all
+yum -y install git-all
 ```
 安装后运行以下代码则会下载源代码到当前目录，运行源在AutoYtB目录里
 ```
