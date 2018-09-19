@@ -46,6 +46,7 @@ def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
     utitls.myLogger('AddQuest LOG:\n AddQuest QUEST:%s' % questDict)
     tmp_quest_list = _getQuestList()
     tmp_quest_list.append(questDict)
+    utitls.myLogger('Current Quest List:\n,{}'.format(tmp_quest_list))
     _saveQuestList(tmp_quest_list)
 
 def removeQuest(rtmpLink):
@@ -54,6 +55,7 @@ def removeQuest(rtmpLink):
         utitls.myLogger('RemoveQuest LOG:\n Removed QUEST:%s' % quest)
         tmp_quest_list = _getQuestList()
         tmp_quest_list.remove(quest)
+        utitls.myLogger('Current Quest List:\n,{}'.format(tmp_quest_list))
         _saveQuestList(tmp_quest_list)
 
 def _getObjWithRTMPLink(rtmpLink):

@@ -8,14 +8,16 @@ import questInfo
 def __runCMDSync(cmd):
     try:
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        pid = p.pid
+        utitls.myLogger("CMD RUN END with PID:{}\nCMD: {}".format(pid, cmd))
         try:
             rtmpLink = cmd.split(' ')[-1].strip('"')
             if rtmpLink.startswith('rtmp://'):
-                questInfo.updateQuestWithPID(p.pid, rtmpLink)
+                questInfo.updateQuestWithPID(pid, rtmpLink)
         except Exception: pass
         out, err = p.communicate()
         errcode = p.returncode
-        utitls.myLogger("\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(cmd, out, err, errcode))
+        utitls.myLogger("CMD RUN END with PID:{}\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(pid, cmd, out, err, errcode))
     except Exception as e:
         out, err, errcode = None, e, -1
         utitls.myLogger(traceback.format_exc())
@@ -62,6 +64,9 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     tmp_cmdStartTime = time.time()
     while tmp_retryTime <= 10:  # must be <=
         out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
+        if errcode == -9:
+            utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
+            break;
         # maybe can ignore the error if ran after 2min?
         if time.time() - tmp_cmdStartTime < 120:
             tmp_retryTime += 1      # make it can exit

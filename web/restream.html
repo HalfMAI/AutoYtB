@@ -56,8 +56,7 @@
       }
       function requestKillQuest() {
         _disableAllBtn();
-        var tmp_sercert = prompt("请输入需要关闭的RTMP流", "rtmp://XXXXXXXXXXXXX");
-        var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
+        var tmp_restreamRtmpLink = prompt("请输入需要关闭的RTMP流", "rtmp://XXXXXXXXXXXXX");
         var tmp_requestURL = "../kill_quest?rtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
         _requestWithURL(tmp_requestURL, function(res_json){
           var tmp_responseMessageElement = document.getElementById("responseMessage");
