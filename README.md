@@ -6,11 +6,6 @@
 ## 软件依赖和环境安装
 #### youtube-dl, ffmpeg, python3
 
-youtube-dl安装
-```
-pip install youtube-dl
-```
-
 ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr centos7的安装方法
 ```
 sudo yum install epel-release -y
@@ -22,7 +17,13 @@ sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
 sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
 sudo yum -y install ffmpeg
 ```
+
 python3安装,这里安装的是3.7独立安装，运行时调用的是python3.7而不是python3。
+如果系统没有 wget 请先运行
+```
+yum install wget
+```
+然后再运行下面的
 ```
 cd /usr/src
 wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
@@ -32,13 +33,19 @@ cd Python-3.7.0
 make altinstall
 ```
 
+youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为pip3.7
+```
+pip install youtube-dl
+```
+
 ### 代码依赖库
+如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
 pip install requests
 ```
 
 
-### 开户防火墙,这里打开的是80端口，需要根据对应配置的端口来设置
+### 开启防火墙,这里打开的是80端口，需要根据对应配置的端口来设置
 ```
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --reload
