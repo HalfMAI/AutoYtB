@@ -37,6 +37,13 @@ make altinstall
 pip install requests
 ```
 
+
+### 开户防火墙,这里打开的是80端口，需要根据对应配置的端口来设置
+```
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
+```
+
 ### 如何把当前代码传到服务器上
 这里是使用github的方法clone到服务器上面，所以服务器需要先安装git
 git的安装
