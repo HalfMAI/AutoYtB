@@ -9,7 +9,7 @@ def __runCMDSync(cmd):
     try:
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         pid = p.pid
-        utitls.myLogger("CMD RUN END with PID:{}\nCMD: {}".format(pid, cmd))
+        utitls.myLogger("CMD RUN START with PID:{}\nCMD: {}".format(pid, cmd))
         try:
             rtmpLink = cmd.split(' ')[-1].strip('"')
             if rtmpLink.startswith('rtmp://'):
@@ -66,14 +66,14 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
         out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
         if errcode == -9:
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
-            break;
+            break
         # maybe can ignore the error if ran after 2min?
         if time.time() - tmp_cmdStartTime < 120:
             tmp_retryTime += 1      # make it can exit
         else:
             tmp_retryTime = 0      # let every Connect success reset the retrytime
         tmp_cmdStartTime = time.time()  #import should not miss it.
-        time.sleep(6)   #rtmp buffer can hold 3 secounds or less
+        time.sleep(10)   #rtmp buffer can hold 3 secounds or less
         utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
         utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
     return out, err, errcode

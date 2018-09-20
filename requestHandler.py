@@ -154,10 +154,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                         myLogger("%s, %s, %s, %s, %s, %s " % (
                                     tmp_entry_title, tmp_entry_videoId, tmp_entry_channelId, tmp_entry_link, tmp_entry_publishedTime, tmp_entry_updatedTime)
                                 )
-
-                        if checkIfInQuest(tmp_entry_link) == False:
-                            #try to restream
-                            Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, configJson().get('area_id'))
+                        #try to restream
+                        Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, configJson().get('area_id'))
                     except Exception:
                         myLogger(traceback.format_exc())
                         self.send_response(rc)

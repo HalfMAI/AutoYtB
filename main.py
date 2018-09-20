@@ -58,4 +58,5 @@ if __name__ == "__main__":
             utitls.myLogger('RESTART WERSERVER')
             time.sleep(5)
     except KeyboardInterrupt:
+        # subscribeTheList_sync(False)
         utitls.myLogger('Running END-------------------------\n')
