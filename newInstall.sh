@@ -20,6 +20,11 @@ pip3.7 install --upgrade pip
 pip3.7 install youtube-dl
 pip3.7 install requests
 
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
+
 cd ~
 wget https://github.com/HalfMAI/AutoYtB/archive/master.zip
 unzip master.zip
+
+shutdown -r now
