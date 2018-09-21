@@ -28,10 +28,12 @@ def Async_subscribeTheList(isSubscribe):
 def subscribeTheList_sync(isSubscribe):
     subscribeList = utitls.configJson().get('subscribeList')
     ip = utitls.configJson().get('serverIP')
+    port = utitls.configJson().get('serverPort')
     for item in subscribeList:
         tmp_subscribeId = item.get('youtubeChannelId', "")
         if tmp_subscribeId != "":
-            tmp_callback_url = 'http://' + ip + '/subscribe'
+            port = '' if port == '80' else ':' + port
+            tmp_callback_url = 'http://' + ip + port + '/subscribe'
             if isSubscribe:
                 time.sleep(1)   #wait the server starting prepare
                 subscribe(tmp_callback_url, tmp_subscribeId)
