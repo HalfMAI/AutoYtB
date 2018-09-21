@@ -29,7 +29,7 @@ def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
 def updateQuestWithPID(pid, rtmpLink):
     tmp_quest_list = _getQuestList()
     for quest in tmp_quest_list:
-        if quest.get('rtmpLink') == rtmpLink:
+        if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
             quest['pid'] = pid
             break
     _saveQuestList(tmp_quest_list)
@@ -63,7 +63,7 @@ def _getObjWithRTMPLink(rtmpLink):
     ret = None
     for quest in tmp_quest_list:
         # just check the key. Bilibili's rtmp will be different if rtmp link is got from startlive api
-        if quest.get('rtmpLink').split('/')[-1] == rtmpLink.split('/')[-1]:
+        if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
             ret = quest
             break
     return ret

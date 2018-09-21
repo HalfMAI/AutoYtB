@@ -46,12 +46,13 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
 
     if resloveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
-        tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
-        if tmp_quest != None:
-            try:
-                os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
-            except Exception:
-                utitls.myLogger(traceback.format_exc())
-            questInfo.removeQuest(rtmp_link)
-        # force stream
-        _forwardStream_sync(link, rtmp_link, isSubscribeQuest)
+        if rtmp_link:
+            tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
+            if tmp_quest != None:
+                try:
+                    os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
+                except Exception:
+                    utitls.myLogger(traceback.format_exc())
+                questInfo.removeQuest(rtmp_link)
+            # force stream
+            _forwardStream_sync(link, rtmp_link, isSubscribeQuest)

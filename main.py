@@ -35,7 +35,7 @@ def subscribeTheList_sync(isSubscribe):
             port = '' if port == '80' else ':' + port
             tmp_callback_url = 'http://' + ip + port + '/subscribe'
             if isSubscribe:
-                time.sleep(1)   #wait the server starting prepare
+                time.sleep(1)   #wait the server start preparing
                 subscribe(tmp_callback_url, tmp_subscribeId)
             else:
                 unsubscribe(tmp_callback_url, tmp_subscribeId)
