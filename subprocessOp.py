@@ -57,13 +57,14 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
 
     questInfo.removeQuest(outputRTMP)
 
+# https://judge2020.com/restreaming-a-m3u8-hls-stream-to-youtube-using-ffmpeg/
 def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
     out, err, errcode = None, None, None
     tmp_retryTime = 0
     tmp_cmdStartTime = time.time()
     while tmp_retryTime <= 10:  # must be <=
-        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -f flv "{}"'.format(inputM3U8, outputRTMP))
+        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header -f flv "{}"'.format(inputM3U8, outputRTMP))
         if errcode == -9:
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
             break
