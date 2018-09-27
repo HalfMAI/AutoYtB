@@ -6,9 +6,13 @@ import datetime
 import traceback
 
 import threading
+from login import login
 
 K_CONFIG_JSON_PATH = 'config.json'
 k_LOG_PATH = 'mainLog.log'
+
+
+existed_cookies = {}
 
 def myLogger(logStr):
     resStr = str(datetime.datetime.now()) + " [MyLOGGER]  " + str(logStr)
@@ -45,6 +49,13 @@ def getSubInfoWithSubChannelId(channelId):
         if subscribe.get('youtubeChannelId') == channelId:
             ret = subscribe
             break
+    if ret['login_type'] == 'account':
+        if channelId in existed_cookies:
+            ret['bilibili_cookiesStr'] = existed_cookies[channelId]
+        else:
+            ret['bilibili_cookiesStr'] = login(ret['username'], ret['password'])
+            if ret['bilibili_cookiesStr'] != '':
+                existed_cookies[channelId] = ret['bilibili_cookiesStr']
     return ret
 
 
