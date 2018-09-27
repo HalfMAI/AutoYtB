@@ -7,7 +7,7 @@ import os
 import signal
 from mimetypes import types_map
 
-from utitls import verifySecert, myLogger, configJson
+import utitls
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
@@ -25,7 +25,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             if request_path.startswith('/web/'):
                 fname, ext = os.path.splitext(request_path)
-                if ext in (".html", ".css"):
+                if ext in (".html", ".css", ".js"):
                     tmp_filePath = os.path.join(os.getcwd())
                     for v in request_path.split('/'):
                         tmp_filePath = os.path.join(tmp_filePath, v)
@@ -37,7 +37,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         self.wfile.write(f.read().encode('utf-8'))
                 return
         except Exception:
-            myLogger(traceback.format_exc())
+            utitls.myLogger(traceback.format_exc())
             self.send_error(404)
             self.end_headers()
             return
@@ -50,6 +50,27 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif request_path.startswith('/questlist'):
             rc = 200
             rb = json.dumps(getQuestList_AddStarts())
+        elif request_path.startswith('/get_manual_json'):
+            rc = 200
+            rb = json.dumps(utitls.manualJson())
+        elif request_path.startswith('/addRestreamSrc'):
+            rc = 200
+            srcNote_list = params.get('srcNote', None)
+            srcLink_list = params.get('srcLink', None)
+            if srcNote_list and srcLink_list:
+                tmp_srcNote = srcNote_list[0].strip()
+                tmp_srcLink = srcLink_list[0].strip()
+                utitls.addManualSrc(tmp_srcNote, tmp_srcLink)
+            rb = json.dumps({"code": 0, "msg":"添加成功"})
+        elif request_path.startswith('/addRtmpDes'):
+            rc = 200
+            rtmpNote_list = params.get('rtmpNote', None)
+            rtmpLink_list = params.get('rtmpLink', None)
+            if rtmpNote_list and rtmpLink_list:
+                tmp_rtmpNote = rtmpNote_list[0].strip()
+                tmp_rtmpLink = rtmpLink_list[0].strip()
+                utitls.addManualDes(tmp_rtmpNote, tmp_rtmpLink)
+            rb = json.dumps({"code": 0, "msg":"添加成功"})
         elif request_path.startswith('/kill_quest?'):
             rc = 200
             tmp_rtmpLink_list = params.get('rtmpLink', None)
@@ -61,7 +82,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
                         rb = json.dumps({"code": 0, "msg": "操作成功"})
                     except Exception:
-                        myLogger(traceback.format_exc())
+                        utitls.myLogger(traceback.format_exc())
                         rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
                 else:
                     rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
@@ -90,10 +111,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                         if checkIfInQuest(tmp_rtmpLink) == False:
                             #try to restream
                             async_forwardStream(tmp_forwardLink, tmp_rtmpLink, False)
-                            rb = json.dumps({"code": -1, "msg": "请求成功，请查看任务状态看是否添加成功，不成功的话请再次请求任务。\
+                            rb = json.dumps({"code": 0, "msg": "请求成功。请等待大概30秒，网络不好时程序会自动重试30次。也可以查看任务状态看是否添加成功。\
                             \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n当前任务：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                         else:
-                            rb = json.dumps({"code": 0, "msg": "当前推流已经在任务中. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
+                            rb = json.dumps({"code": 1, "msg": "当前推流已经在任务中. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                     else:
                         rb = json.dumps({"code": -3, "msg": "来源地址格式错误, 请查看上面支持的格式"})
                 else:
@@ -113,24 +134,24 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         request_path = self.path
         rc = 404
-        myLogger("\n----- Request POST Start ----->\n")
-        myLogger(request_path)
+        utitls.myLogger("\n----- Request POST Start ----->\n")
+        utitls.myLogger(request_path)
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
 
-        myLogger(self.headers)
-        myLogger(post_data)
-        myLogger("<----- Request POST End -----\n")
+        utitls.myLogger(self.headers)
+        utitls.myLogger(post_data)
+        utitls.myLogger("<----- Request POST End -----\n")
 
         if '/subscribe' in request_path:
             # check the secert
             secert = self.headers.get('X-Hub-Signature', '').split('=')[1]
-            if verifySecert(secert, post_data):
+            if utitls.verifySecert(secert, post_data):
                 try:
                     tree = ET.ElementTree(ET.fromstring(post_data.decode()))
                 except Exception:
-                    myLogger(traceback.format_exc())
+                    utitls.myLogger(traceback.format_exc())
                     self.send_response(rc)
                     self.end_headers()
                     return
@@ -150,20 +171,20 @@ class RequestHandler(BaseHTTPRequestHandler):
                         tmp_entry_publishedTime = entry.find('dfns:published', ns).text
                         tmp_entry_updatedTime = entry.find('dfns:updated', ns).text
 
-                        myLogger("%s, %s" % (tmp_feedTitle, tmp_feedUpadatedTime))
-                        myLogger("%s, %s, %s, %s, %s, %s " % (
+                        utitls.myLogger("%s, %s" % (tmp_feedTitle, tmp_feedUpadatedTime))
+                        utitls.myLogger("%s, %s, %s, %s, %s, %s " % (
                                     tmp_entry_title, tmp_entry_videoId, tmp_entry_channelId, tmp_entry_link, tmp_entry_publishedTime, tmp_entry_updatedTime)
                                 )
                         #try to restream
-                        Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, configJson().get('area_id'))
+                        Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, utitls.configJson().get('area_id'))
                     except Exception:
-                        myLogger(traceback.format_exc())
+                        utitls.myLogger(traceback.format_exc())
                         self.send_response(rc)
                         self.end_headers()
                         return
                     rc = 204
             else:
-                myLogger("verifySecert Failed with:" + secert)
+                utitls.myLogger("verifySecert Failed with:" + secert)
             self.send_response(rc)
             self.end_headers()
         else:
