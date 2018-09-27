@@ -119,8 +119,8 @@ function onSelectDes() {
   var val = document.getElementById("SelectDes").value;
   var tb = document.getElementById("restreamRtmpLink");
   tb.value = val;
-  tb.setAttribute("onmousedown", 'return false;');
-  tb.setAttribute("onselectstart", 'return false;');
+  // tb.setAttribute("onmousedown", 'return false;');
+  // tb.setAttribute("onselectstart", 'return false;');
 }
 
 
