@@ -89,7 +89,7 @@ function addRestreamSrc(){
   var tmp_srcLink = prompt("请输入转播源的地址", tmp_dummy_02);
   if ((tmp_srcNote && tmp_srcLink) && (tmp_srcNote != tmp_dummy_01 && tmp_srcLink != tmp_dummy_02)){
     _disableAllBtn();
-    var tmp_requestURL = "../addRestreamSrc?srcNote=" + tmp_srcNote + "&srcLink=" + encodeURIComponent(tmp_srcLink);
+    var tmp_requestURL = "../addRestreamSrc?srcNote=" + encodeURIComponent(tmp_srcNote) + "&srcLink=" + encodeURIComponent(tmp_srcLink);
     _requestWithURL(tmp_requestURL, function(res_json){
       location.reload();
     });
@@ -103,7 +103,7 @@ function addRtmpDes(){
   var tmp_rtmpLink = prompt("请输入直播间的rtmp地址", tmp_dummy_02);
   if ((tmp_rtmpNote && tmp_rtmpLink) && (tmp_rtmpNote != tmp_dummy_01 && tmp_rtmpLink != tmp_dummy_02)){
     _disableAllBtn();
-    var tmp_requestURL = "../addRtmpDes?rtmpNote=" + tmp_rtmpNote + "&rtmpLink=" + encodeURIComponent(tmp_rtmpLink);
+    var tmp_requestURL = "../addRtmpDes?rtmpNote=" + encodeURIComponent(tmp_rtmpNote) + "&rtmpLink=" + encodeURIComponent(tmp_rtmpLink);
     _requestWithURL(tmp_requestURL, function(res_json){
       location.reload();
     });
