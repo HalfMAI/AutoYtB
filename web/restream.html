@@ -6,66 +6,7 @@
       p{ white-space: pre; }
     </style>
 
-    <script type='text/javascript'>
-      function _disableAllBtn() {
-          document.getElementById("requestReStreamBtn").disabled = true;
-          document.getElementById("requestQuestListBtn").disabled = true;
-          document.getElementById("requestKillQuestBtn").disabled = true;
-          setTimeout(function(){document.getElementById("requestReStreamBtn").disabled = false;}, 5000);
-          setTimeout(function(){document.getElementById("requestQuestListBtn").disabled = false;}, 5000);
-          setTimeout(function(){document.getElementById("requestKillQuestBtn").disabled = false;}, 5000);
-      }
-      function _requestWithURL(url, res) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            res_json = JSON.parse(this.responseText);
-            res(res_json);
-          }
-        };
-        xhttp.open("GET", url, true);
-        xhttp.send();
-      }
-
-      function requestReStream() {
-        _disableAllBtn();
-        var tmp_forwardLink = document.getElementById("forwardLink").value;
-        var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
-        var tmp_requestURL = "../live_restream?forwardLink=" + encodeURIComponent(tmp_forwardLink) + "&restreamRtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
-        _requestWithURL(tmp_requestURL, function(res_json){
-          var tmp_responseMessageElement = document.getElementById("responseMessage");
-          tmp_responseMessageElement.innerHTML = "";
-          tmp_responseMessageElement.innerHTML += "请求返回码（为0时说明当前任务已经添加成功）：" + res_json.code + '\n';
-          tmp_responseMessageElement.innerHTML += res_json.msg;
-        })
-      }
-      function requestQuestList() {
-        _disableAllBtn();
-        var tmp_requestURL = "../questlist";
-        _requestWithURL(tmp_requestURL, function(res_json){
-          var tmp_responseMessageElement = document.getElementById("responseMessage");
-          var tmp_retStr = "任务列表为：\n";
-          res_json.forEach(function(item){
-            tmp_retStr += "------------------\n";
-            tmp_retStr += "forwardLinkOrign：" + item['forwardLinkOrign'] + "\n";
-            tmp_retStr += "rtmpLink: " + item['rtmpLink'] + "\n";
-            tmp_retStr += "isSubscribeQuest: " + item['isSubscribeQuest'] + "\n";
-          });
-          tmp_responseMessageElement.innerHTML = tmp_retStr;
-        })
-      }
-      function requestKillQuest() {
-        _disableAllBtn();
-        var tmp_restreamRtmpLink = prompt("请输入需要关闭的RTMP流", "rtmp://XXXXXXXXXXXXX");
-        if (tmp_restreamRtmpLink){
-          var tmp_requestURL = "../kill_quest?rtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
-          _requestWithURL(tmp_requestURL, function(res_json){
-            var tmp_responseMessageElement = document.getElementById("responseMessage");
-            tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
-          });
-        }
-      }
-    </script>
+    <script type='text/javascript' src="./requests.js"></script>
 
     <title>手动转播</title>
   </head>
@@ -87,11 +28,21 @@
       B站的地址是两串合起来的，像youtube那些也是path+key,两串合起来
       rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX
   </p>
-  <label >转播源地址：</label> <input type="text" id="forwardLink" name="forwardLink" size="128"><br /><br />
-  <label >推流目标地址:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
+  <hr />
+  <button id="addRestreamSrcBtn" onclick="addRestreamSrc()">添加转播源</button>
+  <button id="addRtmpDesBtn" onclick="addRtmpDes()">添加目标推流地址</button>
+  <br /><br />
+  <label >转播源地址选择：</label> <select id="SelectSrc" onchange="onSelectSrc()"> <option value="" disabled selected>请选择转播源</option> <select/>
+  <label >推流目标地址选择：</label> <select id="SelectDes" onchange="onSelectDes()"> <option value="" disabled selected>请选择推流目标</option> <select/>
+
+
+  <hr />
+  <label >转播源地址自定义：</label> <input type="text" id="forwardLink" name="forwardLink" size="128"><br /><br />
+  <label >推流目标地址自定义:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
   <button id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
   <button id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
   <button id="requestKillQuestBtn" onclick="requestKillQuest()">关闭推流任务</button>
-
+  
+  <hr />
   <p id="responseMessage"><p/>
 </html>

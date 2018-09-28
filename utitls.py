@@ -8,6 +8,7 @@ import traceback
 import threading
 from login import login
 
+K_MANUAL_JSON_PATH = 'manualRestream.json'
 K_CONFIG_JSON_PATH = 'config.json'
 k_LOG_PATH = 'mainLog.log'
 
@@ -62,6 +63,35 @@ def getSubInfoWithSubChannelId(channelId):
 def saveConfigJson(config_dict):
     with open(K_CONFIG_JSON_PATH, 'w', encoding='utf-8') as wf:
         json.dump(config_dict, wf, indent=4, sort_keys=True)
+
+
+def addManualSrc(srcNote, srcLink):
+    tmp_dict = manualJson()
+    src_dict = tmp_dict.get('src_dict', {})
+    src_dict[srcNote] = srcLink
+    tmp_dict['src_dict'] = src_dict
+    saveManualJson(tmp_dict)
+
+def addManualDes(desNote, desLink):
+    tmp_dict = manualJson()
+    des_dict = tmp_dict.get('des_dict', {})
+    des_dict[desNote] = desLink
+    tmp_dict['des_dict'] = des_dict
+    saveManualJson(tmp_dict)
+
+
+def manualJson():
+    manualDict = {"src_dict":{}, "des_dict":{}}
+    try:
+        with open(K_MANUAL_JSON_PATH, 'r', encoding='utf-8') as f:
+            manualDict = json.loads(f.read())
+    except FileNotFoundError:
+        saveManualJson(manualDict)
+    return manualDict
+
+def saveManualJson(manualDict):
+    with open(K_MANUAL_JSON_PATH, 'w', encoding='utf-8') as wf:
+        json.dump(manualDict, wf, indent=4, sort_keys=True)
 
 
 def runFuncAsyncThread(target_func, args):

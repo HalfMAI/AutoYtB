@@ -1,5 +1,6 @@
 logfile.txt
 tmp_QuestList.json
+manualRestream.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
