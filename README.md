@@ -75,10 +75,14 @@ chmod +x chromedriver
 mv chromedriver /usr/bin/
 rm -f chromedriver_linux64.zip
 ```
+
 ### 代码依赖库
 如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
 pip3.7 install requests
+pip3.7 install numpy
+pip3.7 install selenium
+pip3.7 install Pillow
 ```
 
 
