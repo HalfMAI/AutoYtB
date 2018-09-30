@@ -100,7 +100,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
                         tmp_twitcasID = tmp_twitcasID.split('/')[0]
                         tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
-                    elif tmp_forwardLink.endswith('.m3u8')  \
+                    elif '.m3u8' in tmp_forwardLink \
                         or 'youtube.com/' in tmp_forwardLink or 'youtu.be/' in tmp_forwardLink:
                         tmp_forwardLink = tmp_forwardLink
                     else:
