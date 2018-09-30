@@ -114,7 +114,7 @@ cd AutoYtB-master/
             "login_type": "cookies",                    <-登录模式,目前支持cookies及account两种模式
             "bilibili_cookiesStr": "xxxxxxxxxxx",       <-cookies登录模式时必填,输入访问B站时的requestHeader的cookies
             "auto_send_dynamic": false,                 <-开播时是否自动发动态,注意如果你的账号以前没发过动态,先手动去发条动态同意一下协议
-            "dynamic_template": "转播开始了哦~",        <-开播动态内容
+            "dynamic_template": "转播开始了哦~☞${roomUrl}",    <-开播动态内容,变量以${paramName}的形式表示,目前支持的变量仅有roomUrl:直播间地址
             "forwardLink": "",                          <-还未有用
             "bilibili_areaid": "33",                    <-自动开播时的区域ID
             "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",     <-订阅的youtube channel_id
@@ -159,4 +159,4 @@ nohup python3.7 -u main.py > logfile.txt &
 - [ ] RELITIY 支持？？
 - [ ] 使用microsoft flow 监控推特自动监控上面的其它平台？？
 - [ ] account登录模式cookies过期自动重新登录
-- [ ] 开播动态内容支持部分变量(如来源频道标题等)
+- [ ] 开播动态内容支持更多变量(如来源频道标题等)

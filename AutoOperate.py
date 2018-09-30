@@ -24,7 +24,7 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
     if curSub['auto_send_dynamic'] and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
         if curSub['dynamic_template']:
-            b.send_dynamic(curSub['dynamic_template'])
+            b.send_dynamic(curSub['dynamic_template']).replace('${roomUrl}', 'https://live.bilibili.com/' + t_room_id)
         else:
             b.send_dynamic('转播开始了哦~')
     return b, t_room_id, rtmp_link
