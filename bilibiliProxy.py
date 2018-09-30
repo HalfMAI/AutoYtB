@@ -135,3 +135,17 @@ class BilibiliProxy:
             else:
                 myLogger('ERROR: Account no login')
                 return None
+
+    def send_dynamic(self, content):
+        self._basePost(
+            'http://api.vc.bilibili.com/dynamic_repost/v1/dynamic_repost/repost',
+            {
+                'dynamic_id': '0',
+                'type': '4',
+                'rid': '0',
+                'content': content,
+                'at_uids': '',
+                'ctrl': '[]',
+                'csrf_token': self.csrf_token
+            }
+        )

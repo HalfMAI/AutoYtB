@@ -8,6 +8,8 @@
         {
             "login_type": "cookies",
             "bilibili_cookiesStr": "xxxxxxxxxxx",
+            "auto_send_dynamic": false,
+            "dynamic_template": "转播开始了哦~",
             "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",
@@ -15,6 +17,8 @@
         },
         {
             "login_type": "account",
+            "auto_send_dynamic": false,
+            "dynamic_template": "转播开始了哦~",
             "username": "xxxxxxxxxxxx",
             "password": "xxxxxxxxxxxx",
             "forwardLink": "",
