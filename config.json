@@ -2,8 +2,11 @@
     "serverIP": "XXXXX",
     "serverPort": "80",
     "subSecert": "",
+    "driver_type": "chrome",
+    "login_retry_times": 3,
     "subscribeList": [
         {
+            "login_type": "cookies",
             "bilibili_cookiesStr": "xxxxxxxxxxx",
             "forwardLink": "",
             "bilibili_areaid": "33",
@@ -11,7 +14,9 @@
             "twitcast": "kaguramea"
         },
         {
-            "bilibili_cookiesStr": "xxxxxxxxxxxx",
+            "login_type": "account",
+            "username": "xxxxxxxxxxxx",
+            "password": "xxxxxxxxxxxx",
             "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "xxxxxxxxxxx",

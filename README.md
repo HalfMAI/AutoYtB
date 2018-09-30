@@ -11,6 +11,7 @@ wget https://raw.githubusercontent.com/HalfMAI/AutoYtB/master/newInstall.sh && c
 
 ## 软件依赖和环境安装
 #### youtube-dl, ffmpeg, python3
+#### 如果使用account登录模式, 还需要安装chrome与chromedriver或firefox与firefoxdriver
 
 ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr centos7的安装方法
 ```
@@ -44,6 +45,36 @@ youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为p
 pip3.7 install youtube-dl
 ```
 
+firefox与firefoxdriver安装,和chrome之间二选一安装即可
+```
+sudo yum -y install firefox
+wget https://github.com/mozilla/geckodriver/releases/download/v0.22.0/geckodriver-v0.22.0-linux64.tar.gz
+tar xvzf geckodriver-v0.22.0-linux64.tar.gz
+chmod +x geckodriver
+mv geckodriver /usr/bin/
+rm -f geckodriver-v0.22.0-linux64.tar.gz
+```
+
+chrome与chromedriver安装,和firefox之间二选一安装即可
+
+先配置yum源,在/ect/yum.repos.d下新建文件google-chrome.repo,写入以下内容
+```
+[google-chrome]
+name=google-chrome
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
+```
+然后执行安装chrome和下载chromedriver
+```
+sudo yum -y install google-chrome-stable
+wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+chmod +x chromedriver
+mv chromedriver /usr/bin/
+rm -f chromedriver_linux64.zip
+```
 ### 代码依赖库
 如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
@@ -72,16 +103,21 @@ cd AutoYtB-master/
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
     "serverPort": "80",       <-运行端口
     "subSecert": "",          <-会自动生成的sercert,用于pubsubhub的订阅校验，以后可能还可以用在别的地方
+    "driver_type": "chrome",  <-account登录模式时使用的浏览器,可选值为chrome和firefox,请根据自己机器上安装的浏览器与驱动配置
+    "login_retry_times": 3,   <-登录重试次数
     "subscribeList": [
         {
-            "bilibili_cookiesStr": "xxxxxxxxxxx",       <-输入访问B站时的requestHeader的cookies
+            "login_type": "cookies",                    <-登录模式,目前支持cookies及account两种模式
+            "bilibili_cookiesStr": "xxxxxxxxxxx",       <-cookies登录模式时必填,输入访问B站时的requestHeader的cookies
             "forwardLink": "",                          <-还未有用
             "bilibili_areaid": "33",                    <-自动开播时的区域ID
             "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",     <-订阅的youtube channel_id
             "twitcast": "kaguramea"                     <-以后可能可以做到twitcast的监控？先写着吧
         },
         {
-            "bilibili_cookiesStr": "xxxxxxxxxxxx",
+            "login_type": "account",                    <-登录模式,目前支持cookies及account两种模式
+            "username": "xxxxxxxxxxxx",                 <-登录账号
+            "password": "xxxxxxxxxxxx",                 <-登录密码
             "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "xxxxxxxxxxx",
@@ -114,3 +150,4 @@ nohup python3.7 -u main.py > logfile.txt &
 - [ ] 17live 支持？
 - [ ] RELITIY 支持？？
 - [ ] 使用microsoft flow 监控推特自动监控上面的其它平台？？
+- [ ] account登录模式cookies过期自动重新登录
