@@ -1,5 +1,6 @@
 import io
 import time
+import traceback
 
 import requests
 import numpy
@@ -10,24 +11,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as Wait
 from selenium.webdriver.support import expected_conditions as Expect
 from selenium.webdriver.common.action_chains import ActionChains
-from utitls import configJson
 
 
 def login(username, password):
     browser = None
     try:
-        if configJson().get("driver_type", "chrome") == "firefox":
+        if utitls.configJson().get("driver_type", "chrome") == "firefox":
             firefox_option = webdriver.FirefoxOptions()
-            firefox_option.headless(True)
-            browser = webdriver.Firefox(
-                firefox_options=firefox_option
-            )
+            firefox_option.headless = True
+            browser = webdriver.Firefox(firefox_options=firefox_option)
         else:
             chrome_options = webdriver.ChromeOptions()
-            chrome_options.headless(True)
-            browser = webdriver.Chrome(
-                chrome_options=chrome_options
-            )
+            chrome_options.headless = True
+            browser = webdriver.Chrome(chrome_options=chrome_options)
+
         browser.get('https://passport.bilibili.com/login')
         Wait(browser, 60).until(
             Expect.visibility_of_element_located((By.CLASS_NAME, "gt_slider"))
@@ -36,14 +33,15 @@ def login(username, password):
         username_input.send_keys(username)
         password_input = browser.find_element_by_id("login-passwd")
         password_input.send_keys(password)
+
         retry_times = 0
-        max_retry_times = configJson().get("login_retry_times", 3)
+        max_retry_times = utitls.configJson().get("login_retry_times", 3)
         while retry_times < max_retry_times:
             do_captcha(browser)
             Wait(browser, 20).until(
                 Expect.visibility_of_element_located((By.CLASS_NAME, "gt_info_tip"))
             )
-            if Expect.visibility_of_element_located((By.CLASS_NAME, "gt_success"))\
+            if Expect.visibility_of_element_located((By.CLASS_NAME, "gt_success"))  \
                     or Expect.visibility_of_element_located((By.ID, "banner_link")):
                 break
             retry_times += 1
@@ -53,9 +51,17 @@ def login(username, password):
             time.sleep(1)
         if retry_times >= max_retry_times:
             return ""
-        Wait(browser, 20).until(
+
+
+        #check is login Success
+        Wait(browser, 60).until(
             Expect.visibility_of_element_located((By.ID, "banner_link"))
         )
+        browser.get('https://link.bilibili.com/p/center/index')
+        Wait(browser, 10).until(
+            Expect.visibility_of_element_located((By.CLASS_NAME, "user"))
+        )
+        time.sleep(5)   #wait for the cookies
         cookies = browser.get_cookies()
         cookies_str_array = []
         for cookie in cookies:
@@ -63,6 +69,7 @@ def login(username, password):
         browser.quit()
         return ";".join(cookies_str_array)
     except Exception as e:
+        utitls.myLogger(traceback.format_exc())
         utitls.myLogger(str(e))
         if browser is not None:
             browser.quit()
@@ -165,4 +172,3 @@ def drag_button(browser, offset):
 
 def ease_out_back(x):
     return 1 + 2.70158 * pow(x - 1, 3) + 1.70158 * pow(x - 1, 2)
-

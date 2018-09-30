@@ -1,7 +1,8 @@
+import traceback
+
 import requests
 from http.cookies import SimpleCookie
 from utitls import myLogger
-import traceback
 
 class BilibiliProxy:
 
@@ -13,7 +14,7 @@ class BilibiliProxy:
             myLogger('ERROR: Cookie login failed!!!!!')
             #TODO maybe relogin?
 
-
+            
     def _initWithCookies(self, cookies_str):
         cookie = SimpleCookie()
         cookie.load(cookies_str)
