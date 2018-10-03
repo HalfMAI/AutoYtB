@@ -25,12 +25,21 @@ def __runCMDSync(cmd):
 
 
 def _getYotube_m3u8_sync(youtubeLink):
-    out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -g {}'.format(youtubeLink))
-    out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-    out = out.strip('\n').strip()
-    if not out.endswith('.m3u8'):
-        errcode = -1
-        utitls.myLogger("_getYotube_m3u8_sync ERROR:%s" % out)
+    out, err, errcode = None, None, -1
+
+    tmp_retryTime = 0
+    while tmp_retryTime <= 6:  # must be <=
+        out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -g {}'.format(youtubeLink))
+        out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+        out = out.strip('\n').strip()
+        if out.endswith('.m3u8'):
+            return out, err, errcode
+        else:
+            tmp_retryTime -= 1
+            utitls.myLogger("_getYotube_m3u8_sync RETRYING___________THIS:%s" % youtubeLink)
+            time.sleep(10)
+
+    utitls.myLogger("_getYotube_m3u8_sync ERROR:%s" % out)
     return out, err, errcode
 
 
@@ -63,8 +72,8 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     out, err, errcode = None, None, None
     tmp_retryTime = 0
     tmp_cmdStartTime = time.time()
-    while tmp_retryTime <= 30:  # must be <=
-        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -i "{}" -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header -f flv "{}"'.format(inputM3U8, outputRTMP))
+    while tmp_retryTime <= 10:  # must be <=
+        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 -i "{}" -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header -f flv "{}"'.format(inputM3U8, outputRTMP))
         if errcode == -9:
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
             break
