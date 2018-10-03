@@ -17,13 +17,24 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
         tmp_area_id = curSub['bilibili_areaid']
 
     b = BilibiliProxy(curBiliAccCookie)
+    if b.getAccInfo() == None:
+        #relogin
+        from login import login
+        if curSub['login_type'] == 'account':
+            tmp_username, tmp_password = curSub.get('username'), curSub.get('password')
+            if tmp_username and tmp_password:
+                curSub['bilibili_cookiesStr'] = login(tmp_username, tmp_password)
+                utitls.setSubInfoWithSubChannelId(channelId, curSub)
+                bilibiliStartLive(channelId, room_title, area_id)
+                return #retry the StartLive. TODO Maybe limit the retry time?
+
     t_room_id = b.getLiveRoomId()
     # b.stopLive(t_room_id)   #Just don't care the Live status, JUST STARTLIVE
-
-    b.updateRoomTitle(t_room_id, room_title)
+    # b.updateRoomTitle(t_room_id, room_title) #Maybe just ignore changing the title
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
-    if curSub['auto_send_dynamic'] and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
-        if curSub['dynamic_template']:
+
+    if curSub.get('auto_send_dynamic') and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
+        if curSub.get('dynamic_template'):
             b.send_dynamic(curSub['dynamic_template']).replace('${roomUrl}', 'https://live.bilibili.com/' + t_room_id)
         else:
             b.send_dynamic('转播开始了哦~')
@@ -51,7 +62,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
 
     if resloveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
-        if rtmp_link:
+        if rtmp_link:   #kill the old proccess
             tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
             if tmp_quest != None:
                 try:

@@ -10,11 +10,8 @@ class BilibiliProxy:
         self.session = requests.session()
         self.csrf_token = None
         self._initWithCookies(cookies_str)
-        if self.getAccInfo() == None:
-            myLogger('ERROR: Cookie login failed!!!!!')
-            #TODO maybe relogin?
 
-            
+
     def _initWithCookies(self, cookies_str):
         cookie = SimpleCookie()
         cookie.load(cookies_str)

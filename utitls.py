@@ -6,14 +6,11 @@ import datetime
 import traceback
 
 import threading
-from login import login
 
 K_MANUAL_JSON_PATH = 'manualRestream.json'
 K_CONFIG_JSON_PATH = 'config.json'
 k_LOG_PATH = 'mainLog.log'
 
-
-_g_existed_cookies = {}
 
 def myLogger(logStr):
     resStr = str(datetime.datetime.now()) + " [MyLOGGER]  " + str(logStr)
@@ -50,15 +47,16 @@ def getSubInfoWithSubChannelId(channelId):
         if subscribe.get('youtubeChannelId') == channelId:
             ret = subscribe
             break
-    if ret['login_type'] == 'account':
-        if channelId in _g_existed_cookies:
-            ret['bilibili_cookiesStr'] = _g_existed_cookies[channelId]
-        else:
-            ret['bilibili_cookiesStr'] = login(ret['username'], ret['password'])
-            if ret['bilibili_cookiesStr'] != '':
-                _g_existed_cookies[channelId] = ret['bilibili_cookiesStr']
     return ret
 
+def setSubInfoWithSubChannelId(channelId, subDict):
+    confDict = configJson()
+    for subscribe in confDict.get('subscribeList', []):
+        if subscribe.get('youtubeChannelId') == channelId:
+            subscribe.update(subDict)
+            saveConfigJson(confDict)
+            return
+            
 
 def saveConfigJson(config_dict):
     with open(K_CONFIG_JSON_PATH, 'w', encoding='utf-8') as wf:
