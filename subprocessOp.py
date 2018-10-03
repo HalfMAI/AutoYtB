@@ -24,7 +24,7 @@ def __runCMDSync(cmd):
     return out, err, errcode
 
 
-def _getYotube_m3u8_sync(youtubeLink):
+def _getYoutube_m3u8_sync(youtubeLink):
     out, err, errcode = None, None, -1
 
     tmp_retryTime = 0
@@ -36,10 +36,10 @@ def _getYotube_m3u8_sync(youtubeLink):
             return out, err, errcode
         else:
             tmp_retryTime -= 1
-            utitls.myLogger("_getYotube_m3u8_sync RETRYING___________THIS:%s" % youtubeLink)
+            utitls.myLogger("_getYoutube_m3u8_sync RETRYING___________THIS:%s" % youtubeLink)
             time.sleep(10)
 
-    utitls.myLogger("_getYotube_m3u8_sync ERROR:%s" % out)
+    utitls.myLogger("_getYoutube_m3u8_sync ERROR:%s" % out)
     return out, err, errcode
 
 
@@ -53,7 +53,7 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
 
     if outputRTMP.startswith('rtmp://'):
         if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, err, errcode = _getYotube_m3u8_sync(link)
+            m3u8Link, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
                 link = m3u8Link
 

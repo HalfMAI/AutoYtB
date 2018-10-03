@@ -1,5 +1,5 @@
 from bilibiliProxy import BilibiliProxy
-from subprocessOp import _forwardStream_sync, _getYotube_m3u8_sync
+from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync
 import utitls
 import time
 import traceback
@@ -48,7 +48,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
     tmp_retryTime = 10
     while tmp_retryTime > 0:
         if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, err, errcode = _getYotube_m3u8_sync(link)
+            m3u8Link, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
                 link = m3u8Link
                 resloveURLOK = True
