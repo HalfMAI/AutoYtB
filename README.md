@@ -14,6 +14,7 @@ wget https://raw.githubusercontent.com/HalfMAI/AutoYtB/master/newInstall.sh && c
 #### 如果使用account登录模式, 还需要安装chrome与chromedriver或firefox与firefoxdriver
 
 ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr centos7的安装方法
+这里安装的是最新版本的由https://www.johnvansickle.com/ffmpeg/ 编译的ffmpeg版本
 ```
 sudo yum install epel-release -y
 sudo yum update -y
@@ -22,7 +23,11 @@ shutdown -r now
 
 sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
 sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
-sudo yum -y install ffmpeg
+
+wget https://raw.githubusercontent.com/Sporesirius/ffmpeg-install/master/ffmpeg-install
+chmod a+x ffmpeg-install
+./ffmpeg-install --install release
+rm -f ffmpeg-install
 ```
 
 python3安装,这里安装的是3.7独立安装，运行时调用的是python3.7而不是python3。
