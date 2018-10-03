@@ -35,7 +35,7 @@ def _getYoutube_m3u8_sync(youtubeLink):
         if out.endswith('.m3u8'):
             return out, err, errcode
         else:
-            tmp_retryTime -= 1
+            tmp_retryTime += 1
             utitls.myLogger("_getYoutube_m3u8_sync RETRYING___________THIS:%s" % youtubeLink)
             time.sleep(10)
 
