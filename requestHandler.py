@@ -11,7 +11,7 @@ import utitls
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, _getObjWithRTMPLink
+from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestWithIsDead, _getObjWithRTMPLink
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -82,8 +82,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                         os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
                         rb = json.dumps({"code": 0, "msg": "操作成功"})
                     except Exception:
-                        utitls.myLogger(traceback.format_exc())
-                        rb = json.dumps({"code": -2, "msg": "错误PID，操作失败!!"})
+                        updateQuestWithIsDead(True, tmp_rtmpLink)
+                        rb = json.dumps({"code": 1, "msg": "正在重试，下次重试时会自动删除此任务"})
                 else:
                     rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
         elif request_path.startswith('/live_restream?'):

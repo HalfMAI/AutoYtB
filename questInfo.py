@@ -25,6 +25,14 @@ def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
     else:
         return False
 
+def updateQuestWithIsDead(isDead, rtmpLink):
+    tmp_quest_list = _getQuestList()
+    for quest in tmp_quest_list:
+        if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
+            quest['isDead'] = isDead
+            break
+    _saveQuestList(tmp_quest_list)
+
 
 def updateQuestWithPID(pid, rtmpLink):
     tmp_quest_list = _getQuestList()
@@ -39,6 +47,7 @@ def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
     forwardLinkOrign = str(forwardLinkOrign)
     rtmpLink = str(rtmpLink)
     questDict = {
+        'isDead': False,
         'forwardLinkOrign': forwardLinkOrign,
         'rtmpLink': rtmpLink,
         'isSubscribeQuest': isSubscribeQuest
@@ -62,7 +71,7 @@ def _getObjWithRTMPLink(rtmpLink):
     tmp_quest_list = _getQuestList()
     ret = None
     for quest in tmp_quest_list:
-        # just check the key. Bilibili's rtmp will be different if rtmp link is got from startlive api
+        # just check the key. Bilibili's rtmp will be different if rtmp link is got from different IP
         if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
             ret = quest
             break

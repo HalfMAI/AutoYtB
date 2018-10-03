@@ -74,7 +74,7 @@ def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
     tmp_cmdStartTime = time.time()
     while tmp_retryTime <= 10:  # must be <=
         out, err, errcode = __runCMDSync('ffmpeg -loglevel error -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 -i "{}" -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header -f flv "{}"'.format(inputM3U8, outputRTMP))
-        if errcode == -9:
+        if errcode == -9 or questInfo._getObjWithRTMPLink(outputRTMP)['isDead']:
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
             break
         # maybe can ignore the error if ran after 2min?
