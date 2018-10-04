@@ -1,12 +1,13 @@
-from bilibiliProxy import BilibiliProxy
-from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync
 import utitls
 import time
 import traceback
 import os
 import signal
 
+from bilibiliProxy import BilibiliProxy
+from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync
 import questInfo
+from myRequests import subscribe
 
 def bilibiliStartLive(channelId, room_title, area_id=None):
     curSub = utitls.getSubInfoWithSubChannelId(channelId)
@@ -72,3 +73,21 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
                 questInfo.removeQuest(rtmp_link)
             # force stream
             _forwardStream_sync(link, rtmp_link, isSubscribeQuest)
+
+
+
+def Async_subscribeTheList():
+    utitls.runFuncAsyncThread(subscribeTheList_sync, None)
+def subscribeTheList_sync():
+    time.sleep(10)   #wait the server start preparing
+    while True:
+        subscribeList = utitls.configJson().get('subscribeList', [])
+        ip = utitls.configJson().get('serverIP')
+        port = utitls.configJson().get('serverPort')
+        for item in subscribeList:
+            tmp_subscribeId = item.get('youtubeChannelId', "")
+            if tmp_subscribeId != "":
+                port = '' if port == '80' else ':' + port
+                tmp_callback_url = 'http://' + ip + port + '/subscribe'
+                subscribe(tmp_callback_url, tmp_subscribeId)
+        time.sleep(3600 * 24 * 4)   #update the subscribe every 4 Days
