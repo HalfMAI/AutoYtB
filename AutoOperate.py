@@ -46,17 +46,17 @@ def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id
     utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (channelId, link, room_title, area_id, isSubscribeQuest))
 def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscribeQuest=True):
     resloveURLOK = False
-    tmp_retryTime = 10
+    tmp_retryTime = 30
     while tmp_retryTime > 0:
         if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, err, errcode = _getYoutube_m3u8_sync(link)
+            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
-                link = m3u8Link
+                # link = m3u8Link   #just to check is can use, _forwardStream_sync will access the title and questInfo
                 resloveURLOK = True
                 break
             else:
                 tmp_retryTime -= 1
-                time.sleep(60)
+                time.sleep(10)
         else:
             utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
             return

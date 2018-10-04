@@ -41,9 +41,9 @@ function requestQuestList() {
     var tmp_retStr = "任务列表为：\n";
     res_json.forEach(function(item){
       tmp_retStr += "------------------\n";
-      tmp_retStr += "forwardLinkOrign：" + item['forwardLinkOrign'] + "\n";
-      tmp_retStr += "rtmpLink: " + item['rtmpLink'] + "\n";
-      tmp_retStr += "isSubscribeQuest: " + item['isSubscribeQuest'] + "\n";
+      for(var key in item) {
+        tmp_retStr += key + " -> " + item[key] + '\n';
+      }
     });
     tmp_responseMessageElement.innerHTML = tmp_retStr;
   })

@@ -25,20 +25,11 @@ def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
     else:
         return False
 
-def updateQuestWithIsDead(isDead, rtmpLink):
+def updateQuestInfo(key, value, rtmpLink):
     tmp_quest_list = _getQuestList()
     for quest in tmp_quest_list:
         if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
-            quest['isDead'] = isDead
-            break
-    _saveQuestList(tmp_quest_list)
-
-
-def updateQuestWithPID(pid, rtmpLink):
-    tmp_quest_list = _getQuestList()
-    for quest in tmp_quest_list:
-        if quest.get('rtmpLink', "").split('/')[-1] == rtmpLink.split('/')[-1]:
-            quest['pid'] = pid
+            quest[key] = value
             break
     _saveQuestList(tmp_quest_list)
 
@@ -50,7 +41,8 @@ def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
         'isDead': False,
         'forwardLinkOrign': forwardLinkOrign,
         'rtmpLink': rtmpLink,
-        'isSubscribeQuest': isSubscribeQuest
+        'isSubscribeQuest': isSubscribeQuest,
+        'title': None
     }
     utitls.myLogger('AddQuest LOG:\n AddQuest QUEST:%s' % questDict)
     tmp_quest_list = _getQuestList()

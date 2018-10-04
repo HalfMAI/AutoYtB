@@ -1,5 +1,7 @@
+import os
 import subprocess
-import time
+import time, datetime
+import json
 import traceback
 
 import utitls
@@ -13,7 +15,7 @@ def __runCMDSync(cmd):
         try:
             rtmpLink = cmd.split(' ')[-1].strip('"')
             if rtmpLink.startswith('rtmp://'):
-                questInfo.updateQuestWithPID(pid, rtmpLink)
+                questInfo.updateQuestInfo('pid', pid, rtmpLink)
         except Exception: pass
         out, err = p.communicate()
         errcode = p.returncode
@@ -29,18 +31,25 @@ def _getYoutube_m3u8_sync(youtubeLink):
 
     tmp_retryTime = 0
     while tmp_retryTime <= 6:  # must be <=
-        out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -g {}'.format(youtubeLink))
+        out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -j {}'.format(youtubeLink))
         out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-        out = out.strip('\n').strip()
-        if out.endswith('.m3u8'):
-            return out, err, errcode
+        if errcode == 0:
+            try:
+                vDict = json.loads(out)
+            except Exception:
+                vDict = None
+            if vDict:
+                title = vDict.get('title')
+                url = vDict.get('url')
+                if url.endswith('.m3u8'):
+                    return url, title, err, errcode
         else:
             tmp_retryTime += 1
-            utitls.myLogger("_getYoutube_m3u8_sync RETRYING___________THIS:%s" % youtubeLink)
+            utitls.myLogger("_getYoutube_m3u8_sync RETRYING___________")
             time.sleep(10)
 
     utitls.myLogger("_getYoutube_m3u8_sync ERROR:%s" % out)
-    return out, err, errcode
+    return out, None, err, errcode
 
 
 def async_forwardStream(link, outputRTMP, isSubscribeQuest):
@@ -52,13 +61,15 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
     questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
+        title = "m3u8手动title"
         if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, err, errcode = _getYoutube_m3u8_sync(link)
+            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
                 link = m3u8Link
+                questInfo.updateQuestInfo('title', title, outputRTMP)
 
         if link.endswith('.m3u8') or '.m3u8' in link:
-            _forwardStreamCMD_sync(link, outputRTMP)
+            _forwardStreamCMD_sync(title, link, outputRTMP)
         else:
             utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
     else:
@@ -67,14 +78,28 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
     questInfo.removeQuest(outputRTMP)
 
 # https://judge2020.com/restreaming-a-m3u8-hls-stream-to-youtube-using-ffmpeg/
-def _forwardStreamCMD_sync(inputM3U8, outputRTMP):
+def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
+    os.makedirs('Videos', exist_ok=True)
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
     out, err, errcode = None, None, None
     tmp_retryTime = 0
     tmp_cmdStartTime = time.time()
     while tmp_retryTime <= 10:  # must be <=
-        out, err, errcode = __runCMDSync('ffmpeg -loglevel error -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 -i "{}" -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header -f flv "{}"'.format(inputM3U8, outputRTMP))
-        if errcode == -9 or questInfo._getObjWithRTMPLink(outputRTMP)['isDead']:
+        recordFilePath = os.path.join(
+            os.getcwd(),
+            'Videos',
+            utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+        ) + '.mp4'
+        out, err, errcode = __runCMDSync(
+                'ffmpeg -loglevel error -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 -i "{}" \
+                -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
+                -f flv "{}" \
+                '.format(
+                    inputM3U8, outputRTMP, recordFilePath
+            )
+        )
+        isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP)['isDead']
+        if errcode == -9 or isQuestDead or isQuestDead == 'True':
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
             break
         # maybe can ignore the error if ran after 2min?

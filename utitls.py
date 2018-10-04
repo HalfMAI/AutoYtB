@@ -4,6 +4,7 @@ import secrets
 import json
 import datetime
 import traceback
+import re
 
 import threading
 
@@ -29,6 +30,16 @@ def verifySecert(verifyMsg, i_msg):
 
     print(verifyMsg, hexdig)
     return verifyMsg == hexdig
+
+def remove_emoji(text):
+    emoji_pattern = re.compile("["
+            u"\U0001F600-\U0001F64F"  # emoticons
+            u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+            u"\U0001F680-\U0001F6FF"  # transport & map symbols
+            u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+            u"\U00002700-\U000027BF"  # Dingbats
+                               "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', text)
 
 def configJson():
     with open(K_CONFIG_JSON_PATH, 'r', encoding='utf-8') as f:
@@ -56,7 +67,7 @@ def setSubInfoWithSubChannelId(channelId, subDict):
             subscribe.update(subDict)
             saveConfigJson(confDict)
             return
-            
+
 
 def saveConfigJson(config_dict):
     with open(K_CONFIG_JSON_PATH, 'w', encoding='utf-8') as wf:

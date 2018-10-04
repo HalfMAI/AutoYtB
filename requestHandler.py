@@ -12,7 +12,7 @@ import utitls
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestWithIsDead, _getObjWithRTMPLink
+from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestInfo, _getObjWithRTMPLink
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -114,7 +114,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
                         rb = json.dumps({"code": 0, "msg": "操作成功"})
                     except Exception:
-                        updateQuestWithIsDead(True, tmp_rtmpLink)
+                        updateQuestInfo('isDead', True, tmp_rtmpLink)
                         rb = json.dumps({"code": 1, "msg": "当前任务正在重试连接中，下次任务重试连接时会自动删除此任务"})
                 else:
                     rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
