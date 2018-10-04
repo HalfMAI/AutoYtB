@@ -18,7 +18,6 @@ ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr cent
 ```
 sudo yum install epel-release -y
 sudo yum update -y
-sudo yum -y install gcc openssl-devel bzip2-devel libffi libffi-devel
 shutdown -r now
 
 sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
@@ -50,7 +49,7 @@ youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为p
 pip3.7 install youtube-dl
 ```
 
-firefox与firefoxdriver安装,和chrome之间二选一安装即可
+### firefox与firefoxdriver安装,和chrome之间二选一安装即可
 ```
 sudo yum -y install firefox
 wget https://github.com/mozilla/geckodriver/releases/download/v0.22.0/geckodriver-v0.22.0-linux64.tar.gz
@@ -60,7 +59,7 @@ mv geckodriver /usr/bin/
 rm -f geckodriver-v0.22.0-linux64.tar.gz
 ```
 
-chrome与chromedriver安装,和firefox之间二选一安装即可
+### chrome与chromedriver安装,和firefox之间二选一安装即可
 
 先配置yum源,在/ect/yum.repos.d下新建文件google-chrome.repo,写入以下内容
 ```
