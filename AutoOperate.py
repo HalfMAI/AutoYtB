@@ -41,10 +41,15 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
             b.send_dynamic('转播开始了哦~')
     return b, t_room_id, rtmp_link
 
-
+__g_try_get_youtube_list = []
 def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id=None, isSubscribeQuest=True):
     utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (channelId, link, room_title, area_id, isSubscribeQuest))
 def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscribeQuest=True):
+    global __g_try_get_youtube_list
+    if channelId in __g_try_get_youtube_list:
+        return
+
+    __g_try_get_youtube_list.append(channelId)
     resloveURLOK = False
     tmp_retryTime = 30
     while tmp_retryTime > 0:
@@ -59,7 +64,9 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
                 time.sleep(10)
         else:
             utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
+            __g_try_get_youtube_list.remove(channelId)
             return
+    __g_try_get_youtube_list.remove(channelId)
 
     if resloveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
