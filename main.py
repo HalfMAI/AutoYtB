@@ -1,6 +1,7 @@
 from http.server import HTTPServer
 from socketserver import ThreadingMixIn
 from requestHandler import RequestHandler
+import AutoOperate
 import utitls
 import time
 import traceback
@@ -31,7 +32,7 @@ def main():
         utitls.myLogger(str(e))
 
 if __name__ == "__main__":
-    utitls.Async_subscribeTheList()
+    AutoOperate.Async_subscribeTheList()
     try:
         while True:
             main()

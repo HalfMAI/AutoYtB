@@ -77,7 +77,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
 
 
 def Async_subscribeTheList():
-    utitls.runFuncAsyncThread(subscribeTheList_sync, None)
+    utitls.runFuncAsyncThread(subscribeTheList_sync, ())
 def subscribeTheList_sync():
     time.sleep(10)   #wait the server start preparing
     while True:
