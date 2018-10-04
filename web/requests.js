@@ -29,7 +29,7 @@ function requestReStream() {
   _requestWithURL(tmp_requestURL, function(res_json){
     var tmp_responseMessageElement = document.getElementById("responseMessage");
     tmp_responseMessageElement.innerHTML = "";
-    tmp_responseMessageElement.innerHTML += "请求返回码（为0时说明当前任务已经添加成功）：" + res_json.code + '\n';
+    tmp_responseMessageElement.innerHTML += "请求返回码（为0或者1时说明当前任务已经添加成功）：" + res_json.code + '\n';
     tmp_responseMessageElement.innerHTML += res_json.msg;
   })
 }
