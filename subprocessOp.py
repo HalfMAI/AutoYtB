@@ -91,9 +91,9 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         ) + '.mp4'
         out, err, errcode = __runCMDSync(
                 'ffmpeg -loglevel error -i "{}" \
-                -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
+                -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
                 -f flv "{}" \
-                -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
+                -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
                 -f flv "{}" \
                 '.format(
                     inputM3U8, outputRTMP, recordFilePath
