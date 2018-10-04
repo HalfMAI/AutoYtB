@@ -40,6 +40,7 @@ firewall-cmd --reload
 
 cd ~
 wget https://github.com/HalfMAI/AutoYtB/archive/master.zip
-unzip master.zip
+[ -f AutoYtB-master/config.json ] && unzip -o master.zip -x *.json || unzip master.zip
+rm -f master.zip
 
 shutdown -r now
