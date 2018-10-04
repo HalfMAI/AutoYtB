@@ -13,7 +13,7 @@ def __runCMDSync(cmd):
         pid = p.pid
         utitls.myLogger("CMD RUN START with PID:{}\nCMD: {}".format(pid, cmd))
         try:
-            rtmpLink = cmd.split(' ')[-1].strip('"')
+            rtmpLink = cmd.partition('-f flv "')[2].partition('"')[0]   #get the first -f link
             if rtmpLink.startswith('rtmp://'):
                 questInfo.updateQuestInfo('pid', pid, rtmpLink)
         except Exception: pass
@@ -30,7 +30,7 @@ def _getYoutube_m3u8_sync(youtubeLink):
     out, err, errcode = None, None, -1
 
     tmp_retryTime = 0
-    while tmp_retryTime <= 6:  # must be <=
+    while tmp_retryTime < 2:
         out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -j {}'.format(youtubeLink))
         out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
         if errcode == 0:
@@ -45,8 +45,7 @@ def _getYoutube_m3u8_sync(youtubeLink):
                     return url, title, err, errcode
         else:
             tmp_retryTime += 1
-            utitls.myLogger("_getYoutube_m3u8_sync RETRYING___________")
-            time.sleep(10)
+            time.sleep(30)
 
     utitls.myLogger("_getYoutube_m3u8_sync ERROR:%s" % out)
     return out, None, err, errcode
@@ -66,8 +65,8 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
                 link = m3u8Link
-                questInfo.updateQuestInfo('title', title, outputRTMP)
 
+        questInfo.updateQuestInfo('title', title, outputRTMP)
         if link.endswith('.m3u8') or '.m3u8' in link:
             _forwardStreamCMD_sync(title, link, outputRTMP)
         else:
