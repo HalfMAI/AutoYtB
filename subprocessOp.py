@@ -39,7 +39,7 @@ def _getYoutube_m3u8_sync(youtubeLink):
             except Exception:
                 vDict = None
             if vDict:
-                title = vDict.get('title')
+                title = vDict.get('uploader') + '_' + vDict.get('title')
                 url = vDict.get('url')
                 if url.endswith('.m3u8'):
                     return url, title, err, errcode
@@ -92,6 +92,8 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         ) + '.mp4'
         out, err, errcode = __runCMDSync(
                 'ffmpeg -loglevel error -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 -i "{}" \
+                -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
+                -f flv "{}" \
                 -vcodec copy -acodec aac -strict -2 -ar 44100 -ab 128k -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
                 -f flv "{}" \
                 '.format(
