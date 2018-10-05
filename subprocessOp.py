@@ -62,9 +62,7 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
     questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
-        title = link.replace('/', '_')
-        title = link.replace('https:', '')
-        title = link.replace('http:', '')
+        title = link    # default title is the link
         if 'youtube.com/' in link or 'youtu.be/' in link:
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:
@@ -84,6 +82,11 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
 def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
     os.makedirs('Videos', exist_ok=True)
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
+    title = title.replace('/', '_')
+    title = title.replace(':', '_')
+    title = title.replace('https:', '')
+    title = title.replace('http:', '')
+
     out, err, errcode = None, None, None
     tmp_retryTime = 0
     tmp_cmdStartTime = time.time()
@@ -98,7 +101,7 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
                 -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
                 -f flv "{}" \
                 -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
-                -f flv "{}" \
+                -y -f flv "{}" \
                 '.format(
                     inputM3U8, outputRTMP, recordFilePath
             )
