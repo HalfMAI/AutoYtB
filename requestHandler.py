@@ -95,7 +95,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                             #try to restream
                             async_forwardStream(tmp_forwardLink, tmp_rtmpLink, False)
                             rb = json.dumps({"code": 0, "msg": "请求成功。请等待大概30秒，网络不好时程序会自动重试30次。也可以查看任务状态看是否添加成功。\
-                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n当前任务：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
+                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n".format(tmp_forwardLink, tmp_rtmpLink)})
                         else:
                             rb = json.dumps({"code": 1, "msg": "当前推流已经在任务中. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                     else:

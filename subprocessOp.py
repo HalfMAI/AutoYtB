@@ -39,8 +39,10 @@ def _getYoutube_m3u8_sync(youtubeLink):
             except Exception:
                 vDict = None
             if vDict:
-                title = vDict.get('uploader') + '_' + vDict.get('title')
-                url = vDict.get('url')
+                if vDict.get('is_live') != True:
+                    return out, err, 999        #mean this is not a live
+                title = vDict.get('uploader', '') + '_' + vDict.get('title', '')
+                url = vDict.get('url', '')
                 if url.endswith('.m3u8'):
                     return url, title, err, errcode
         else:
@@ -60,7 +62,9 @@ def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
     questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
-        title = "m3u8手动title"
+        title = link.replace('/', '_')
+        title = link.replace('https:', '')
+        title = link.replace('http:', '')
         if 'youtube.com/' in link or 'youtu.be/' in link:
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 0:

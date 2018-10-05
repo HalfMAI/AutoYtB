@@ -55,13 +55,17 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
     while tmp_retryTime > 0:
         if 'youtube.com/' in link or 'youtu.be/' in link:
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
-            if errcode == 0:
+            if errcode == 999:
+                # this is just a video upload, so just finish it
+                __g_try_get_youtube_list.remove(channelId)
+                return
+            elif errcode == 0:
                 # link = m3u8Link   #just to check is can use, _forwardStream_sync will access the title and questInfo
                 resloveURLOK = True
                 break
             else:
                 tmp_retryTime -= 1
-                time.sleep(10)
+                time.sleep(60)
         else:
             utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
             __g_try_get_youtube_list.remove(channelId)
