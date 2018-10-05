@@ -5,7 +5,6 @@ import AutoOperate
 import utitls
 import time
 import traceback
-import questInfo
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -24,7 +23,7 @@ def startWebServer():
 def main():
     try:
         #init the quest list
-        questInfo.initQuestList()
+        AutoOperate.restartOldQuests()
         startWebServer()
 
     except Exception as e:

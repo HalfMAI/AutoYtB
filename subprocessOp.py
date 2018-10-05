@@ -56,10 +56,14 @@ def _getYoutube_m3u8_sync(youtubeLink):
 def async_forwardStream(link, outputRTMP, isSubscribeQuest):
     utitls.runFuncAsyncThread(_forwardStream_sync, (link, outputRTMP, isSubscribeQuest))
 def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
-    if questInfo.checkIfInQuest(outputRTMP, isSubscribeQuest):
-        utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n link:%s, \n rtmpLink:%s" % (link, outputRTMP))
-        return
-    questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
+    tmp_quest = questInfo._getObjWithRTMPLink(outputRTMP)
+    print(tmp_quest)
+    if tmp_quest:
+        if tmp_quest.get('isRestart') == None:
+            utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n link:%s, \n rtmpLink:%s" % (link, outputRTMP))
+            return
+    else:
+        questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
         title = link    # default title is the link

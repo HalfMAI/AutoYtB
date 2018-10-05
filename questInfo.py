@@ -35,6 +35,9 @@ def updateQuestInfo(key, value, rtmpLink):
 
 
 def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
+    if _getObjWithRTMPLink(rtmpLink):
+        return
+        
     forwardLinkOrign = str(forwardLinkOrign)
     rtmpLink = str(rtmpLink)
     questDict = {

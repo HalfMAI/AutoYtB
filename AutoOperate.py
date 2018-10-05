@@ -5,7 +5,7 @@ import os
 import signal
 
 from bilibiliProxy import BilibiliProxy
-from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync
+from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync, async_forwardStream
 import questInfo
 from myRequests import subscribe
 
@@ -102,3 +102,14 @@ def subscribeTheList_sync():
                 tmp_callback_url = 'http://' + ip + port + '/subscribe'
                 subscribe(tmp_callback_url, tmp_subscribeId)
         time.sleep(3600 * 24 * 4)   #update the subscribe every 4 Days
+
+
+def restartOldQuests():
+    for quest in questInfo._getQuestList():
+        rtmp_link = quest.get('rtmpLink')
+        questInfo.updateQuestInfo('isRestart', True, rtmp_link)
+        async_forwardStream(
+            quest.get('forwardLinkOrign'),
+            rtmp_link,
+            quest.get('isSubscribeQuest')
+        )
