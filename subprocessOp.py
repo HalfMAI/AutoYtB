@@ -93,10 +93,11 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
 def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
     os.makedirs('Videos', exist_ok=True)
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
-    title = title.replace('/', '_')
-    title = title.replace(':', '_')
-    title = title.replace('https:', '')
-    title = title.replace('http:', '')
+    title = title.replace('https', '')
+    title = title.replace('http', '')
+    reserved_list = ['/', '\\', ':', '?', '%', '*', '|', '"', '.', ' ', '<', '>']
+    for val in reserved_list:
+        title = title.replace(val, '_')
 
     out, err, errcode = None, None, None
     tmp_retryTime = 0
