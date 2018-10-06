@@ -53,30 +53,37 @@ def _getYoutube_m3u8_sync(youtubeLink):
     return out, None, err, errcode
 
 
-def async_forwardStream(link, outputRTMP, isSubscribeQuest):
-    utitls.runFuncAsyncThread(_forwardStream_sync, (link, outputRTMP, isSubscribeQuest))
-def _forwardStream_sync(link, outputRTMP, isSubscribeQuest):
+def async_forwardStream(forwardLink, outputRTMP, isSubscribeQuest):
+    utitls.runFuncAsyncThread(_forwardStream_sync, (forwardLink, outputRTMP, isSubscribeQuest))
+def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
     tmp_quest = questInfo._getObjWithRTMPLink(outputRTMP)
-    print(tmp_quest)
     if tmp_quest:
         if tmp_quest.get('isRestart') == None:
-            utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n link:%s, \n rtmpLink:%s" % (link, outputRTMP))
+            utitls.myLogger("_forwardStream_sync ERROR: rtmp already in quest!!!!\n forwardLink:%s, \n rtmpLink:%s" % (forwardLink, outputRTMP))
             return
     else:
-        questInfo.addQuest(link, outputRTMP, isSubscribeQuest)
+        questInfo.addQuest(forwardLink, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
-        title = link    # default title is the link
-        if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
+        title = forwardLink    # default title is the forwardLink
+        if 'youtube.com/' in forwardLink \
+            or 'youtu.be/' in forwardLink \
+            or 'twitch.tv/' in forwardLink \
+            or 'showroom-live.com/' in forwardLink:
+            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(forwardLink)
             if errcode == 0:
-                link = m3u8Link
+                forwardLink = m3u8Link
+        elif 'twitcasting.tv/' in forwardLink:
+            #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
+            tmp_twitcasID = forwardLink.partition('twitcasting.tv/')[2]
+            tmp_twitcasID = tmp_twitcasID.split('/')[0]
+            forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
 
         questInfo.updateQuestInfo('title', title, outputRTMP)
-        if link.endswith('.m3u8') or '.m3u8' in link:
-            _forwardStreamCMD_sync(title, link, outputRTMP)
+        if forwardLink.endswith('.m3u8') or '.m3u8' in forwardLink:
+            _forwardStreamCMD_sync(title, forwardLink, outputRTMP)
         else:
-            utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % link)
+            utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % forwardLink)
     else:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
 

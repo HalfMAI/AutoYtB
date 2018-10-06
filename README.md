@@ -157,12 +157,12 @@ nohup python3.7 -u main.py > logfile.txt &
 - [X] 环境自动安装脚本
 - [X] 添加手动下播功能，只需要对应rtmp就可以了
 - [ ] 订阅列表添加到config.json的可视化界面和接口吧
-- [ ] twitcast 支持？
+- [X] twitcast 支持？
 - [ ] openREC 支持？
-- [ ] showroom 支持？
+- [X] showroom 支持？
 - [ ] Mirrativ 支持？
 - [ ] 17live 支持？
 - [ ] RELITIY 支持？？
 - [ ] 使用microsoft flow 监控推特自动监控上面的其它平台？？
-- [ ] account登录模式cookies过期自动重新登录
+- [X] account登录模式cookies过期自动重新登录
 - [ ] 开播动态内容支持更多变量(如来源频道标题等)

@@ -41,6 +41,19 @@ def remove_emoji(text):
                                "]+", flags=re.UNICODE)
     return emoji_pattern.sub(r'', text)
 
+def checkIsSupportForwardLink(forwardLink):
+    check_list = [
+        '.m3u8',
+        'twitcasting.tv/',
+        'youtube.com/', 'youtu.be/',
+        'twitch.tv/',
+        'showroom-live.com/'
+    ]
+    for word in check_list:
+        if word in forwardLink:
+            return True
+    return False
+
 def configJson():
     with open(K_CONFIG_JSON_PATH, 'r', encoding='utf-8') as f:
         configDict = json.loads(f.read())

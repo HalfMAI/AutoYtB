@@ -75,17 +75,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             if forwardLink_list and restreamRtmpLink_list:
                 tmp_forwardLink = forwardLink_list[0].strip()
                 tmp_rtmpLink = restreamRtmpLink_list[0].strip()
-                isForwardLinkFormateOK = True
 
                 if 'rtmp://' in tmp_rtmpLink:
-                    if 'twitcasting.tv/' in tmp_forwardLink:
-                        #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
-                        tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
-                        tmp_twitcasID = tmp_twitcasID.split('/')[0]
-                        tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
-                    elif '.m3u8' in tmp_forwardLink \
-                        or 'youtube.com/' in tmp_forwardLink or 'youtu.be/' in tmp_forwardLink:
-                        tmp_forwardLink = tmp_forwardLink
+                    if utitls.checkIsSupportForwardLink(tmp_forwardLink):
+                        isForwardLinkFormateOK = True
                     else:
                         isForwardLinkFormateOK = False
 
