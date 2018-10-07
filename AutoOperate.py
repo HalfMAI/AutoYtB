@@ -4,6 +4,7 @@ import traceback
 import os
 import signal
 
+from login import login
 from bilibiliProxy import BilibiliProxy
 from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync, async_forwardStream
 import questInfo
@@ -20,7 +21,6 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
     b = BilibiliProxy(curBiliAccCookie)
     if b.getAccInfo() == None:
         #relogin
-        from login import login
         if curSub['login_type'] == 'account':
             tmp_username, tmp_password = curSub.get('username'), curSub.get('password')
             if tmp_username and tmp_password:
@@ -98,8 +98,7 @@ def subscribeTheList_sync():
         for item in subscribeList:
             tmp_subscribeId = item.get('youtubeChannelId', "")
             if tmp_subscribeId != "":
-                port = '' if port == '80' else ':' + port
-                tmp_callback_url = 'http://' + ip + port + '/subscribe'
+                tmp_callback_url = 'http://{}:{}/subscribe'.format(ip, port)
                 subscribe(tmp_callback_url, tmp_subscribeId)
         time.sleep(3600 * 24 * 4)   #update the subscribe every 4 Days
 
