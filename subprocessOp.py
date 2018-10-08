@@ -40,7 +40,7 @@ def _getYoutube_m3u8_sync(youtubeLink):
                 vDict = None
             if vDict:
                 if vDict.get('is_live') != True:
-                    return out, err, 999        #mean this is not a live
+                    return out, None, err, 999        #mean this is not a live
                 title = vDict.get('uploader', '') + '_' + vDict.get('title', '')
                 url = vDict.get('url', '')
                 if url.endswith('.m3u8'):
