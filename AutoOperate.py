@@ -46,7 +46,7 @@ def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id
     utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (channelId, link, room_title, area_id, isSubscribeQuest))
 def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscribeQuest=True):
     global __g_try_get_youtube_list
-    if channelId in __g_try_get_youtube_list:
+    if link in __g_try_get_youtube_list:
         return
 
     __g_try_get_youtube_list.append(link)
