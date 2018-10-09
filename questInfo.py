@@ -8,9 +8,13 @@ def initQuestList():
 
 def _getQuestList():
     ret = []
-    with open(K_QUEST_JSON_PATH, 'r', encoding='utf-8') as f:
-        ret = json.loads(f.read()).get('quest_list')
-        return ret
+    try:
+        with open(K_QUEST_JSON_PATH, 'r', encoding='utf-8') as f:
+            ret = json.loads(f.read()).get('quest_list')
+            return ret
+    except FileNotFoundError:
+        initQuestList()
+    return ret
 
 def _saveQuestList(questList):
     tmp_dict = {'quest_list': questList}
