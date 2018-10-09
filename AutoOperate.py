@@ -12,11 +12,11 @@ from myRequests import subscribe
 
 def bilibiliStartLive(channelId, room_title, area_id=None):
     curSub = utitls.getSubInfoWithSubChannelId(channelId)
-    curBiliAccCookie = curSub['bilibili_cookiesStr']
+    curBiliAccCookie = curSub.get('bilibili_cookiesStr', "")
 
     tmp_area_id = area_id
     if tmp_area_id == None:
-        tmp_area_id = curSub['bilibili_areaid']
+        tmp_area_id = curSub.get('bilibili_areaid', '33')
 
     b = BilibiliProxy(curBiliAccCookie)
     if b.getAccInfo() == None:
