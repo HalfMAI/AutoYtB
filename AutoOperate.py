@@ -68,9 +68,9 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
                 time.sleep(60)
         else:
             utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
-            __g_try_get_youtube_list.remove(channelId)
+            __g_try_get_youtube_list.remove(link)
             return
-    __g_try_get_youtube_list.remove(channelId)
+    __g_try_get_youtube_list.remove(link)
 
     if resloveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
