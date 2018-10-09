@@ -49,7 +49,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
     if channelId in __g_try_get_youtube_list:
         return
 
-    __g_try_get_youtube_list.append(channelId)
+    __g_try_get_youtube_list.append(link)
     resloveURLOK = False
     tmp_retryTime = 30
     while tmp_retryTime > 0:
@@ -57,7 +57,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
             if errcode == 999:
                 # this is just a video upload, so just finish it
-                __g_try_get_youtube_list.remove(channelId)
+                __g_try_get_youtube_list.remove(link)
                 return
             elif errcode == 0:
                 # link = m3u8Link   #just to check is can use, _forwardStream_sync will access the title and questInfo

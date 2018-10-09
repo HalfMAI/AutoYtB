@@ -1,6 +1,9 @@
 function _disableBtnWithId(id){
-    document.getElementById(id).disabled = true;
-    setTimeout(function(){document.getElementById(id).disabled = false;}, 3000);
+    tmp_btn = document.getElementById(id);
+    if (tmp_btn) {
+      tmp_btn.disabled = true;
+      setTimeout(function(){tmp_btn.disabled = false;}, 3000);
+    }
 }
 function _disableAllBtn() {
   _disableBtnWithId("requestReStreamBtn");
