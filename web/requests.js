@@ -2,7 +2,7 @@ function _disableBtnWithId(id){
     tmp_btn = document.getElementById(id);
     if (tmp_btn) {
       tmp_btn.disabled = true;
-      setTimeout(function(){tmp_btn.disabled = false;}, 3000);
+      setTimeout(function(){document.getElementById(id).disabled = false;}, 3000);
     }
 }
 function _disableAllBtn() {
