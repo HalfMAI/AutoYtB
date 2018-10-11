@@ -97,7 +97,8 @@ cd AutoYtB-master/
 {
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
     "serverPort": "80",       <-运行端口
-    "subSecert": "",          <-会自动生成的sercert,用于pubsubhub的订阅校验，以后可能还可以用在别的地方
+    "subSecert": "",          <-会自动生成的sercert,用于pubsubhub的订阅校验，以后可能还可以用在别的地方    
+    "is_auto_record": true,   <-是否自动录像，请自己看一下服务器空间来设置，默认是false
     "driver_type": "chrome",  <-account登录模式时使用的浏览器,可选值为chrome和firefox,请根据自己机器上安装的浏览器与驱动配置
     "login_retry_times": 3,   <-登录重试次数
     "subscribeList": [

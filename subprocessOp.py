@@ -108,17 +108,30 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
             'Videos',
             utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
         ) + '.mp4'
-        out, err, errcode = __runCMDSync(
-                'ffmpeg -loglevel error -i "{}" \
-                -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
-                -f flv "{}" \
-                -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header \
-                -y -f flv "{}" \
-                '.format(
-                    inputM3U8, outputRTMP, recordFilePath
-            )
-        )
-        isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP)['isDead']
+
+        tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputM3U8)
+        tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
+        tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
+
+        tmp_encode = '-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header'
+
+        cmd_list = [
+            tmp_input,
+            tmp_encode,
+            tmp_out_rtmp
+        ]
+
+        if utitls.configJson().get('is_auto_record', False):
+            cmd_list.append(tmp_out_file)
+
+        cmd = ''
+        for val in cmd_list:
+            cmd += val + ' '
+        cmd = cmd.strip()   #strip the last ' '
+
+        out, err, errcode = __runCMDSync(cmd)
+
+        isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
         if errcode == -9 or isQuestDead or isQuestDead == 'True':
             utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
             break

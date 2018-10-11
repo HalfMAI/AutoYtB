@@ -3,6 +3,7 @@
     "serverPort": "80",
     "subSecert": "",
     "driver_type": "chrome",
+    "is_auto_record": false,
     "login_retry_times": 3,
     "subscribeList": [
         {
