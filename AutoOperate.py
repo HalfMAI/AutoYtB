@@ -36,7 +36,7 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
 
     if curSub.get('auto_send_dynamic') and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
         if curSub.get('dynamic_template'):
-            b.send_dynamic(curSub['dynamic_template']).replace('${roomUrl}', 'https://live.bilibili.com/' + t_room_id)
+            b.send_dynamic((curSub['dynamic_template']).replace('${roomUrl}', 'https://live.bilibili.com/' + t_room_id))
         else:
             b.send_dynamic('转播开始了哦~')
     return b, t_room_id, rtmp_link
@@ -104,6 +104,7 @@ def subscribeTheList_sync():
 
 
 def restartOldQuests():
+    time.sleep(3)   #wait the server start preparing
     for quest in questInfo._getQuestList():
         rtmp_link = quest.get('rtmpLink')
         questInfo.updateQuestInfo('isRestart', True, rtmp_link)
