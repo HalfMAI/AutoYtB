@@ -12,12 +12,12 @@ chmod a+x ffmpeg-install
 ./ffmpeg-install --install release
 rm -f ffmpeg-install
 
-sudo yum -y install firefox
-wget https://github.com/mozilla/geckodriver/releases/download/v0.22.0/geckodriver-v0.22.0-linux64.tar.gz
-tar xvzf geckodriver-v0.22.0-linux64.tar.gz
-chmod +x geckodriver
-mv geckodriver /usr/bin/
-rm -f geckodriver-v0.22.0-linux64.tar.gz
+curl https://intoli.com/install-google-chrome.sh | bash
+wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+chmod +x chromedriver
+mv chromedriver /usr/bin/
+rm -f chromedriver_linux64.zip
 
 sudo yum install -y gcc openssl-devel bzip2-devel libffi libffi-devel
 cd /usr/src

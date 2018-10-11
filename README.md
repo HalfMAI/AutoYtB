@@ -56,7 +56,7 @@ https://intoli.com/blog/installing-google-chrome-on-centos/
 ```
 curl https://intoli.com/install-google-chrome.sh | bash
 ```
-安装chromedriver,chromedriver的版本要和你安装的chrome对应,具体对应版本请查看
+安装chromedriver,chromedriver的版本要和你安装的chrome对应,具体对应版本请查看(例子中使用的是2.42)
 http://chromedriver.chromium.org/downloads
 ```
 wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip

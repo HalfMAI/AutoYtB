@@ -39,6 +39,7 @@ def login(username, password):
         username_input.send_keys(username)
         password_input = browser.find_element_by_id("login-passwd")
         password_input.send_keys(password)
+        utitls.myLogger('Inputing the username and passwd, username:{}'.format(username))
 
         retry_times = 0
         max_retry_times = utitls.configJson().get("login_retry_times", 3)
@@ -49,26 +50,29 @@ def login(username, password):
             )
             if Expect.visibility_of_element_located((By.CLASS_NAME, "gt_success"))  \
                     or Expect.visibility_of_element_located((By.ID, "banner_link")):
+                utitls.myLogger('Login Success~')
                 break
             retry_times += 1
             Wait(browser, 10).until(
                 Expect.invisibility_of_element_located((By.CLASS_NAME, "gt_fail"))
             )
+            utitls.myLogger('Login FAIL~')
             time.sleep(1)
         if retry_times >= max_retry_times:
+            utitls.myLogger('Retrying MAX')
             return ""
 
 
         #check is login Success
-        Wait(browser, 60).until(
-            Expect.visibility_of_element_located((By.ID, "banner_link"))
-        )
+        time.sleep(5)   #wait for the cookies
         browser.get('https://link.bilibili.com/p/center/index')
         Wait(browser, 10).until(
             Expect.visibility_of_element_located((By.CLASS_NAME, "user"))
         )
         time.sleep(5)   #wait for the cookies
         cookies = browser.get_cookies()
+        utitls.myLogger('Setting the Cookies:{}'.format(cookies))
+
         cookies_str_array = []
         for cookie in cookies:
             cookies_str_array.append(cookie["name"]+"="+cookie["value"])
