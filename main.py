@@ -21,14 +21,10 @@ def startWebServer():
     return server.shutdown()
 
 def main():
-    try:
-        #init the quest list
-        AutoOperate.restartOldQuests()
-        startWebServer()
-
-    except Exception as e:
-        utitls.myLogger(traceback.format_exc())
-        utitls.myLogger(str(e))
+    #init the quest list
+    AutoOperate.restartOldQuests()
+    startWebServer()
+    pass
 
 if __name__ == "__main__":
     AutoOperate.Async_subscribeTheList()
@@ -37,5 +33,9 @@ if __name__ == "__main__":
             main()
             utitls.myLogger('RESTART WERSERVER')
             time.sleep(5)
+    except OSError as e:
+        utitls.myLogger(str(e))
+        utitls.myLogger(traceback.format_exc())
+        pass
     except KeyboardInterrupt:
         utitls.myLogger('Running END-------------------------\n')
