@@ -50,30 +50,15 @@ youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为p
 pip3.7 install youtube-dl
 ```
 
-### firefox与firefoxdriver安装,和chrome之间二选一安装即可
+### chrome与chromedriver安装
+下面采用了一键脚本安装chrome,喜欢自己动手的可以参照下面教程自己添加源安装
+https://intoli.com/blog/installing-google-chrome-on-centos/
 ```
-sudo yum -y install firefox
-wget https://github.com/mozilla/geckodriver/releases/download/v0.22.0/geckodriver-v0.22.0-linux64.tar.gz
-tar xvzf geckodriver-v0.22.0-linux64.tar.gz
-chmod +x geckodriver
-mv geckodriver /usr/bin/
-rm -f geckodriver-v0.22.0-linux64.tar.gz
+curl https://intoli.com/install-google-chrome.sh | bash
 ```
-
-### chrome与chromedriver安装,和firefox之间二选一安装即可
-
-先配置yum源,在/ect/yum.repos.d下新建文件google-chrome.repo,写入以下内容
+安装chromedriver,chromedriver的版本要和你安装的chrome对应,具体对应版本请查看
+http://chromedriver.chromium.org/downloads
 ```
-[google-chrome]
-name=google-chrome
-baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch
-enabled=1
-gpgcheck=1
-gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
-```
-然后执行安装chrome和下载chromedriver
-```
-sudo yum -y install google-chrome-stable
 wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 chmod +x chromedriver
