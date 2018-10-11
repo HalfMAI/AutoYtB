@@ -23,6 +23,12 @@ def login(username, password):
         else:
             chrome_options = webdriver.ChromeOptions()
             chrome_options.headless = True
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument('--disable-sync')
+            chrome_options.add_argument('--disable-plugins')
+            chrome_options.add_argument('--disable-extensions')
+            chrome_options.add_argument('--disable-translate')
             browser = webdriver.Chrome(chrome_options=chrome_options)
 
         browser.get('https://passport.bilibili.com/login')
