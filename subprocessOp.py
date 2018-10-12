@@ -7,11 +7,12 @@ import traceback
 import utitls
 import questInfo
 
-def __runCMDSync(cmd):
+def __runCMDSync(cmd, isLog=True):
     try:
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         pid = p.pid
-        utitls.myLogger("CMD RUN START with PID:{}\nCMD: {}".format(pid, cmd))
+        if isLog:
+            utitls.myLogger("CMD RUN START with PID:{}\nCMD: {}".format(pid, cmd))
         try:
             rtmpLink = cmd.partition('-f flv "')[2].partition('"')[0]   #get the first -f link
             if rtmpLink.startswith('rtmp://'):
@@ -19,19 +20,20 @@ def __runCMDSync(cmd):
         except Exception: pass
         out, err = p.communicate()
         errcode = p.returncode
-        utitls.myLogger("CMD RUN END with PID:{}\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(pid, cmd, out, err, errcode))
+        if isLog:
+            utitls.myLogger("CMD RUN END with PID:{}\nCMD: {}\nOUT: {}\nERR: {}\nERRCODE: {}".format(pid, cmd, out, err, errcode))
     except Exception as e:
         out, err, errcode = None, e, -1
         utitls.myLogger(traceback.format_exc())
     return out, err, errcode
 
 
-def _getYoutube_m3u8_sync(youtubeLink):
+def _getYoutube_m3u8_sync(youtubeLink, isLog=True):
     out, err, errcode = None, None, -1
 
     tmp_retryTime = 0
     while tmp_retryTime < 2:
-        out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -j {}'.format(youtubeLink))
+        out, err, errcode = __runCMDSync('youtube-dl --no-check-certificate -j {}'.format(youtubeLink), isLog)
         out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
         if errcode == 0:
             try:
@@ -113,7 +115,7 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
         tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
 
-        tmp_encode = '-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -bufsize 3000k -flags +global_header'
+        tmp_encode = '-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -flags +global_header'
 
         cmd_list = [
             tmp_input,

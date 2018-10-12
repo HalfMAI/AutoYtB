@@ -51,10 +51,10 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
 
     __g_try_get_youtube_list.append(link)
     resloveURLOK = False
-    tmp_retryTime = 30
+    tmp_retryTime = 60 * 10      #retry 10 hours, Some youtuber will startLive before few hours
     while tmp_retryTime > 0:
         if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link)
+            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link, False)
             if errcode == 999:
                 # this is just a video upload, so just finish it
                 __g_try_get_youtube_list.remove(link)
