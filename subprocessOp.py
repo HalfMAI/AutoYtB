@@ -124,6 +124,7 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         ]
 
         if utitls.configJson().get('is_auto_record', False):
+            cmd_list.append(tmp_encode)
             cmd_list.append(tmp_out_file)
 
         cmd = ''
