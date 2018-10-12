@@ -124,7 +124,7 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         ]
 
         if utitls.configJson().get('is_auto_record', False):
-            cmd_list.append('-vcodec copy -acodec copy')
+            cmd_list.append('-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc')
             cmd_list.append(tmp_out_file)
 
         cmd = ''
