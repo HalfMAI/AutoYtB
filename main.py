@@ -21,7 +21,7 @@ def startWebServer():
     return server.shutdown()
 
 def main():
-    #init the quest list
+    AutoOperate.preparingAllAccountsCookies()
     AutoOperate.restartOldQuests()
     startWebServer()
     pass

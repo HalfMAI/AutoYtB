@@ -31,7 +31,7 @@ def login(username, password):
             chrome_options.add_argument('--disable-translate')
             browser = webdriver.Chrome(chrome_options=chrome_options)
 
-        browser.get('https://passport.bilibili.com/login')
+        browser.get('https://link.bilibili.com/p/center/index')     # if no login, it will go to the login page. The main bilibil.com have too much images it will take a lot memory
         Wait(browser, 60).until(
             Expect.visibility_of_element_located((By.CLASS_NAME, "gt_slider"))
         )
@@ -66,9 +66,6 @@ def login(username, password):
         #check is login Success
         time.sleep(5)   #wait for the cookies
         browser.get('https://link.bilibili.com/p/center/index')
-        Wait(browser, 10).until(
-            Expect.visibility_of_element_located((By.CLASS_NAME, "user"))
-        )
         time.sleep(5)   #wait for the cookies
         cookies = browser.get_cookies()
         utitls.myLogger('Setting the Cookies:{}'.format(cookies))

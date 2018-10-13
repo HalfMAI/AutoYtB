@@ -117,3 +117,17 @@ def restartOldQuests():
             rtmp_link,
             quest.get('isSubscribeQuest')
         )
+
+
+def preparingAllAccountsCookies():
+    utitls.runFuncAsyncThread(preparingAllAccountsCookies_sync, ())
+def preparingAllAccountsCookies_sync():
+    time.sleep(2)   #wait the server start preparing
+    sub_list = utitls.configJson().get('subscribeList', [])
+    for curSub in sub_list:
+        if curSub.get('login_type', "") == 'account' and curSub.get('bilibili_cookiesStr', "") == "":
+            tmp_username, tmp_password = curSub.get('username'), curSub.get('password')
+            if tmp_username and tmp_password:
+                curSub['bilibili_cookiesStr'] = login(tmp_username, tmp_password)
+                utitls.setSubInfoWithKey('username', tmp_username, curSub)
+                time.sleep(5)   # wait for the last browser memory release

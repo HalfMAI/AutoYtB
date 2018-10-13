@@ -76,14 +76,17 @@ def getSubWithKey(key, val):
             break
     return ret
 
+
 def setSubInfoWithSubChannelId(channelId, subDict):
+    setSubInfoWithKey('youtubeChannelId', channelId, subDict)
+
+def setSubInfoWithKey(key, val, subDict):
     confDict = configJson()
     for subscribe in confDict.get('subscribeList', []):
-        if subscribe.get('youtubeChannelId') == channelId:
+        if subscribe.get(key) == val:
             subscribe.update(subDict)
             saveConfigJson(confDict)
             return
-
 
 
 def saveConfigJson(config_dict):
