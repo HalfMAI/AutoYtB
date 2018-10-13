@@ -51,7 +51,7 @@ def _getYoutube_m3u8_sync(youtubeLink, isLog=True):
             tmp_retryTime += 1
             time.sleep(30)
 
-    utitls.myLogger("_getYoutube_m3u8_sync ERROR:%s" % out)
+    utitls.myLogger("_getYoutube_m3u8_sync SOURCE:{} ERROR:{}".format(youtubeLink, out))
     return out, None, err, errcode
 
 
