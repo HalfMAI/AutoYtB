@@ -6,21 +6,25 @@ import threading
 import sys
 import os
 
-def runFuncAsyncThread(target_func, args):
-    t = threading.Thread(target=target_func, args=args)
-    t.start()
-
+K_CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 K_MAIN_M3U8 = "Main.m3u8"
 K_SUB_M3U8 = "Sub.m3u8"
 
+K_CHANNEL_NAME = "ultra-games"
+
 _g_IsUsingMainM3u8 = True
 _g_split_mark = "#EXTM3U"
-def refreshM3u8(channel_name, uri_path):
+
+def runFuncAsyncThread(target_func, args):
+    t = threading.Thread(target=target_func, args=args)
+    t.start()
+
+def refreshM3u8(channel_name, uri_path, is_run_forever=True):
     global _g_IsUsingMainM3u8
     global _g_split_mark
     while True:
-        pl = requests.get("https://linear-abematv.akamaized.net/channel/{}/1080/playlist.m3u8".format(channel_name)).text
+        pl = requests.get("https://linear-abematv.akamaized.net/channel/{}/1080/playlist.m3u8".format(channel_name), timeout=5).text
         cur_pl = re.sub('URI=.*?\,', 'URI=\"{}\",'.format(uri_path), pl)
         next_pl = None
 
@@ -57,15 +61,15 @@ def refreshM3u8(channel_name, uri_path):
                 f.write(next_pl)
             print('-NEXT-{} m3u8:\n{}\n'.format(nextFile, next_pl))
 
+        if is_run_forever == False:
+            sleep(3)
+            return cur_pl
+
         sleep(10)   #the m3u8 has 4 segments, it can hold 20 secounds, Default is updated every 5 secounds
 
 
 def startFFMPEG(rtmp_link):
-    while True:
-        if os.path.exists(K_MAIN_M3U8):
-            break
-        sleep(0.1)    # wait for the m3u8
-    m3u8_file = K_MAIN_M3U8
+    m3u8_file = 'http://localhost:10800/playlist.m3u8'
     while True:
         print("====\nUsing the m3u8 File. -->{}".format(m3u8_file))
         p = subprocess.Popen(
@@ -81,12 +85,27 @@ def startFFMPEG(rtmp_link):
 
         if errcode == 0:
             # filp the File
-            m3u8_file = K_MAIN_M3U8 if m3u8_file == K_SUB_M3U8 else K_SUB_M3U8
+            # m3u8_file = K_MAIN_M3U8 if m3u8_file == K_SUB_M3U8 else K_SUB_M3U8
             print("----\nChanging the m3u8 File. \nChanging File To===>{}".format(m3u8_file))
         else:
             print("CMD RUN END with PID:{}\nOUT: {}\nERR: {}\nERRCODE: {}".format(pid, out, err, errcode))
             print('RETRYING___________THIS: startFFMPEG')
             sleep(5)
+
+
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
+class MyHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        if self.path == '/playlist.m3u8':
+            m3u8_str = refreshM3u8(K_CHANNEL_NAME, './myfile.dat', False)
+            body = m3u8_str.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-type', 'application/x-mpegURL')
+        self.send_header('Content-length', len(body))
+        self.end_headers()
+        self.wfile.write(body)
 
 
 if __name__ == '__main__':
@@ -95,12 +114,12 @@ if __name__ == '__main__':
     if os.path.exists(K_SUB_M3U8):
         os.remove(K_SUB_M3U8)
 
-    channel_name = 'ultra-games'
     rtmp_link = 'test.mp4'
     if len(sys.argv) >= 2:
-        channel_name = sys.argv[1]
+        K_CHANNEL_NAME = sys.argv[1]
         rtmp_link = sys.argv[2]
 
-    print('RUNNING with channel:{} to {}'.format(channel_name, rtmp_link))
-    runFuncAsyncThread(refreshM3u8, (channel_name, './myfile.dat'))
-    startFFMPEG(rtmp_link)
+    print('RUNNING with channel:{} to {}'.format(K_CHANNEL_NAME, rtmp_link))
+    runFuncAsyncThread(startFFMPEG, (rtmp_link,))
+    httpd = HTTPServer(('localhost', 10800), MyHandler)
+    httpd.serve_forever()
