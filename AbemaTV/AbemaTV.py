@@ -62,7 +62,6 @@ def refreshM3u8(channel_name, uri_path, is_run_forever=True):
             print('-NEXT-{} m3u8:\n{}\n'.format(nextFile, next_pl))
 
         if is_run_forever == False:
-            sleep(3)
             return cur_pl
 
         sleep(10)   #the m3u8 has 4 segments, it can hold 20 secounds, Default is updated every 5 secounds
