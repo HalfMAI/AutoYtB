@@ -103,6 +103,8 @@ cd AutoYtB-master/
     "login_retry_times": 3,   <-登录重试次数
     "subscribeList": [
         {
+            "mark": "账号标识或备注",                    <-账号标识或备注，用于在手动开播时会显示在列表中
+            "opt_code": "XXXXXXX",                      <-用于手动开播时的操作码，用这个来代替操作账号开播的授权
             "login_type": "cookies",                    <-登录模式,目前支持cookies及account两种模式
             "bilibili_cookiesStr": "xxxxxxxxxxx",       <-cookies登录模式时必填,输入访问B站时的requestHeader的cookies
             "auto_send_dynamic": false,                 <-开播时是否自动发动态,注意如果你的账号以前没发过动态,先手动去发条动态同意一下协议
@@ -113,6 +115,8 @@ cd AutoYtB-master/
             "twitcast": "kaguramea"                     <-以后可能可以做到twitcast的监控？先写着吧
         },
         {
+            "mark": "账号标识或备注",                    <-账号标识或备注，用于在手动开播时会显示在列表中
+            "opt_code": "XXXXXXX",                      <-用于手动开播时的操作码，用这个来代替操作账号开播的授权
             "login_type": "account",                    <-登录模式,目前支持cookies及account两种模式
             "username": "xxxxxxxxxxxx",                 <-登录账号,account登录模式时必填
             "password": "xxxxxxxxxxxx",                 <-登录密码,account登录模式时必填

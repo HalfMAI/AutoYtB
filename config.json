@@ -7,6 +7,8 @@
     "login_retry_times": 3,
     "subscribeList": [
         {
+            "mark": "账号标识或备注",
+            "opt_code": "XXXXXXX",
             "login_type": "cookies",
             "bilibili_cookiesStr": "xxxxxxxxxxx",
             "auto_send_dynamic": false,
@@ -17,6 +19,8 @@
             "twitcast": "kaguramea"
         },
         {
+            "mark": "账号标识或备注",
+            "opt_code": "XXXXXXX",   
             "login_type": "account",
             "auto_send_dynamic": false,
             "dynamic_template": "转播开始了哦~☞${roomUrl}",
