@@ -24,7 +24,7 @@ def refreshM3u8(channel_name, uri_path, is_run_forever=True):
     global _g_IsUsingMainM3u8
     global _g_split_mark
     while True:
-        pl = requests.get("https://linear-abematv.akamaized.net/channel/{}/1080/playlist.m3u8".format(channel_name), timeout=5).text
+        pl = requests.get("https://linear-abematv.akamaized.net/channel/{}/1080/playlist.m3u8".format(channel_name), timeout=20).text
         cur_pl = re.sub('URI=.*?\,', 'URI=\"{}\",'.format(uri_path), pl)
         next_pl = None
 
@@ -98,10 +98,11 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        body = ""
         if self.path == '/playlist.m3u8':
             m3u8_str = refreshM3u8(K_CHANNEL_NAME, 'myfile.dat', False)
             body = m3u8_str.encode('utf-8')
-        elif self.path == 'myfile.dat':
+        elif self.path == '/myfile.dat':
             f = open("myfile.dat", "rb")
             body = f.read()
             f.close()
