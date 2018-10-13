@@ -87,7 +87,9 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                 time.sleep(5)
             # force stream
             _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
-    __g_try_get_youtube_list.remove(input_link)
+            
+    if input_link in __g_try_get_youtube_list:
+        __g_try_get_youtube_list.remove(input_link)
 
 
 
