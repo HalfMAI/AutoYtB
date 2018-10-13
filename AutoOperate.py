@@ -72,7 +72,6 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                 utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + input_link)
                 __g_try_get_youtube_list.remove(input_link)
                 return
-        __g_try_get_youtube_list.remove(input_link)
     else:
         resloveURLOK = True     # if it is a direct call, just skip the retry
 
@@ -85,9 +84,10 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                     os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
                 except Exception:
                     utitls.myLogger(traceback.format_exc())
-                questInfo.removeQuest(rtmp_link)
+                time.sleep(5)
             # force stream
             _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
+    __g_try_get_youtube_list.remove(input_link)
 
 
 

@@ -70,26 +70,26 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
         tmp_retryTime = 0
         tmp_cmdStartTime = time.time()
         while tmp_retryTime <= 10:  # must be <=
-
-            title = forwardLink    # default title is the forwardLink
-            if 'youtube.com/' in forwardLink \
-                or 'youtu.be/' in forwardLink \
-                or 'twitch.tv/' in forwardLink \
-                or 'showroom-live.com/' in forwardLink:
-                m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(forwardLink)
+            tmp_title = forwardLink    # default title is the forwardLink
+            tmp_forwardLink = forwardLink
+            if 'youtube.com/' in tmp_forwardLink \
+                or 'youtu.be/' in tmp_forwardLink \
+                or 'twitch.tv/' in tmp_forwardLink \
+                or 'showroom-live.com/' in tmp_forwardLink:
+                m3u8Link, tmp_title, err, errcode = _getYoutube_m3u8_sync(tmp_forwardLink)
                 if errcode == 0:
-                    forwardLink = m3u8Link
-            elif 'twitcasting.tv/' in forwardLink:
+                    tmp_forwardLink = m3u8Link
+            elif 'twitcasting.tv/' in tmp_forwardLink:
                 #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
-                tmp_twitcasID = forwardLink.partition('twitcasting.tv/')[2]
+                tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
                 tmp_twitcasID = tmp_twitcasID.split('/')[0]
-                forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+                tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
 
-            questInfo.updateQuestInfo('title', title, outputRTMP)
-            if forwardLink.endswith('.m3u8') or '.m3u8' in forwardLink:
-                out, err, errcode = _forwardStreamCMD_sync(title, forwardLink, outputRTMP)
+            questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
+            if tmp_forwardLink.endswith('.m3u8') or '.m3u8' in tmp_forwardLink:
+                out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
             else:
-                utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % forwardLink)
+                utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % tmp_forwardLink)
                 break   # exit the retry
 
             isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
