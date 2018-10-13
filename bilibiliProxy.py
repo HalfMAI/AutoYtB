@@ -81,6 +81,8 @@ class BilibiliProxy:
         )
         if resDict:
             if resDict['code'] == 0:
+                tmp_path = resDict['data']['rtmp']['addr']
+                tmp_path = tmp_path if tmp_path.endswith('/') else tmp_path + '/'
                 rtmp_link = resDict['data']['rtmp']['addr'] + resDict['data']['rtmp']['code']
                 myLogger("Current RTMP_LINK:%s" % rtmp_link)
                 return rtmp_link
