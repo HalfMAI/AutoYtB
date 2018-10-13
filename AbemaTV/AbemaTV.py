@@ -99,8 +99,12 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/playlist.m3u8':
-            m3u8_str = refreshM3u8(K_CHANNEL_NAME, './myfile.dat', False)
+            m3u8_str = refreshM3u8(K_CHANNEL_NAME, 'myfile.dat', False)
             body = m3u8_str.encode('utf-8')
+        elif self.path == 'myfile.dat':
+            f = open("myfile.dat", "rb")
+            body = f.read()
+            f.close()
         self.send_response(200)
         self.send_header('Content-type', 'application/x-mpegURL')
         self.send_header('Content-length', len(body))
