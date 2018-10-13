@@ -67,25 +67,45 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
         questInfo.addQuest(forwardLink, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
-        title = forwardLink    # default title is the forwardLink
-        if 'youtube.com/' in forwardLink \
-            or 'youtu.be/' in forwardLink \
-            or 'twitch.tv/' in forwardLink \
-            or 'showroom-live.com/' in forwardLink:
-            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(forwardLink)
-            if errcode == 0:
-                forwardLink = m3u8Link
-        elif 'twitcasting.tv/' in forwardLink:
-            #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
-            tmp_twitcasID = forwardLink.partition('twitcasting.tv/')[2]
-            tmp_twitcasID = tmp_twitcasID.split('/')[0]
-            forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+        tmp_retryTime = 0
+        tmp_cmdStartTime = time.time()
+        while tmp_retryTime <= 10:  # must be <=
 
-        questInfo.updateQuestInfo('title', title, outputRTMP)
-        if forwardLink.endswith('.m3u8') or '.m3u8' in forwardLink:
-            _forwardStreamCMD_sync(title, forwardLink, outputRTMP)
-        else:
-            utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % forwardLink)
+            title = forwardLink    # default title is the forwardLink
+            if 'youtube.com/' in forwardLink \
+                or 'youtu.be/' in forwardLink \
+                or 'twitch.tv/' in forwardLink \
+                or 'showroom-live.com/' in forwardLink:
+                m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(forwardLink)
+                if errcode == 0:
+                    forwardLink = m3u8Link
+            elif 'twitcasting.tv/' in forwardLink:
+                #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
+                tmp_twitcasID = forwardLink.partition('twitcasting.tv/')[2]
+                tmp_twitcasID = tmp_twitcasID.split('/')[0]
+                forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+
+            questInfo.updateQuestInfo('title', title, outputRTMP)
+            if forwardLink.endswith('.m3u8') or '.m3u8' in forwardLink:
+                out, err, errcode = _forwardStreamCMD_sync(title, forwardLink, outputRTMP)
+            else:
+                utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % forwardLink)
+                break   # exit the retry
+
+            isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
+            if errcode == -9 or isQuestDead or isQuestDead == 'True':
+                utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
+                break
+            # maybe can ignore the error if ran after 2min?
+            if time.time() - tmp_cmdStartTime < 120:
+                tmp_retryTime += 1      # make it can exit
+            else:
+                tmp_retryTime = 0      # let every Connect success reset the retrytime
+            tmp_cmdStartTime = time.time()  #import should not miss it.
+            time.sleep(10)   # one m3u8 can hold 20 secounds or less
+            utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
+            utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
+
     else:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
 
@@ -102,49 +122,32 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         title = title.replace(val, '_')
 
     out, err, errcode = None, None, None
-    tmp_retryTime = 0
-    tmp_cmdStartTime = time.time()
-    while tmp_retryTime <= 10:  # must be <=
-        recordFilePath = os.path.join(
-            os.getcwd(),
-            'Videos',
-            utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        ) + '.mp4'
+    recordFilePath = os.path.join(
+        os.getcwd(),
+        'Videos',
+        utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+    ) + '.mp4'
 
-        tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputM3U8)
-        tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
-        tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
+    tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputM3U8)
+    tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
+    tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
 
-        tmp_encode = '-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -flags +global_header'
+    tmp_encode = '-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc -flags +global_header'
 
-        cmd_list = [
-            tmp_input,
-            tmp_encode,
-            tmp_out_rtmp
-        ]
+    cmd_list = [
+        tmp_input,
+        tmp_encode,
+        tmp_out_rtmp
+    ]
 
-        if utitls.configJson().get('is_auto_record', False):
-            cmd_list.append('-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc')
-            cmd_list.append(tmp_out_file)
+    if utitls.configJson().get('is_auto_record', False):
+        cmd_list.append('-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc')
+        cmd_list.append(tmp_out_file)
 
-        cmd = ''
-        for val in cmd_list:
-            cmd += val + ' '
-        cmd = cmd.strip()   #strip the last ' '
+    cmd = ''
+    for val in cmd_list:
+        cmd += val + ' '
+    cmd = cmd.strip()   #strip the last ' '
 
-        out, err, errcode = __runCMDSync(cmd)
-
-        isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
-        if errcode == -9 or isQuestDead or isQuestDead == 'True':
-            utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
-            break
-        # maybe can ignore the error if ran after 2min?
-        if time.time() - tmp_cmdStartTime < 120:
-            tmp_retryTime += 1      # make it can exit
-        else:
-            tmp_retryTime = 0      # let every Connect success reset the retrytime
-        tmp_cmdStartTime = time.time()  #import should not miss it.
-        time.sleep(10)   #rtmp buffer can hold 3 secounds or less
-        utitls.myLogger('_forwardStreamCMD_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
-        utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (inputM3U8, outputRTMP))
+    out, err, errcode = __runCMDSync(cmd)
     return out, err, errcode

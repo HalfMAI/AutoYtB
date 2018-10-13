@@ -33,6 +33,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         try:
             if request_path.startswith('/web/'):
+                request_path = request_path.split('?')[0]
                 fname, ext = os.path.splitext(request_path)
                 if ext in (".html", ".css", ".js"):
                     tmp_filePath = os.path.join(os.getcwd())
@@ -65,7 +66,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if request_path.startswith('/get_manual_json'):
             rc = 200
-            rb = json.dumps(utitls.manualJson())
+            ret_dic = utitls.manualJson()
+            ret_dic['des_dict'] = []    #clear the des
+
+            tmp_acc_mark_list = []
+            for sub in utitls.configJson().get('subscribeList', []):
+                tmp_mark = sub.get('mark')
+                if tmp_mark:
+                    tmp_acc_mark_list.append(tmp_mark)
+            ret_dic['acc_mark_list'] = tmp_acc_mark_list
+            rb = json.dumps(ret_dic)
         elif request_path.startswith('/questlist'):
             rc = 200
             rb = json.dumps(getQuestList_AddStarts())
@@ -88,11 +98,40 @@ class RequestHandler(BaseHTTPRequestHandler):
                             #try to restream
                             async_forwardStream(tmp_forwardLink, tmp_rtmpLink, False)
                             rb = json.dumps({"code": 0, "msg": "请求成功。请等待大概30秒，网络不好时程序会自动重试30次。也可以查看任务状态看是否添加成功。\
-                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n".format(tmp_forwardLink, tmp_rtmpLink)})
+                                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n".format(tmp_forwardLink, tmp_rtmpLink)})
                         else:
                             rb = json.dumps({"code": 1, "msg": "当前推流已经在任务中. \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n\n-----------------CurrentQuests：\n{}".format(tmp_forwardLink, tmp_rtmpLink, getQuestListStr())})
                     else:
                         rb = json.dumps({"code": -3, "msg": "来源地址格式错误, 请查看上面支持的格式"})
+                elif tmp_rtmpLink.startswith('ACCMARK='):
+                    params = parse_qs(tmp_rtmpLink)
+                    acc_list = params.get('ACCMARK', None)
+                    opt_code_list = params.get('OPTC', None)
+                    is_send_dynamic_list = params.get('SEND_DYNAMIC', None)
+
+                    rc = 200
+                    if acc_list and opt_code_list:
+                        acc_mark = acc_list[0].strip()
+                        opt_code = opt_code_list[0].strip()
+                        is_send_dynamic = is_send_dynamic_list[0].strip()
+
+
+                        tmp_is_acc_exist = False
+                        for sub in utitls.configJson().get('subscribeList', []):
+                            tmp_mark = sub.get('mark', "")
+                            if tmp_mark == acc_mark:
+                                if opt_code == sub.get('opt_code', ""):
+                                    tmp_is_acc_exist = True
+                                    sub['auto_send_dynamic'] = True if is_send_dynamic == '1' else False
+                                    Async_forwardToBilibili(sub, tmp_forwardLink, isSubscribeQuest=False)
+                                break
+
+                        if tmp_is_acc_exist:
+                            rb = json.dumps({"code": 0, "msg": "请求成功。请等待大概30秒，网络不好时程序会自动重试30次。也可以查看任务状态看是否添加成功。\
+                                            \nRequesting ForwardLink: {},\nRequesting RestreamRtmpLink: {}\n\n".format(tmp_forwardLink, tmp_rtmpLink)})
+                        else:
+                            rb = json.dumps({"code": -5, "msg": "当前账号不存在或者账号操作码错误：{}".format(acc_mark)})
+
                 else:
                     rc = 200
                     rb = json.dumps({"code": -4, "msg": "RTMPLink格式错误!!! bilibili的RTMPLink格式是两串合起来。\nEXAMPLE：rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX"})
@@ -202,7 +241,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                                     tmp_entry_title, tmp_entry_videoId, tmp_entry_channelId, tmp_entry_link, tmp_entry_publishedTime, tmp_entry_updatedTime)
                                 )
                         #try to restream
-                        Async_forwardToBilibili(tmp_entry_channelId, tmp_entry_link, tmp_entry_title, utitls.configJson().get('area_id'))
+                        tmp_subscribe_obj = utitls.getSubWithKey('youtubeChannelId', tmp_entry_channelId)
+                        Async_forwardToBilibili(tmp_subscribe_obj, tmp_entry_link, tmp_entry_title, utitls.configJson().get('area_id'))
                     except Exception:
                         rc = 404
                         utitls.myLogger(traceback.format_exc())

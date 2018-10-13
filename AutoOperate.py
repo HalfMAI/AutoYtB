@@ -10,8 +10,9 @@ from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync, async_forwa
 import questInfo
 from myRequests import subscribe
 
-def bilibiliStartLive(channelId, room_title, area_id=None):
-    curSub = utitls.getSubInfoWithSubChannelId(channelId)
+def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
+    curSub = subscribe_obj
+    channelId = curSub.get('youtubeChannelId', "")
     curBiliAccCookie = curSub.get('bilibili_cookiesStr', "")
 
     tmp_area_id = area_id
@@ -42,38 +43,41 @@ def bilibiliStartLive(channelId, room_title, area_id=None):
     return b, t_room_id, rtmp_link
 
 __g_try_get_youtube_list = []
-def Async_forwardToBilibili(channelId, link, room_title='Testing Title', area_id=None, isSubscribeQuest=True):
-    utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (channelId, link, room_title, area_id, isSubscribeQuest))
-def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscribeQuest=True):
-    global __g_try_get_youtube_list
-    if link in __g_try_get_youtube_list:
-        return
-
-    __g_try_get_youtube_list.append(link)
-    resloveURLOK = False
-    tmp_retryTime = 60 * 10      #retry 10 hours, Some youtuber will startLive before few hours
-    while tmp_retryTime > 0:
-        if 'youtube.com/' in link or 'youtu.be/' in link:
-            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(link, False)
-            if errcode == 999:
-                # this is just a video upload, so just finish it
-                __g_try_get_youtube_list.remove(link)
-                return
-            elif errcode == 0:
-                # link = m3u8Link   #just to check is can use, _forwardStream_sync will access the title and questInfo
-                resloveURLOK = True
-                break
-            else:
-                tmp_retryTime -= 1
-                time.sleep(60)
-        else:
-            utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + link)
-            __g_try_get_youtube_list.remove(link)
+def Async_forwardToBilibili(subscribe_obj, input_link, room_title='Testing Title', area_id=None, isSubscribeQuest=True):
+    utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (subscribe_obj, input_link, room_title, area_id, isSubscribeQuest))
+def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None, isSubscribeQuest=True):
+    if isSubscribeQuest:
+        global __g_try_get_youtube_list
+        if input_link in __g_try_get_youtube_list:
             return
-    __g_try_get_youtube_list.remove(link)
+
+        __g_try_get_youtube_list.append(input_link)
+        resloveURLOK = False
+        tmp_retryTime = 60 * 10      #retry 10 hours, Some youtuber will startLive before few hours
+        while tmp_retryTime > 0:
+            if 'youtube.com/' in input_link or 'youtu.be/' in input_link:
+                m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(input_link, False)
+                if errcode == 999:
+                    # this is just a video upload, so just finish it
+                    __g_try_get_youtube_list.remove(input_link)
+                    return
+                elif errcode == 0:
+                    # input_link = m3u8Link   #just to check is can use, _forwardStream_sync will access the title and questInfo
+                    resloveURLOK = True
+                    break
+                else:
+                    tmp_retryTime -= 1
+                    time.sleep(60)
+            else:
+                utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + input_link)
+                __g_try_get_youtube_list.remove(input_link)
+                return
+        __g_try_get_youtube_list.remove(input_link)
+    else:
+        resloveURLOK = True     # if it is a direct call, just skip the retry
 
     if resloveURLOK:
-        b, t_room_id, rtmp_link = bilibiliStartLive(channelId, room_title, area_id)
+        b, t_room_id, rtmp_link = bilibiliStartLive(subscribe_obj, room_title, area_id)
         if rtmp_link:   #kill the old proccess
             tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
             if tmp_quest != None:
@@ -83,7 +87,7 @@ def _forwardToBilibili_Sync(channelId, link, room_title, area_id=None, isSubscri
                     utitls.myLogger(traceback.format_exc())
                 questInfo.removeQuest(rtmp_link)
             # force stream
-            _forwardStream_sync(link, rtmp_link, isSubscribeQuest)
+            _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
 
 
 

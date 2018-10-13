@@ -6,7 +6,7 @@
       p{ white-space: pre; }
     </style>
 
-    <script type='text/javascript' src="./requests.js"></script>
+    <script type='text/javascript' src="./requests.js?v1340"></script>
 
     <title>手动转播</title>
   </head>
@@ -30,10 +30,9 @@
   </p>
   <hr />
   <button id="addRestreamSrcBtn" onclick="addRestreamSrc()">添加转播源</button>
-  <button id="addRtmpDesBtn" onclick="addRtmpDes()">添加目标推流地址</button>
   <br /><br />
   <label >转播源地址选择：</label> <select id="SelectSrc" onchange="onSelectSrc()"> <option value="" disabled selected>请选择转播源</option> <select/>
-  <label >推流目标地址选择：</label> <select id="SelectDes" onchange="onSelectDes()"> <option value="" disabled selected>请选择推流目标</option> <select/>
+  <label >推流目标账号选择：</label> <select id="SelectAcc" onchange="onSelectAcc()"> <option value="" disabled selected>请选择推流账号</option> <select/>
 
 
   <hr />
@@ -41,8 +40,7 @@
   <label >推流目标地址自定义:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
   <button id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
   <button id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
-  <button id="requestKillQuestBtn" onclick="requestKillQuest()">关闭推流任务</button>
-
+  <button id="requestKillQuestBtn" onclick="requestKillQuest()">关闭自定义推流任务</button>
   <hr />
   <p id="responseMessage"><p/>
 </html>

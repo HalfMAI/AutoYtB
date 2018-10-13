@@ -66,9 +66,12 @@ def configJson():
 
 
 def getSubInfoWithSubChannelId(channelId):
+    return getSubWithKey('youtubeChannelId', channelId)
+
+def getSubWithKey(key, val):
     ret = None
     for subscribe in configJson().get('subscribeList', []):
-        if subscribe.get('youtubeChannelId') == channelId:
+        if subscribe.get(key) == val:
             ret = subscribe
             break
     return ret
@@ -80,6 +83,7 @@ def setSubInfoWithSubChannelId(channelId, subDict):
             subscribe.update(subDict)
             saveConfigJson(confDict)
             return
+
 
 
 def saveConfigJson(config_dict):
