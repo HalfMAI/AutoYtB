@@ -47,10 +47,11 @@ def Async_forwardToBilibili(subscribe_obj, input_link, room_title='Testing Title
     utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (subscribe_obj, input_link, room_title, area_id, isSubscribeQuest))
 def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None, isSubscribeQuest=True):
     global __g_try_bili_quest_list
-    if input_link in __g_try_bili_quest_list:
+    input_quest = input_link + subscribe_obj.get('mark', "")
+    if input_quest in __g_try_bili_quest_list:
         return
 
-    __g_try_bili_quest_list.append(input_link)
+    __g_try_bili_quest_list.append(input_quest)
     resolveURLOK = False
 
     if isSubscribeQuest:
@@ -62,7 +63,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
             m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(input_link, False)
             if errcode == 999:
                 # this is just a video upload, so just finish it
-                __g_try_bili_quest_list.remove(input_link)
+                __g_try_bili_quest_list.remove(input_quest)
                 utitls.myLogger('_forwardToBilibili_Sync LOG: This is not a Live Videos:' + input_link)
                 return
             elif errcode == 0:
@@ -74,7 +75,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
         else:
             if isSubscribeQuest:
                 utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + input_link)
-                __g_try_bili_quest_list.remove(input_link)
+                __g_try_bili_quest_list.remove(input_quest)
                 return
             else:
                 resolveURLOK = True     # if it's not subscribeQuest, just start living
@@ -93,8 +94,8 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
             # force stream
             _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
 
-    if input_link in __g_try_bili_quest_list:
-        __g_try_bili_quest_list.remove(input_link)
+    if input_quest in __g_try_bili_quest_list:
+        __g_try_bili_quest_list.remove(input_quest)
 
 
 
