@@ -118,13 +118,19 @@ def subscribeTheList_sync():
 def restartOldQuests():
     time.sleep(3)   #wait the server start preparing
     for quest in questInfo._getQuestList():
-        rtmp_link = quest.get('rtmpLink')
-        questInfo.updateQuestInfo('isRestart', True, rtmp_link)
-        async_forwardStream(
-            quest.get('forwardLinkOrign'),
-            rtmp_link,
-            quest.get('isSubscribeQuest')
-        )
+        tmp_pid = quest.get('pid')
+        if tmp_pid:
+            try:
+                os.kill(tmp_pid, 0)     #just check is the pid Running
+            except OSError:
+                # if the pid was killed
+                rtmp_link = quest.get('rtmpLink')
+                questInfo.updateQuestInfo('isRestart', True, rtmp_link)
+                async_forwardStream(
+                    quest.get('forwardLinkOrign'),
+                    rtmp_link,
+                    quest.get('isSubscribeQuest')
+                )
 
 
 def preparingAllAccountsCookies():
