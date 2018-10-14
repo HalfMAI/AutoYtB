@@ -78,6 +78,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                 return
             else:
                 resolveURLOK = True     # if it's not subscribeQuest, just start living
+                break
 
     if resolveURLOK:
         b, t_room_id, rtmp_link = bilibiliStartLive(subscribe_obj, room_title, area_id)
