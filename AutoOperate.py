@@ -26,8 +26,9 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
             if tmp_username and tmp_password:
                 curSub['bilibili_cookiesStr'] = login(tmp_username, tmp_password)
                 utitls.setSubInfoWithKey('username', tmp_username, curSub)
-                bilibiliStartLive(curSub, room_title, area_id)
-                return #retry the StartLive. TODO Maybe limit the retry time?
+                b, t_room_id, rtmp_link = bilibiliStartLive(curSub, room_title, area_id)
+                return b, t_room_id, rtmp_link
+                #retry the StartLive. TODO Maybe limit the retry time?
 
     t_room_id = b.getLiveRoomId()
     # b.stopLive(t_room_id)   #Just don't care the Live status, JUST STARTLIVE
