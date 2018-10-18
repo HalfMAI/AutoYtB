@@ -66,22 +66,18 @@ def refreshM3u8(channel_name, uri_path, is_run_forever=True):
 
         sleep(10)   #the m3u8 has 4 segments, it can hold 20 secounds, Default is updated every 5 secounds
 
+def runCMD(cmd):
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    pid = p.pid
+    out, err = p.communicate()
+    errcode = p.returncode
+    return pid, out, err, errcode
 
-def startFFMPEG(rtmp_link):
-    m3u8_file = 'http://localhost:10800/playlist.m3u8'
+def startFFMPEG(cmd, m3u8):
+    m3u8_file = m3u8
     while True:
         print("====\nUsing the m3u8 File. -->{}".format(m3u8_file))
-        p = subprocess.Popen(
-            'ffmpeg -loglevel error \
-            -re \
-            -protocol_whitelist file,http,https,tcp,tls,crypto -allowed_extensions ALL \
-            -i "{}" \
-            -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc \
-            -f flv "{}"'.format(m3u8_file, rtmp_link), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        pid = p.pid
-        out, err = p.communicate()
-        errcode = p.returncode
-
+        pid, out, err, errcode  = runCMD(cmd)
         if errcode == 0:
             # filp the File
             # m3u8_file = K_MAIN_M3U8 if m3u8_file == K_SUB_M3U8 else K_SUB_M3U8
@@ -91,6 +87,22 @@ def startFFMPEG(rtmp_link):
             print('RETRYING___________THIS: startFFMPEG')
             sleep(5)
 
+
+def restreamFromYoutube(youtubeURL, rtmp_link):
+    sleep(10)   #wait for the restream
+    while True:
+        pid, out, err, errcode = runCMD('youtube-dl -g {}'.format(youtubeURL))
+        out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+        if '.m3u8' in out:
+            youtubeM3u8 = out.strip()
+            youtubeReCmd = 'ffmpeg -loglevel error \
+                            -re \
+                            -i "{}" \
+                            -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc \
+                            -f flv "{}"'.format(youtubeM3u8, rtmp_link)
+            startFFMPEG(youtubeReCmd, youtubeM3u8)
+
+        sleep(10)
 
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -123,7 +135,27 @@ if __name__ == '__main__':
         K_CHANNEL_NAME = sys.argv[1]
         rtmp_link = sys.argv[2]
 
+    is_restream = False
+    if len(sys.argv) >= 4:
+        youtubeURL = sys.argv[3]
+        bilibili_rtmp = sys.argv[4]
+        is_restream = True
+
     print('RUNNING with channel:{} to {}'.format(K_CHANNEL_NAME, rtmp_link))
-    runFuncAsyncThread(startFFMPEG, (rtmp_link,))
+
+    abematvM3u8 = 'http://localhost:10800/playlist.m3u8'
+    abematvCmd = 'ffmpeg -loglevel error \
+                    -re \
+                    -protocol_whitelist file,http,https,tcp,tls,crypto -allowed_extensions ALL \
+                    -i "{}" \
+                    -vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc \
+                    -f flv "{}"'.format(abematvM3u8, rtmp_link)
+    runFuncAsyncThread(startFFMPEG, (abematvCmd, abematvM3u8))
+
+    if is_restream:
+        # run the restream
+        runFuncAsyncThread(restreamFromYoutube, (youtubeURL, bilibili_rtmp))
+
+
     httpd = HTTPServer(('localhost', 10800), MyHandler)
     httpd.serve_forever()
