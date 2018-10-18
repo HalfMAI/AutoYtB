@@ -47,8 +47,11 @@ def Async_forwardToBilibili(subscribe_obj, input_link, room_title='Testing Title
     utitls.runFuncAsyncThread(_forwardToBilibili_Sync, (subscribe_obj, input_link, room_title, area_id, isSubscribeQuest))
 def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None, isSubscribeQuest=True):
     global __g_try_bili_quest_list
+    utitls.myLogger('CURRENT Async_forwardToBilibili:\n{}'.format(__g_try_bili_quest_list))
+    
     input_quest = input_link + subscribe_obj.get('mark', "")
     if input_quest in __g_try_bili_quest_list:
+        utitls.myLogger('current input quest is already RUNNING:\n{}'.format(input_quest))
         return
 
     __g_try_bili_quest_list.append(input_quest)
