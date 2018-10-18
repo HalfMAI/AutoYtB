@@ -25,7 +25,12 @@ def refreshM3u8(channel_name, uri_path, is_run_forever=True):
     global _g_split_mark
     while True:
         pl = requests.get("https://linear-abematv.akamaized.net/channel/{}/1080/playlist.m3u8".format(channel_name), timeout=20).text
-        cur_pl = re.sub('URI=.*?\,', 'URI=\"{}\",'.format(uri_path), pl)
+        ticket_list = re.findall(r"abematv-license://(.*)", pl)
+        if len(ticket_list) >=1:
+            uri_path = "{}?ticket={}".format(uri_path, ticket_list[0])
+            cur_pl = re.sub('URI=.*?\,', 'URI=\"{}\",'.format(uri_path), pl)
+        else:
+            cur_pl = pl
         next_pl = None
 
         tmp_cur_mark = None
@@ -105,18 +110,27 @@ def restreamFromYoutube(youtubeURL, rtmp_link):
         sleep(10)
 
 
+from abematv_plu import AbemaTV
+g_ab = AbemaTV()
+g_ab.init_usertoken()
+
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlsplit,parse_qs
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        global g_ab
         body = ""
         if self.path == '/playlist.m3u8':
             m3u8_str = refreshM3u8(K_CHANNEL_NAME, 'myfile.dat', False)
             body = m3u8_str.encode('utf-8')
-        elif self.path == '/myfile.dat':
-            f = open("myfile.dat", "rb")
-            body = f.read()
-            f.close()
+        elif '/myfile.dat?' in self.path:
+            params = parse_qs(urlsplit(self.path).query)
+            ticket_list = params.get('ticket', None)
+            if ticket_list and len(ticket_list)>0:
+                ticket = str.encode(ticket_list[0])
+                body = g_ab.get_videokey_from_ticket(ticket)
+                print("CurrentKey:" + body)
         self.send_response(200)
         self.send_header('Content-type', 'application/x-mpegURL')
         self.send_header('Content-length', len(body))
