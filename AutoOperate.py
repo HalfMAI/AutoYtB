@@ -12,7 +12,6 @@ from myRequests import subscribe
 
 def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
     curSub = subscribe_obj
-    channelId = curSub.get('youtubeChannelId', "")
     curBiliAccCookie = curSub.get('bilibili_cookiesStr', "")
 
     tmp_area_id = area_id
@@ -26,8 +25,8 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
             tmp_username, tmp_password = curSub.get('username'), curSub.get('password')
             if tmp_username and tmp_password:
                 curSub['bilibili_cookiesStr'] = login(tmp_username, tmp_password)
-                utitls.setSubInfoWithSubChannelId(channelId, curSub)
-                bilibiliStartLive(channelId, room_title, area_id)
+                utitls.setSubInfoWithKey('username', tmp_username, curSub)
+                bilibiliStartLive(curSub, room_title, area_id)
                 return #retry the StartLive. TODO Maybe limit the retry time?
 
     t_room_id = b.getLiveRoomId()
@@ -48,7 +47,7 @@ def Async_forwardToBilibili(subscribe_obj, input_link, room_title='Testing Title
 def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None, isSubscribeQuest=True):
     global __g_try_bili_quest_list
     utitls.myLogger('CURRENT Async_forwardToBilibili:\n{}'.format(__g_try_bili_quest_list))
-    
+
     input_quest = input_link + subscribe_obj.get('mark', "")
     if input_quest in __g_try_bili_quest_list:
         utitls.myLogger('current input quest is already RUNNING:\n{}'.format(input_quest))
