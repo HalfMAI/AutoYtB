@@ -53,7 +53,7 @@ def isTwitcastingLiving(id):
         return True
     return False
 
-def _baseGet(self, url):
+def _baseGet(url):
     try:
         myLogger("GET URL:%s--" % url)
         response = requests.get(url, timeout=30)
