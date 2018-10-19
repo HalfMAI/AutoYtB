@@ -6,7 +6,7 @@ import signal
 
 from login import login
 from bilibiliProxy import BilibiliProxy
-from subprocessOp import _forwardStream_sync, _getYoutube_m3u8_sync, async_forwardStream
+from subprocessOp import _forwardStream_sync, resolveStreamToM3u8, async_forwardStream
 import questInfo
 from myRequests import subscribe
 
@@ -49,7 +49,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
     global __g_try_bili_quest_list
     utitls.myLogger('CURRENT Async_forwardToBilibili:\n{}'.format(__g_try_bili_quest_list))
 
-    input_quest = input_link + subscribe_obj.get('mark', "")
+    input_quest = "{}_{}".format(subscribe_obj.get('mark', ""), input_link)
     if input_quest in __g_try_bili_quest_list:
         utitls.myLogger('current input quest is already RUNNING:\n{}'.format(input_quest))
         return
@@ -58,12 +58,12 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
     resolveURLOK = False
 
     if isSubscribeQuest:
-        tmp_retryTime = 60 * 10      #retry 10 hours, Some youtuber will startLive before few hours
+        tmp_retryTime = 30      #retry 30 minutes, Some youtuber will startLive before few hours
     else:
-        tmp_retryTime = 3           # if not subscribe quest, just try 3 times
+        tmp_retryTime = 3           # if not subscribe quest, just try 3 minutes
     while tmp_retryTime > 0:
         if 'youtube.com/' in input_link or 'youtu.be/' in input_link:
-            m3u8Link, title, err, errcode = _getYoutube_m3u8_sync(input_link, False)
+            m3u8Link, title, err, errcode = resolveStreamToM3u8(input_link, False)
             if errcode == 999:
                 # this is just a video upload, so just finish it
                 __g_try_bili_quest_list.remove(input_quest)

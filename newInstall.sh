@@ -29,11 +29,14 @@ make altinstall
 rm -f /usr/src/Python-3.7.0.tgz
 
 pip3.7 install --upgrade pip
-pip3.7 install youtube-dl
+pip3.7 install streamlink
 pip3.7 install requests
 pip3.7 install numpy
 pip3.7 install selenium
 pip3.7 install Pillow
+pip3.7 install Crypto
+pip3.7 install sqlalchemy
+pip3.7 install apscheduler
 
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --reload

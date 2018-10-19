@@ -9,10 +9,12 @@ import zlib
 from mimetypes import types_map
 
 import utitls
+from myRequests import getYoutubeLiveStreamInfo
 from subprocessOp import async_forwardStream
 from AutoOperate import Async_forwardToBilibili
 
-from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestInfo, _getObjWithRTMPLink
+from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestInfo, _getObjWithRTMPLink, _getObjWithAccMark
+import scheduler
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -242,7 +244,34 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 )
                         #try to restream
                         tmp_subscribe_obj = utitls.getSubWithKey('youtubeChannelId', tmp_entry_channelId)
-                        Async_forwardToBilibili(tmp_subscribe_obj, tmp_entry_link, tmp_entry_title, utitls.configJson().get('area_id'))
+                        tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
+                        tmp_area_id = utitls.configJson().get('area_id', '33')
+                        tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
+
+                        liveStreamingDetailsDict = getYoutubeLiveStreamInfo(tmp_entry_videoId)
+                        if liveStreamingDetailsDict:
+                            utitls.myLogger("The Sub liveStreamingDetails:{}".format(liveStreamingDetailsDict))
+                            tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
+                            tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
+                            tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
+
+                            if tmp_is_end:
+                                #kill the End stream proccess
+                                tmp_quest = _getObjWithAccMark(tmp_subscribe_obj.get('mark'))
+                                if tmp_quest != None:
+                                    try:
+                                        os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
+                                    except Exception:
+                                        utitls.myLogger(traceback.format_exc())
+                            elif tmp_scheduled_start_time:
+                                # scheduled the quest
+                                job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, tmp_entry_videoId)
+                                # the job will run before 30 mins
+                                scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
+                                    (tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
+                                )
+                            else:
+                                Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                     except Exception:
                         rc = 404
                         utitls.myLogger(traceback.format_exc())

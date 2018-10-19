@@ -22,24 +22,36 @@ def _saveQuestList(questList):
         json.dump(tmp_dict, wf, indent=4, sort_keys=True)
 
 
-def checkIfInQuest(rtmpLink, isSubscribeQuest=False):
-    #TODO do something with isSubscribeQuest?
-    if _getObjWithRTMPLink(rtmpLink):
-        return True
+def checkIfInQuest(rtmpLink, isSubscribeQuest=False, accMark=None):
+    if isSubscribeQuest:
+        if _getObjWithAccMark(accMark):
+            return True
+        else:
+            return False
     else:
-        return False
+        if _getObjWithRTMPLink(rtmpLink):
+            return True
+        else:
+            return False
 
-def updateQuestInfo(key, value, rtmpLink):
+def updateQuestInfo(key, value, rtmpLink, isSubscribeQuest=False, questAcc=None):
     tmp_quest_list = _getQuestList()
     for quest in tmp_quest_list:
-        if quest.get('rtmpLink', "").split('/')[-1] == str(rtmpLink).split('/')[-1]:
+        tmp_can_remove = False
+        if isSubscribeQuest:
+            if quest.get('mark') == questAcc:
+                tmp_can_remove = True
+        else:
+            if  rtmpLink and quest.get('rtmpLink', "").split('/')[-1] == str(rtmpLink).split('/')[-1]:
+                tmp_can_remove = True
+        if tmp_can_remove:
             quest[key] = value
             break
     _saveQuestList(tmp_quest_list)
 
 
-def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
-    if checkIfInQuest(rtmpLink, isSubscribeQuest):
+def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False, questAcc=None):
+    if checkIfInQuest(rtmpLink, isSubscribeQuest, questAcc):
         return
 
     forwardLinkOrign = str(forwardLinkOrign)
@@ -51,21 +63,39 @@ def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False):
         'isSubscribeQuest': isSubscribeQuest,
         'title': None
     }
+    if isSubscribeQuest:
+        questDict['questAcc'] = questAcc
     utitls.myLogger('AddQuest LOG:\n AddQuest QUEST:%s' % questDict)
     tmp_quest_list = _getQuestList()
     tmp_quest_list.append(questDict)
     utitls.myLogger('Current Quest List:\n,{}'.format(tmp_quest_list))
     _saveQuestList(tmp_quest_list)
 
-def removeQuest(rtmpLink):
+def removeQuest(rtmpLink, isSubscribeQuest=False, questAcc=None):
     tmp_quest_list = _getQuestList()
     for quest in tmp_quest_list:
-        if quest.get('rtmpLink', "").split('/')[-1] == str(rtmpLink).split('/')[-1]:
+        tmp_can_remove = False
+        if isSubscribeQuest:
+            if quest.get('mark') == questAcc:
+                tmp_can_remove = True
+        else:
+            if  rtmpLink and quest.get('rtmpLink', "").split('/')[-1] == str(rtmpLink).split('/')[-1]:
+                tmp_can_remove = True
+        if tmp_can_remove:
             utitls.myLogger('RemoveQuest LOG:\n Removed QUEST:%s' % quest)
             tmp_quest_list.remove(quest)
             utitls.myLogger('Current Quest List:\n,{}'.format(tmp_quest_list))
             _saveQuestList(tmp_quest_list)
             return
+
+def _getObjWithAccMark(accMark):
+    tmp_quest_list = _getQuestList()
+    ret = None
+    for quest in tmp_quest_list:
+        if quest.get('mark', "") == accMark:
+            ret = quest
+            break
+    return ret
 
 def _getObjWithRTMPLink(rtmpLink):
     tmp_quest_list = _getQuestList()

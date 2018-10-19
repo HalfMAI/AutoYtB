@@ -43,12 +43,9 @@ tar xzf Python-3.7.0.tgz
 cd Python-3.7.0
 ./configure --enable-optimizations
 make altinstall
+rm -f Python-3.7.0
 ```
 
-youtube-dl安装，如果系统没有pip，请在安装python3.7后再更改为pip3.7
-```
-pip3.7 install youtube-dl
-```
 
 ### chrome与chromedriver安装
 下面采用了一键脚本安装chrome,喜欢自己动手的可以参照下面教程自己添加源安装
@@ -66,6 +63,12 @@ mv chromedriver /usr/bin/
 rm -f chromedriver_linux64.zip
 ```
 
+
+streamlink安装，如果系统没有pip，请在安装python3.7后再更改为pip3.7
+```
+pip3.7 install streamlink
+```
+
 ### 代码依赖库
 如果系统没有pip，请在安装python3.7后再更改为pip3.7
 ```
@@ -73,6 +76,8 @@ pip3.7 install requests
 pip3.7 install numpy
 pip3.7 install selenium
 pip3.7 install Pillow
+pip3.7 install sqlalchemy
+pip3.7 install apscheduler
 ```
 
 

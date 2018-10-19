@@ -6,6 +6,7 @@ import traceback
 
 import utitls
 import questInfo
+import myRequests
 
 def __runCMDSync(cmd, isLog=True):
     try:
@@ -54,6 +55,33 @@ def _getYoutube_m3u8_sync(youtubeLink, isLog=True):
     utitls.myLogger("_getYoutube_m3u8_sync SOURCE:{} ERROR:{}".format(youtubeLink, out))
     return out, None, err, errcode
 
+def resolveStreamToM3u8(streamLink, isLog=True):
+    out, title, err, errcode = None, None, None, -1
+
+    tmp_retryTime = 0
+    while tmp_retryTime < 4:
+        out, err, errcode = __runCMDSync('streamlink -j "{}" best'.format(streamLink), isLog)
+        out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+        if errcode == 0:
+            try:
+                vDict = json.loads(out)
+            except Exception:
+                vDict = None
+            if vDict:
+                streamM3U8 = vDict.get('url')
+                if streamM3U8 != True:
+                    return out, title, err, 999        #mean this is not a live
+                tmp_title, tmp_uploader, tmp_thumbnail_url = myRequests.getYoutubeVideoInfo(streamLink)
+                title = "{}_{}".format(vDict.get('uploader', ''), vDict.get('uploader', ''))
+                m3u8Link = streamLink
+                return m3u8Link, title, err, errcode
+        else:
+            tmp_retryTime += 1
+            time.sleep(15)
+
+    utitls.myLogger("resolveStreamToM3u8 SOURCE:{} ERROR:{}".format(streamLink, out))
+    return out, title, err, errcode
+
 
 def async_forwardStream(forwardLink, outputRTMP, isSubscribeQuest):
     utitls.runFuncAsyncThread(_forwardStream_sync, (forwardLink, outputRTMP, isSubscribeQuest))
@@ -72,25 +100,18 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
         while tmp_retryTime <= 10:  # must be <=
             tmp_title = forwardLink    # default title is the forwardLink
             tmp_forwardLink = forwardLink
-            if 'youtube.com/' in tmp_forwardLink \
-                or 'youtu.be/' in tmp_forwardLink \
-                or 'twitch.tv/' in tmp_forwardLink \
-                or 'showroom-live.com/' in tmp_forwardLink:
-                m3u8Link, tmp_title, err, errcode = _getYoutube_m3u8_sync(tmp_forwardLink)
-                if errcode == 0:
-                    tmp_forwardLink = m3u8Link
-            elif 'twitcasting.tv/' in tmp_forwardLink:
+            if 'twitcasting.tv/' in tmp_forwardLink:
                 #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
                 tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
                 tmp_twitcasID = tmp_twitcasID.split('/')[0]
-                tmp_forwardLink = 'http://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+                # if using the streamlink, it should be start with hlsvariant://
+                tmp_forwardLink = 'hlsvariant://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+            else:
+                m3u8Link, tmp_title, err, errcode = resolveStreamToM3u8(tmp_forwardLink)
 
             questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
-            if tmp_forwardLink.endswith('.m3u8') or '.m3u8' in tmp_forwardLink:
-                out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
-            else:
-                utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % tmp_forwardLink)
-                break   # exit the retry
+            # try to restream
+            out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
 
             isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
             if errcode == -9 or isQuestDead or isQuestDead == 'True':
@@ -102,7 +123,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
             else:
                 tmp_retryTime = 0      # let every Connect success reset the retrytime
             tmp_cmdStartTime = time.time()  #import should not miss it.
-            time.sleep(10)   # one m3u8 can hold 20 secounds or less
+            time.sleep(5)   # one m3u8 can hold 20 secounds or less
             utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
             utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
 
@@ -112,9 +133,9 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
     questInfo.removeQuest(outputRTMP)
 
 # https://judge2020.com/restreaming-a-m3u8-hls-stream-to-youtube-using-ffmpeg/
-def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
+def _forwardStreamCMD_sync(title, inputStreamLink, outputRTMP):
     os.makedirs('Videos', exist_ok=True)
-    utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputM3U8, outputRTMP))
+    utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputStreamLink, outputRTMP))
     title = title.replace('https', '')
     title = title.replace('http', '')
     reserved_list = ['/', '\\', ':', '?', '%', '*', '|', '"', '.', ' ', '<', '>']
@@ -128,7 +149,8 @@ def _forwardStreamCMD_sync(title, inputM3U8, outputRTMP):
         utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     ) + '.mp4'
 
-    tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputM3U8)
+    # tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputStreamLink)
+    tmp_input = 'streamlink -O {} best|ffmpeg -loglevel error -i pipe:0'.format(inputStreamLink)
     tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
     tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
 
