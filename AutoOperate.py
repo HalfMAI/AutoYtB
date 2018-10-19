@@ -117,6 +117,8 @@ def subscribeTheList_sync():
                 subscribe(tmp_callback_url, tmp_subscribeId)
         time.sleep(3600 * 24 * 4)   #update the subscribe every 4 Days
 
+def clearOldQuests():
+    questInfo.initQuestList()
 
 def restartOldQuests():
     time.sleep(3)   #wait the server start preparing

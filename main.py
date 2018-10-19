@@ -22,7 +22,7 @@ def startWebServer():
 
 def main():
     AutoOperate.preparingAllAccountsCookies()
-    AutoOperate.restartOldQuests()
+    AutoOperate.clearOldQuests()
     startWebServer()
     pass
 
