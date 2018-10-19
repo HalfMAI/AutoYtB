@@ -36,7 +36,7 @@ yum install -y wget
 ```
 然后再运行下面的
 ```
-yum install -y gcc openssl-devel bzip2-devel libffi libffi-devel
+yum install -y gcc openssl-devel bzip2-devel libffi libffi-devel sqlite-devel
 cd /usr/src
 wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
 tar xzf Python-3.7.0.tgz

@@ -19,7 +19,7 @@ chmod +x chromedriver
 mv chromedriver /usr/bin/
 rm -f chromedriver_linux64.zip
 
-sudo yum install -y gcc openssl-devel bzip2-devel libffi libffi-devel
+sudo yum install -y gcc openssl-devel bzip2-devel libffi libffi-devel sqlite-devel
 cd /usr/src
 wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
 tar xzf Python-3.7.0.tgz
