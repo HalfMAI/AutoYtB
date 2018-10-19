@@ -248,7 +248,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                         tmp_area_id = utitls.configJson().get('area_id', '33')
                         tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
 
-                        liveStreamingDetailsDict = getYoutubeLiveStreamInfo(tmp_entry_videoId)
+                        item = getYoutubeLiveStreamInfo(tmp_entry_videoId)
+                        liveStreamingDetailsDict = None
+                        if item:
+                            liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
                         if liveStreamingDetailsDict:
                             utitls.myLogger("The Sub liveStreamingDetails:{}".format(liveStreamingDetailsDict))
                             tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)

@@ -58,7 +58,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
     resolveURLOK = False
 
     if isSubscribeQuest:
-        tmp_retryTime = 30      #retry 30 minutes, Some youtuber will startLive before few hours
+        tmp_retryTime = 60 * 10      #retry 10 hours, Some youtuber will startLive before few hours
     else:
         tmp_retryTime = 3           # if not subscribe quest, just try 3 minutes
     while tmp_retryTime > 0:

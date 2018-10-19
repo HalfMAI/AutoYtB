@@ -24,25 +24,31 @@ def _requsetBase(callbackURL, channel_id, mode):
     return _baseRequestProcess(response)
 
 
-def getYoutubeVideoInfo(youtubeURL):
-    response = _baseGet('https://www.youtube.com/oembed?url=%s&format=json' % youtubeURL)
-    resJson = _baseRequestProcess(response)
-    author_name = resJson.get('author_name', "")
-    title = resJson.get('title', "")
-    thumbnail_url = resJson.get('thumbnail_url', "")
-    return title, author_name, thumbnail_url
-
-
+g_key = 'AIzaSyBQQK9THRp1OzsGtbcIdgmmAn3MCP77G10'     #youtube API key, it can call 1000k/3 times, it can be public. 1 call cost 3.
 def getYoutubeLiveStreamInfo(vidoeID):
-    key = 'AIzaSyBQQK9THRp1OzsGtbcIdgmmAn3MCP77G10'     #youtube API key, it can call 1000k/3 times, it can be public. 1 call cost 3.
-    response = _baseGet('https://www.googleapis.com/youtube/v3/videos?id={}&part=liveStreamingDetails&key={}'.format(vidoeID, key))
-    resJson = _baseRequestProcess(response)
-    tmp_liveStreamingDetails = resJson.get('liveStreamingDetails', None)
-    if tmp_liveStreamingDetails:
-        return tmp_liveStreamingDetails
+    global g_key
+    resJson = _baseGet('https://www.googleapis.com/youtube/v3/videos?id={}&part=liveStreamingDetails&key={}'.format(vidoeID, g_key))
+    if resJson:
+        item = resJson.get('items',[{}])[0]
+        if item.get('id'):
+            return item
+        else:
+            return None
     else:
-        myLogger('getYoutubeLiveStreamInfo: this is NOT a LIVE VIDEO')
         return None
+
+def getYoutubeLiveVideoInfoFromChannelID(channelID):
+    global g_key
+    resJson = _baseGet('https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={}&eventType=live&type=video&key={}'.format(channelID, g_key))
+    if resJson:
+        item = resJson.get('items',[{}])[0]
+        videoId = item.get('id', {}).get('videoId')
+        if videoId:
+            item = getYoutubeLiveStreamInfo(videoId)
+            return item
+    else:
+        return None
+
 
 
 def isTwitcastingLiving(id):

@@ -3,6 +3,7 @@ import subprocess
 import time, datetime
 import json
 import traceback
+import re
 
 import utitls
 import questInfo
@@ -56,7 +57,7 @@ def _getYoutube_m3u8_sync(youtubeLink, isLog=True):
     return out, None, err, errcode
 
 def resolveStreamToM3u8(streamLink, isLog=True):
-    out, title, err, errcode = None, "", None, -1
+    out, title, err, errcode = None, streamLink, None, -1
 
     tmp_retryTime = 0
     while tmp_retryTime < 4:
@@ -71,8 +72,28 @@ def resolveStreamToM3u8(streamLink, isLog=True):
                 streamM3U8 = vDict.get('url', None)
                 if streamM3U8 == None:
                     return out, title, err, 999        #mean this is not a live
-                tmp_title, tmp_uploader, tmp_thumbnail_url = myRequests.getYoutubeVideoInfo(streamLink)
-                title = "{}_{}".format(vDict.get('uploader', ''), vDict.get('uploader', ''))
+
+                tmp_title = streamLink
+                tmp_uploader = ""
+
+                # just pack the title
+                videoId = streamLink.partition('/watch?v=')[2]
+                c_l = re.findall(r"channel/(.*)/live", streamLink)
+                if len(c_l) > 0:    # find the channelID
+                    channelID = c_l[0]
+                    item = myRequests.getYoutubeLiveVideoInfoFromChannelID(channelID)
+                    if item:
+                        snippet = item.get('snippet', {})
+                        tmp_title = snippet.get('title', streamLink)
+                        tmp_uploader = snippet.get('channelTitle', channelID)
+                elif videoId != '':
+                    item = myRequests.getYoutubeLiveStreamInfo(videoId)
+                    if item:
+                        snippet = item.get('snippet', {})
+                        tmp_title = snippet.get('title', streamLink)
+                        tmp_uploader = snippet.get('channelTitle', channelID)
+
+                title = "{}_{}".format(tmp_uploader, tmp_title)
                 m3u8Link = streamLink
                 return m3u8Link, title, err, errcode
         else:
@@ -97,7 +118,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
     if outputRTMP.startswith('rtmp://'):
         tmp_retryTime = 0
         tmp_cmdStartTime = time.time()
-        while tmp_retryTime <= 10:  # must be <=
+        while tmp_retryTime <= 5:  # must be <=
             tmp_title = forwardLink    # default title is the forwardLink
             tmp_forwardLink = forwardLink
             if 'twitcasting.tv/' in tmp_forwardLink:
@@ -108,10 +129,18 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
                 tmp_forwardLink = 'hlsvariant://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
             else:
                 m3u8Link, tmp_title, err, errcode = resolveStreamToM3u8(tmp_forwardLink)
+                if errcode != 0:
+                    utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % tmp_forwardLink)
+                    break
 
             questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
             # try to restream
             out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
+
+            out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+            if '[cli][info] Stream ended' in out:
+                utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended")
+                break
 
             isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
             if errcode == -9 or isQuestDead or isQuestDead == 'True':
@@ -123,7 +152,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
             else:
                 tmp_retryTime = 0      # let every Connect success reset the retrytime
             tmp_cmdStartTime = time.time()  #import should not miss it.
-            time.sleep(5)   # one m3u8 can hold 20 secounds or less
+            time.sleep(20)   # one m3u8 can hold 20 secounds or less
             utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
             utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
 
