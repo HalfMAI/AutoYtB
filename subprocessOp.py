@@ -56,7 +56,7 @@ def _getYoutube_m3u8_sync(youtubeLink, isLog=True):
     return out, None, err, errcode
 
 def resolveStreamToM3u8(streamLink, isLog=True):
-    out, title, err, errcode = None, None, None, -1
+    out, title, err, errcode = None, "", None, -1
 
     tmp_retryTime = 0
     while tmp_retryTime < 4:
@@ -68,8 +68,8 @@ def resolveStreamToM3u8(streamLink, isLog=True):
             except Exception:
                 vDict = None
             if vDict:
-                streamM3U8 = vDict.get('url')
-                if streamM3U8 != True:
+                streamM3U8 = vDict.get('url', None)
+                if streamM3U8 == None:
                     return out, title, err, 999        #mean this is not a live
                 tmp_title, tmp_uploader, tmp_thumbnail_url = myRequests.getYoutubeVideoInfo(streamLink)
                 title = "{}_{}".format(vDict.get('uploader', ''), vDict.get('uploader', ''))
