@@ -27,7 +27,7 @@ def _requsetBase(callbackURL, channel_id, mode):
 g_key = 'AIzaSyBQQK9THRp1OzsGtbcIdgmmAn3MCP77G10'     #youtube API key, it can call 1000k/3 times, it can be public. 1 call cost 3.
 def getYoutubeLiveStreamInfo(vidoeID):
     global g_key
-    resJson = _baseGet('https://www.googleapis.com/youtube/v3/videos?id={}&part=liveStreamingDetails&key={}'.format(vidoeID, g_key))
+    resJson = _baseGet('https://www.googleapis.com/youtube/v3/videos?id={}&part=liveStreamingDetails,snippet&key={}'.format(vidoeID, g_key))
     if resJson:
         item = resJson.get('items',[{}])[0]
         if item.get('id'):

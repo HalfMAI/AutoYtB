@@ -91,7 +91,7 @@ def resolveStreamToM3u8(streamLink, isLog=True):
                     if item:
                         snippet = item.get('snippet', {})
                         tmp_title = snippet.get('title', streamLink)
-                        tmp_uploader = snippet.get('channelTitle', channelID)
+                        tmp_uploader = snippet.get('channelTitle', "")
 
                 title = "{}_{}".format(tmp_uploader, tmp_title)
                 m3u8Link = streamLink
