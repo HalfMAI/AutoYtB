@@ -55,6 +55,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
         return
 
     __g_try_bili_quest_list.append(input_quest)
+    utitls.myLogger('APPEND QUEST Async_forwardToBilibili:\n{}'.format(input_quest))
     resolveURLOK = False
 
     if isSubscribeQuest:
@@ -63,7 +64,8 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
         tmp_retryTime = 3           # if not subscribe quest, just try 3 minutes
     while tmp_retryTime > 0:
         if 'youtube.com/' in input_link or 'youtu.be/' in input_link:
-            m3u8Link, title, err, errcode = resolveStreamToM3u8(input_link, False)
+            tmp_is_log = (tmp_retryTime % 60 == 0)  # log every 60 minus
+            m3u8Link, title, err, errcode = resolveStreamToM3u8(input_link, tmp_is_log)
             if errcode == 999:
                 # this is just a video upload, so just finish it
                 __g_try_bili_quest_list.remove(input_quest)
@@ -98,6 +100,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
             _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
 
     if input_quest in __g_try_bili_quest_list:
+        utitls.myLogger('REMOVE QUEST Async_forwardToBilibili:\n{}'.format(input_quest))
         __g_try_bili_quest_list.remove(input_quest)
 
 
