@@ -60,7 +60,7 @@ def resolveStreamToM3u8(streamLink, isLog=True):
     out, title, err, errcode = None, streamLink, None, -1
 
     tmp_retryTime = 0
-    while tmp_retryTime < 4:
+    while tmp_retryTime < 2:
         out, err, errcode = __runCMDSync('streamlink -j "{}" best'.format(streamLink), isLog)
         out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
         if errcode == 0:
@@ -98,7 +98,7 @@ def resolveStreamToM3u8(streamLink, isLog=True):
                 return m3u8Link, title, err, errcode
         else:
             tmp_retryTime += 1
-            time.sleep(15)
+            time.sleep(30)
 
     if isLog:
         utitls.myLogger("resolveStreamToM3u8 SOURCE:{} ERROR:{}".format(streamLink, out))

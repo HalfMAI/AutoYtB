@@ -63,8 +63,6 @@ def addQuest(forwardLinkOrign, rtmpLink, isSubscribeQuest=False, questAcc=None):
         'isSubscribeQuest': isSubscribeQuest,
         'title': None
     }
-    if isSubscribeQuest:
-        questDict['questAcc'] = questAcc
     utitls.myLogger('AddQuest LOG:\n AddQuest QUEST:%s' % questDict)
     tmp_quest_list = _getQuestList()
     tmp_quest_list.append(questDict)

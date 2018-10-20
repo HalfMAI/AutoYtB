@@ -29,9 +29,9 @@ def getYoutubeLiveStreamInfo(vidoeID):
     global g_key
     resJson = _baseGet('https://www.googleapis.com/youtube/v3/videos?id={}&part=liveStreamingDetails,snippet&key={}'.format(vidoeID, g_key))
     if resJson:
-        item = resJson.get('items',[{}])[0]
-        if item.get('id'):
-            return item
+        items = resJson.get('items')
+        if len(items) > 1:
+            return items[0].get('id')
         else:
             return None
     else:
