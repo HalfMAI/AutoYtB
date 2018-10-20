@@ -159,7 +159,7 @@ function onSelectAcc() {
   tmp_record = prompt("是否同时进行录像？\n录像写数字1，不录像写数字0\n默认不录像", is_record);
   if (tmp_record != null) { is_record = tmp_record; }
 
-  if ((bpwd) && (bpwd != tmp_dummy_01)){
+  if ((bpwd) && (bpwd != '请输入操作码')){
     var tb = document.getElementById("restreamRtmpLink");
     tb.value = "ACCMARK=" + val
                 + "&" + "OPTC=" + bpwd
