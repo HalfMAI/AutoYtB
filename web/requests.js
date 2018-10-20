@@ -1,3 +1,22 @@
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
 function _disableBtnWithId(id){
     tmp_btn = document.getElementById(id);
     if (tmp_btn) {
@@ -114,20 +133,45 @@ function onSelectDes() {
 
 function onSelectAcc() {
   var tmp_dummy_01 = '请输入操作码';
-  var tmp_dummy_02 = '发送写数字1，不发送写数字0';
-  alert("如果当前账号是正在直播的状态，开播会覆盖当前任务")
+  alert("！！请注意！！\n如果当前账号是正在直播的状态，开播会覆盖当前任务.\n(同来源且同直播间不会覆盖)");
   var val = document.getElementById("SelectAcc").value;
-  var bpwd = prompt("请输入转播账号{" + val + "}操作码", tmp_dummy_01);
-  var is_send_dynamic = prompt("是否发送直播动态？发送写数字1，不发送写数字0", tmp_dummy_02);
-  if ((bpwd && is_send_dynamic) && (bpwd != tmp_dummy_01 && is_send_dynamic != tmp_dummy_02)){
+
+  var tmp_last_opt = getCookie(val);
+  if (tmp_last_opt != null) { tmp_dummy_01 = tmp_last_opt; }
+  var bpwd = prompt("请输入转播账号{" + val + "}操作码\n(会记录在本地浏览器中)", tmp_dummy_01);
+  if (bpwd == null) {return;}
+  setCookie(val, bpwd);
+
+  var b_title = null;
+  b_title = prompt("请输入直播间标题。\n如果不需要更改，请点击“取消”");
+  var is_send_dynamic = prompt("是否发送直播动态？\n发送写数字1，不发送写数字0.\n(默认不发送)", "0");
+  if (is_send_dynamic == null) {return;}
+
+  var dynamic_words = "开始直播了\\n转播中\\n";
+  if (is_send_dynamic == '1'){
+    tmp_word = prompt("请输入动态内容,以'\\n'做分行\n例：'这是'\\n'分行'\n下面已经填入了默认内容,最终发送时会自动附带直播间地址。", dynamic_words);
+    if (tmp_word != null) { dynamic_words = tmp_word; }
+  }
+
+  var is_record = "0";
+  tmp_record = prompt("是否同时进行录像？\n录像写数字1，不录像写数字0\n默认不录像", is_record);
+  if (tmp_record != null) { is_record = tmp_record; }
+
+  if ((bpwd) && (bpwd != tmp_dummy_01)){
     var tb = document.getElementById("restreamRtmpLink");
     tb.value = "ACCMARK=" + val
                 + "&" + "OPTC=" + bpwd
-                + "&" + "SEND_DYNAMIC=" + is_send_dynamic;
+                + "&" + "SEND_DYNAMIC=" + is_send_dynamic
+                + "&" + "DYNAMIC_WORDS=" + dynamic_words
+                + "&" + "IS_SHOULD_RECORD=" + is_record;
+    if (b_title) {
+      tb.value += "&" + "B_TITLE=" + b_title;
+    }
+
     tb.setAttribute("onmousedown", 'return false;');
     tb.setAttribute("onselectstart", 'return false;');
 
-    alert("注意：此种方式开播后，不要进入B站直播后面页面操作，否则会导致RTMP流中断，并且不能自动恢复！！")
+    alert("注意：此种方式开播后，(尽量)不要进入B站直播后面页面操作，否则会导致RTMP流中断，并且不能自动恢复！！\n如果需要关闭直播间请自动进入b站后台进行关闭.")
   } else {
     document.getElementById("SelectAcc")[0].selected = 'selected';
   }

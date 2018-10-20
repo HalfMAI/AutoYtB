@@ -110,12 +110,20 @@ class RequestHandler(BaseHTTPRequestHandler):
                     acc_list = params.get('ACCMARK', None)
                     opt_code_list = params.get('OPTC', None)
                     is_send_dynamic_list = params.get('SEND_DYNAMIC', None)
+                    dynamic_words_list = params.get('DYNAMIC_WORDS', None)
+                    is_should_record_list = params.get('IS_SHOULD_RECORD', None)
+                    b_title_list = params.get('B_TITLE', None)
 
                     rc = 200
-                    if acc_list and opt_code_list:
+                    if acc_list and opt_code_list and is_send_dynamic_list and dynamic_words_list:
                         acc_mark = acc_list[0].strip()
                         opt_code = opt_code_list[0].strip()
                         is_send_dynamic = is_send_dynamic_list[0].strip()
+                        dynamic_words = dynamic_words_list[0].strip()
+                        is_should_record = is_should_record_list[0].strip()
+                        b_title = None
+                        if b_title_list:
+                            b_title = b_title_list[0].strip()
 
 
                         tmp_is_acc_exist = False
@@ -125,6 +133,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 if opt_code == sub.get('opt_code', ""):
                                     tmp_is_acc_exist = True
                                     sub['auto_send_dynamic'] = True if is_send_dynamic == '1' else False
+                                    sub['dynamic_template'] = dynamic_words + "${roomUrl}"
+                                    sub['is_should_record'] = True if is_should_record == '1' else False
+                                    if b_title:
+                                        sub['change_b_title'] = b_title
                                     Async_forwardToBilibili(sub, tmp_forwardLink, isSubscribeQuest=False)
                                 break
 

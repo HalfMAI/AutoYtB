@@ -105,9 +105,9 @@ def resolveStreamToM3u8(streamLink, isLog=True):
     return out, title, err, errcode
 
 
-def async_forwardStream(forwardLink, outputRTMP, isSubscribeQuest):
-    utitls.runFuncAsyncThread(_forwardStream_sync, (forwardLink, outputRTMP, isSubscribeQuest))
-def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
+def async_forwardStream(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj=None):
+    utitls.runFuncAsyncThread(_forwardStream_sync, (forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj))
+def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj=None):
     tmp_quest = questInfo._getObjWithRTMPLink(outputRTMP)
     if tmp_quest:
         if tmp_quest.get('isRestart') == None:
@@ -139,11 +139,13 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
 
         if is_stream_playable == True:
             questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
+            if subscribe_obj:
+                questInfo.updateQuestInfo('AccountMARK', subscribe_obj.get("mark", ""), outputRTMP)
             tmp_retryTime = 0
             tmp_cmdStartTime = time.time()
             while tmp_retryTime <= 5:  # must be <=
                 # try to restream
-                out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
+                out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
                 out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
                 if '[cli][info] Stream ended' in out:
@@ -169,7 +171,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
     questInfo.removeQuest(outputRTMP)
 
 # https://judge2020.com/restreaming-a-m3u8-hls-stream-to-youtube-using-ffmpeg/
-def _forwardStreamCMD_sync(title, inputStreamLink, outputRTMP):
+def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
     os.makedirs('Videos', exist_ok=True)
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputStreamLink, outputRTMP))
     title = title.replace('https', '')
@@ -199,7 +201,14 @@ def _forwardStreamCMD_sync(title, inputStreamLink, outputRTMP):
         tmp_out_rtmp
     ]
 
-    if utitls.configJson().get('is_auto_record', False):
+    tmp_should_record = None
+    if subscribe_obj:
+        tmp_should_record = subscribe_obj.get('is_should_record', None)
+    if tmp_should_record == None:
+        if utitls.configJson().get('is_auto_record', False):
+            tmp_should_record = True
+
+    if tmp_should_record == True:
         cmd_list.append('-vcodec copy -acodec aac -strict -2 -ac 2 -bsf:a aac_adtstoasc')
         cmd_list.append(tmp_out_file)
 

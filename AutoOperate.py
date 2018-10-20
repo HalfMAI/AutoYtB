@@ -32,7 +32,9 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
 
     t_room_id = b.getLiveRoomId()
     # b.stopLive(t_room_id)   #Just don't care the Live status, JUST STARTLIVE
-    # b.updateRoomTitle(t_room_id, room_title) #Maybe just ignore changing the title
+    t_b_title = curSub.get('change_b_title')
+    if t_b_title:
+        b.updateRoomTitle(t_room_id, t_b_title)
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
 
     if curSub.get('auto_send_dynamic') and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
@@ -97,7 +99,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                     utitls.myLogger(traceback.format_exc())
                 time.sleep(5)
             # force stream
-            _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest)
+            _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest, subscribe_obj)
 
     if input_quest in __g_try_bili_quest_list:
         utitls.myLogger('REMOVE QUEST Async_forwardToBilibili:\n{}'.format(input_quest))
