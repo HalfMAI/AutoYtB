@@ -5,7 +5,7 @@ import json
 import datetime
 import traceback
 import re
-
+import signal, psutil
 import threading
 
 K_MANUAL_JSON_PATH = 'manualRestream.json'
@@ -40,6 +40,15 @@ def remove_emoji(text):
             u"\U00002700-\U000027BF"  # Dingbats
                                "]+", flags=re.UNICODE)
     return emoji_pattern.sub(r'', text)
+
+def kill_child_processes(parent_pid, sig=signal.SIGTERM):
+    try:
+      parent = psutil.Process(parent_pid)
+    except psutil.NoSuchProcess:
+      return
+    children = parent.children(recursive=True)
+    for process in children:
+      process.send_signal(sig)
 
 def checkIsSupportForwardLink(forwardLink):
     check_list = [

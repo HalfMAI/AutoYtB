@@ -94,7 +94,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
             tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
             if tmp_quest != None:
                 try:
-                    os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
+                    utitls.kill_child_processes(tmp_quest.get('pid', None))
                 except Exception:
                     utitls.myLogger(traceback.format_exc())
                 time.sleep(5)

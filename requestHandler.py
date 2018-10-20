@@ -156,12 +156,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                 tmp_rtmpLink = tmp_rtmpLink_list[0].strip()
                 tmp_quest = _getObjWithRTMPLink(tmp_rtmpLink)
                 if tmp_quest != None:
-                    try:
-                        os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
-                        rb = json.dumps({"code": 0, "msg": "操作成功"})
-                    except Exception:
-                        updateQuestInfo('isDead', True, tmp_rtmpLink)
-                        rb = json.dumps({"code": 1, "msg": "当前任务正在重试连接中，下次任务重试连接时会自动删除此任务"})
+                    updateQuestInfo('isDead', True, tmp_rtmpLink)
+                    utitls.kill_child_processes(tmp_quest.get('pid', None))
+                    rb = json.dumps({"code": 0, "msg": "操作成功"})
                 else:
                     rb = json.dumps({"code": -1, "msg": "查找不到对应的任务：{}，操作失败!!".format(tmp_rtmpLink)})
         elif request_path.startswith('/addRestreamSrc?'):
@@ -274,10 +271,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 #kill the End stream proccess
                                 tmp_quest = _getObjWithAccMark(tmp_subscribe_obj.get('mark'))
                                 if tmp_quest != None:
-                                    try:
-                                        os.kill(tmp_quest.get('pid', None), signal.SIGKILL)
-                                    except Exception:
-                                        utitls.myLogger(traceback.format_exc())
+                                    utitls.kill_child_processes(tmp_quest.get('pid', None))
                             elif tmp_scheduled_start_time:
                                 # scheduled the quest
                                 job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, tmp_entry_videoId)

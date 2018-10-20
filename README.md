@@ -78,6 +78,7 @@ pip3.7 install selenium
 pip3.7 install Pillow
 pip3.7 install sqlalchemy
 pip3.7 install apscheduler
+pip3.7 install psutil
 ```
 
 
