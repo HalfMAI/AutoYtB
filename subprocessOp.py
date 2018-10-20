@@ -143,12 +143,12 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                 questInfo.updateQuestInfo('AccountMARK', subscribe_obj.get("mark", ""), outputRTMP)
             tmp_retryTime = 0
             tmp_cmdStartTime = time.time()
-            while tmp_retryTime <= 5:  # must be <=
+            while tmp_retryTime <= 2:  # must be <=
                 # try to restream
                 out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
                 out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-                if '[cli][info] Stream ended' in out:
+                if '[cli][info] Stream ended' in out:           # this will cause the retry out, it good as so far.
                     utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended=======<")
                     break
 
