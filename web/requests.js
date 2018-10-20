@@ -138,14 +138,16 @@ function onSelectAcc() {
 
   var tmp_last_opt = getCookie(val);
   if (tmp_last_opt != null) { tmp_dummy_01 = tmp_last_opt; }
-  var bpwd = prompt("请输入转播账号{" + val + "}操作码\n(会记录在本地浏览器中)", tmp_dummy_01);
-  if (bpwd == null) {return;}
+  var bpwd = prompt("请输入转播账号{" + val + "}操作码\n(操作码会记录在本地浏览器中,点击'取消'中断后续操作)", tmp_dummy_01);
+  if (bpwd == null) {
+    document.getElementById("SelectAcc")[0].selected = 'selected';
+    return;
+  }
   setCookie(val, bpwd);
 
   var b_title = null;
   b_title = prompt("请输入直播间标题。\n如果不需要更改，请点击“取消”");
   var is_send_dynamic = prompt("是否发送直播动态？\n发送写数字1，不发送写数字0.\n(默认不发送)", "0");
-  if (is_send_dynamic == null) {return;}
 
   var dynamic_words = "开始直播了\\n转播中\\n";
   if (is_send_dynamic == '1'){
