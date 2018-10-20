@@ -100,7 +100,8 @@ def resolveStreamToM3u8(streamLink, isLog=True):
             tmp_retryTime += 1
             time.sleep(15)
 
-    utitls.myLogger("resolveStreamToM3u8 SOURCE:{} ERROR:{}".format(streamLink, out))
+    if isLog:
+        utitls.myLogger("resolveStreamToM3u8 SOURCE:{} ERROR:{}".format(streamLink, out))
     return out, title, err, errcode
 
 
@@ -116,46 +117,52 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest):
         questInfo.addQuest(forwardLink, outputRTMP, isSubscribeQuest)
 
     if outputRTMP.startswith('rtmp://'):
-        tmp_retryTime = 0
-        tmp_cmdStartTime = time.time()
-        while tmp_retryTime <= 5:  # must be <=
-            tmp_title = forwardLink    # default title is the forwardLink
-            tmp_forwardLink = forwardLink
-            if 'twitcasting.tv/' in tmp_forwardLink:
-                #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
-                tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
-                tmp_twitcasID = tmp_twitcasID.split('/')[0]
-                # if using the streamlink, it should be start with hlsvariant://
-                tmp_forwardLink = 'hlsvariant://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+        is_stream_playable = False
+
+        tmp_title = forwardLink    # default title is the forwardLink
+        tmp_forwardLink = forwardLink
+        if 'twitcasting.tv/' in tmp_forwardLink:
+            #('https://www.', 'twitcasting.tv/', 're2_takatsuki/fwer/aeqwet')
+            tmp_twitcasID = tmp_forwardLink.partition('twitcasting.tv/')[2]
+            tmp_twitcasID = tmp_twitcasID.split('/')[0]
+            # if using the streamlink, it should be start with hlsvariant://
+            tmp_forwardLink = 'hlsvariant://twitcasting.tv/{}/metastream.m3u8/?video=1'.format(tmp_twitcasID)
+            is_stream_playable = True
+        else:
+            m3u8Link, tmp_title, err, errcode = resolveStreamToM3u8(tmp_forwardLink)
+            tmp_forwardLink = forwardLink   # use the orgin streamlink
+            if errcode == 0:
+                is_stream_playable = True
             else:
-                m3u8Link, tmp_title, err, errcode = resolveStreamToM3u8(tmp_forwardLink)
-                if errcode != 0:
-                    utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % tmp_forwardLink)
+                utitls.myLogger("_forwardStream_sync ERROR: Unsupport forwardLink:%s" % tmp_forwardLink)
+                is_stream_playable = False
+
+        if is_stream_playable == True:
+            questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
+            tmp_retryTime = 0
+            tmp_cmdStartTime = time.time()
+            while tmp_retryTime <= 5:  # must be <=
+                # try to restream
+                out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
+
+                out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
+                if '[cli][info] Stream ended' in out:
+                    utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended=======<")
                     break
 
-            questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
-            # try to restream
-            out, err, errcode = _forwardStreamCMD_sync(tmp_title, tmp_forwardLink, outputRTMP)
-
-            out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-            if '[cli][info] Stream ended' in out:
-                utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended")
-                break
-
-            isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
-            if errcode == -9 or isQuestDead or isQuestDead == 'True':
-                utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
-                break
-            # maybe can ignore the error if ran after 2min?
-            if time.time() - tmp_cmdStartTime < 120:
-                tmp_retryTime += 1      # make it can exit
-            else:
-                tmp_retryTime = 0      # let every Connect success reset the retrytime
-            tmp_cmdStartTime = time.time()  #import should not miss it.
-            time.sleep(20)   # one m3u8 can hold 20 secounds or less
-            utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
-            utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
-
+                isQuestDead = questInfo._getObjWithRTMPLink(outputRTMP).get('isDead', False)
+                if errcode == -9 or isQuestDead or isQuestDead == 'True':
+                    utitls.myLogger("_forwardStreamCMD_sync LOG: Kill Current procces by rtmp:%s" % outputRTMP)
+                    break
+                # maybe can ignore the error if ran after 2min?
+                if time.time() - tmp_cmdStartTime < 120:
+                    tmp_retryTime += 1      # make it can exit
+                else:
+                    tmp_retryTime = 0      # let every Connect success reset the retrytime
+                tmp_cmdStartTime = time.time()  #import should not miss it.
+                time.sleep(20)   # one m3u8 can hold 20 secounds or less
+                utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
+                utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
     else:
         utitls.myLogger("_forwardStream_sync ERROR: Invalid outputRTMP:%s" % outputRTMP)
 
@@ -167,6 +174,7 @@ def _forwardStreamCMD_sync(title, inputStreamLink, outputRTMP):
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputStreamLink, outputRTMP))
     title = title.replace('https', '')
     title = title.replace('http', '')
+    title = title.replace('hlsvariant', '')
     reserved_list = ['/', '\\', ':', '?', '%', '*', '|', '"', '.', ' ', '<', '>']
     for val in reserved_list:
         title = title.replace(val, '_')
