@@ -149,7 +149,7 @@ function onSelectAcc() {
   b_title = prompt("请输入直播间标题。\n如果不需要更改，请点击“取消”");
   var is_send_dynamic = prompt("是否发送直播动态？\n发送写数字1，不发送写数字0.\n(默认不发送)", "0");
 
-  var dynamic_words = "开始直播了\\n转播中\\n";
+  var dynamic_words = "开始直播了\n转播中\n";
   if (is_send_dynamic == '1'){
     tmp_word = prompt("请输入动态内容,以'\\n'做分行\n例：'这是'\\n'分行'\n下面已经填入了默认内容,最终发送时会自动附带直播间地址。", dynamic_words);
     if (tmp_word != null) { dynamic_words = tmp_word; }
