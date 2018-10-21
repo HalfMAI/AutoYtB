@@ -21,8 +21,13 @@ def startWebServer():
     return server.shutdown()
 
 def main():
-    AutoOperate.preparingAllAccountsCookies()
-    AutoOperate.clearOldQuests()
+    try:
+        AutoOperate.preparingAllAccountsCookies()
+        AutoOperate.clearOldQuests()
+        AutoOperate.perparingAllComingVideos()
+    except BaseException as e:
+        utitls.myLogger(str(e))
+        utitls.myLogger(traceback.format_exc())
     startWebServer()
     pass
 

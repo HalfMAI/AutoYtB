@@ -254,7 +254,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         #try to restream
                         tmp_subscribe_obj = utitls.getSubWithKey('youtubeChannelId', tmp_entry_channelId)
                         tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
-                        tmp_area_id = utitls.configJson().get('area_id', '33')
+                        tmp_area_id = tmp_subscribe_obj.get('area_id', '33')
                         tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
 
                         item = getYoutubeLiveStreamInfo(tmp_entry_videoId)
@@ -282,7 +282,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
                                     (tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                                 )
-                            else:                            
+                            else:
                                 Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                     except Exception:
                         rc = 404

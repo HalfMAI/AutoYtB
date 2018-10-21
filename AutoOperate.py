@@ -8,7 +8,8 @@ from login import login
 from bilibiliProxy import BilibiliProxy
 from subprocessOp import _forwardStream_sync, resolveStreamToM3u8, async_forwardStream
 import questInfo
-from myRequests import subscribe
+from myRequests import subscribe, getUpcomingLiveVideos, getYoutubeLiveStreamInfo
+import scheduler
 
 def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
     curSub = subscribe_obj
@@ -36,10 +37,12 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
     if t_b_title:
         b.updateRoomTitle(t_room_id, t_b_title)
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
+    t_cur_blive_url = 'https://live.bilibili.com/' + t_room_id
+    curSub['cur_blive_url'] = t_cur_blive_url
 
     if curSub.get('auto_send_dynamic') and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
         if curSub.get('dynamic_template'):
-            b.send_dynamic((curSub['dynamic_template']).replace('${roomUrl}', 'https://live.bilibili.com/' + t_room_id))
+            b.send_dynamic((curSub['dynamic_template']).replace('${roomUrl}', t_cur_blive_url))
         else:
             b.send_dynamic('转播开始了哦~')
     return b, t_room_id, rtmp_link
@@ -142,6 +145,36 @@ def restartOldQuests():
                     quest.get('isSubscribeQuest')
                 )
 
+def perparingAllComingVideos():
+    utitls.runFuncAsyncThread(perparingAllComingVideos_sync, ())
+def perparingAllComingVideos_sync():
+    time.sleep(2)   #wait the server start preparing
+    subscribeList = utitls.configJson().get('subscribeList', [])
+    for subObj in subscribeList:
+        tmp_subscribeId = subObj.get('youtubeChannelId', "")
+        if tmp_subscribeId != "":
+            videoIds = getUpcomingLiveVideos(tmp_subscribeId)
+            for vid in videoIds:
+                item = getYoutubeLiveStreamInfo(vid)
+                if item:
+                    liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
+                    if liveStreamingDetailsDict:
+                        tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
+                        tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
+                        tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
+                        tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
+
+                        if tmp_scheduled_start_time and tmp_is_end == None and tmp_is_live == None and tmp_actual_start_time == None:
+                            tmp_acc_mark = subObj.get('mark', "")
+                            tmp_area_id = subObj.get('area_id', '33')
+                            job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, vid)
+
+                            snippet = item.get('snippet', {})
+                            tmp_title = snippet.get('title', "")
+                            tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(vid)
+                            scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
+                                (subObj, tmp_live_link, tmp_title, tmp_area_id)
+                            )
 
 def preparingAllAccountsCookies():
     utitls.runFuncAsyncThread(preparingAllAccountsCookies_sync, ())

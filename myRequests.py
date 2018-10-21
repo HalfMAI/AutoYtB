@@ -59,6 +59,23 @@ def getYoutubeLiveVideoInfoFromChannelID(channelID):
         return None
 
 
+def getUpcomingLiveVideos(channelID):
+    global g_key
+    resJson = _baseGet('https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={}&eventType=upcoming&type=video&key={}'.format(channelID, g_key))
+    if resJson:
+        items = resJson.get('items', [])
+        if len(items) > 0:
+            ret_videos_id = []
+            for v in items:
+                videoId = v.get('id', {}).get('videoId')
+                if videoId:
+                    ret_videos_id.append(videoId)
+            return ret_videos_id
+        else:
+            return []
+    else:
+        return []
+
 
 def isTwitcastingLiving(id):
     res = _baseGet('http://api.twitcasting.tv/api/livestatus?user=' + id)

@@ -81,7 +81,7 @@ def resolveStreamToM3u8(streamLink, isLog=True):
                 if 'youtu.be/' in streamLink:
                     videoId = streamLink.partition('youtu.be/')[2]
                     videoId = videoId.split('/')[0]
-                    
+
                 c_l = re.findall(r"channel/(.*)/live", streamLink)
                 if len(c_l) > 0:    # find the channelID
                     channelID = c_l[0]
@@ -145,14 +145,15 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
             questInfo.updateQuestInfo('title', tmp_title, outputRTMP)
             if subscribe_obj:
                 questInfo.updateQuestInfo('AccountMARK', subscribe_obj.get("mark", ""), outputRTMP)
+                questInfo.updateQuestInfo('Live_URL', subscribe_obj.get("cur_blive_url", ""), outputRTMP)
             tmp_retryTime = 0
             tmp_cmdStartTime = time.time()
-            while tmp_retryTime <= 2:  # must be <=
+            while tmp_retryTime <= 6:  # must be <=
                 # try to restream
                 out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
                 out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-                if '[cli][info] Stream ended' in out:           # this will cause the retry out, it good as so far.
+                if '[cli][info] Stream ended' in out and (time.time() - tmp_cmdStartTime > 120):           # this will cause the retry out after 2mins, it good as so far.
                     utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended=======<")
                     break
 
@@ -165,8 +166,8 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                     tmp_retryTime += 1      # make it can exit
                 else:
                     tmp_retryTime = 0      # let every Connect success reset the retrytime
+                time.sleep(5)   # one m3u8 can hold 20 secounds or less
                 tmp_cmdStartTime = time.time()  #import should not miss it.
-                time.sleep(20)   # one m3u8 can hold 20 secounds or less
                 utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
                 utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
     else:
