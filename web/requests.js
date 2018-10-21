@@ -151,7 +151,7 @@ function onSelectAcc() {
 
   var dynamic_words = "开始直播了\n转播中\n";
   if (is_send_dynamic == '1'){
-    tmp_word = prompt("请输入动态内容,以'\\n'做分行\n例：'这是'\\n'分行'\n下面已经填入了默认内容,最终发送时会自动附带直播间地址。", dynamic_words);
+    tmp_word = prompt("请输入动态内容,以\\n做分行\n例：'这是\\n分行'\n下面已经填入了默认内容,最终发送时会自动附带直播间地址。", dynamic_words);
     if (tmp_word != null) { dynamic_words = tmp_word; }
   }
 
