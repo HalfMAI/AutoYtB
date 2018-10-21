@@ -78,6 +78,10 @@ def resolveStreamToM3u8(streamLink, isLog=True):
 
                 # just pack the title
                 videoId = streamLink.partition('/watch?v=')[2]
+                if 'youtu.be/' in streamLink:
+                    videoId = streamLink.partition('youtu.be/')[2]
+                    videoId = videoId.split('/')[0]
+                    
                 c_l = re.findall(r"channel/(.*)/live", streamLink)
                 if len(c_l) > 0:    # find the channelID
                     channelID = c_l[0]

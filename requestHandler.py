@@ -264,6 +264,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         if liveStreamingDetailsDict:
                             utitls.myLogger("The Sub liveStreamingDetails:{}".format(liveStreamingDetailsDict))
                             tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
+                            tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
                             tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
                             tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
 
@@ -272,6 +273,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 tmp_quest = _getObjWithAccMark(tmp_subscribe_obj.get('mark'))
                                 if tmp_quest != None:
                                     utitls.kill_child_processes(tmp_quest.get('pid', None))
+                            elif tmp_is_live or tmp_actual_start_time:
+                                Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                             elif tmp_scheduled_start_time:
                                 # scheduled the quest
                                 job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, tmp_entry_videoId)
@@ -279,7 +282,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
                                     (tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                                 )
-                            else:
+                            else:                            
                                 Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                     except Exception:
                         rc = 404
