@@ -41,11 +41,15 @@ def getYoutubeLiveVideoInfoFromChannelID(channelID):
     global g_key
     resJson = _baseGet('https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={}&eventType=live&type=video&key={}'.format(channelID, g_key))
     if resJson:
-        item = resJson.get('items',[{}])[0]
-        videoId = item.get('id', {}).get('videoId')
-        if videoId:
-            item = getYoutubeLiveStreamInfo(videoId)
-            return item
+        items = resJson.get('items')
+        if len(items) > 1:
+            item = items[0]
+            videoId = item.get('id', {}).get('videoId')
+            if videoId:
+                item = getYoutubeLiveStreamInfo(videoId)
+                return item
+        else:
+            return None
     else:
         return None
 
