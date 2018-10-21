@@ -173,7 +173,9 @@ function onSelectAcc() {
     tb.setAttribute("onmousedown", 'return false;');
     tb.setAttribute("onselectstart", 'return false;');
 
-    alert("注意：此种方式开播后，(尽量)不要进入B站直播后面页面操作，否则会导致RTMP流中断，并且不能自动恢复！！\n如果需要关闭直播间请自动进入b站后台进行关闭.")
+    alert("!!!!注意!!!!!!：此种账号开播方式开播后(一定)不要进入B站直播管理页面操作！！\n开播后不要进入B站直播管理页面操作！！\n开播后不要进入B站直播管理页面操作！！"
+    + "\n\n如果必需进入B站直播管理页面操作，请先操作B站直播管理页面后再从这里开播。否则会导致RTMP流中断，导致新进直播间的人不能观看，并且不能断开和恢复！！"
+    + "\n\n如果需要关闭直播间请自动进入b站后台进行关闭.");
   } else {
     document.getElementById("SelectAcc")[0].selected = 'selected';
   }
