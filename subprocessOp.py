@@ -86,6 +86,8 @@ def resolveStreamToM3u8(streamLink, isLog=True):
                 if len(c_l) > 0:    # find the channelID
                     channelID = c_l[0]
                     item = myRequests.getYoutubeLiveVideoInfoFromChannelID(channelID)
+                    if item == None:
+                        item = myRequests.getYoutubeLiveVideoInfoFromChannelID(channelID, 'upcoming')
                     if item:
                         snippet = item.get('snippet', {})
                         tmp_title = snippet.get('title', streamLink)

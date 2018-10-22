@@ -255,7 +255,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                         tmp_subscribe_obj = utitls.getSubWithKey('youtubeChannelId', tmp_entry_channelId)
                         tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
                         tmp_area_id = tmp_subscribe_obj.get('area_id', '33')
-                        tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
+                        # tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
+                        tmp_live_link = tmp_entry_link
 
                         item = getYoutubeLiveStreamInfo(tmp_entry_videoId)
                         liveStreamingDetailsDict = None
