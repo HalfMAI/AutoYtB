@@ -1,4 +1,4 @@
-import os
+import os, shutil
 import subprocess
 import time, datetime
 import json
@@ -179,7 +179,8 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
 
 # https://judge2020.com/restreaming-a-m3u8-hls-stream-to-youtube-using-ffmpeg/
 def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
-    os.makedirs('Videos', exist_ok=True)
+    os.makedirs('archive_videos', exist_ok=True)
+    os.makedirs('temp_videos', exist_ok=True)
     utitls.myLogger("_forwardStream_sync LOG:%s, %s" % (inputStreamLink, outputRTMP))
     title = title.replace('https', '')
     title = title.replace('http', '')
@@ -189,11 +190,12 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
         title = title.replace(val, '_')
 
     out, err, errcode = None, None, None
+    recordFileName_nosuffix = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "_" + utitls.remove_emoji(title.strip())
     recordFilePath = os.path.join(
         os.getcwd(),
-        'Videos',
-        utitls.remove_emoji(title.strip()) + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-    ) + '.mp4'
+        'temp_videos',
+        recordFileName_nosuffix + '.flv'
+    )
 
     # tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputStreamLink)
     tmp_input = 'streamlink --retry-streams 3 --retry-max 10 --retry-open 10 -O {} best|ffmpeg -loglevel error -i pipe:0'.format(inputStreamLink)
@@ -225,4 +227,13 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
     cmd = cmd.strip()   #strip the last ' '
 
     out, err, errcode = __runCMDSync(cmd)
+    if errcode == 0:
+        try:
+            # move the video to archive floder and change container to mp4
+            archive_path = os.path.join(os.getcwd(), 'archive_videos', recordFileName_nosuffix + '.mp4')
+            __runCMDSync('ffmpeg -i {} -codec copy -y {}'.format(recordFilePath, archive_path))
+            if os.path.exists(recordFilePath):
+                os.remove(recordFilePath)
+        except Exception:
+            utitls.myLogger(traceback.format_exc())
     return out, err, errcode
