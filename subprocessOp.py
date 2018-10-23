@@ -155,7 +155,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                 out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
                 out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-                if '[cli][info] Stream ended' in out:           # this will cause the retry out, it good as so far.
+                if '[cli][info] Stream ended' in out or (time.time() - tmp_cmdStartTime > 120):           # this will cause the retry out, it good as so far.
                     utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended=======<")
                     break
 
@@ -231,7 +231,7 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
         try:
             # move the video to archive floder and change container to mp4
             archive_path = os.path.join(os.getcwd(), 'archive_videos', recordFileName_nosuffix + '.mp4')
-            __runCMDSync('ffmpeg -i {} -codec copy -y {}'.format(recordFilePath, archive_path))
+            __runCMDSync('ffmpeg -loglevel error -i {} -codec copy -y {}'.format(recordFilePath, archive_path))
             if os.path.exists(recordFilePath):
                 os.remove(recordFilePath)
         except Exception:
