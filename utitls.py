@@ -56,7 +56,8 @@ def checkIsSupportForwardLink(forwardLink):
         'twitcasting.tv/',
         'youtube.com/', 'youtu.be/',
         'twitch.tv/',
-        'showroom-live.com/'
+        'showroom-live.com/',
+        'openrec.tv/'
     ]
     for word in check_list:
         if word in forwardLink:

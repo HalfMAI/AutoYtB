@@ -306,7 +306,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     link_list = list(set(link_list))    # remove the duplicates items
                     if len(link_list) > 0:
                         l = link_list[0]     # I THINK they will just sent one link, so just use the first one
-                        if 'twitter.com' not in l:
+                        if 'twitter.com' not in l \
+                            and utitls.checkIsSupportForwardLink(l):
                             r = requests.get(l)
                             redirect_url = r.url      # get the redirect url
                             cur_sub = utitls.getSubWithKey('twitterId', tmp_acc)

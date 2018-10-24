@@ -82,6 +82,9 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                 break
             else:
                 tmp_retryTime -= 1
+        elif utitls.checkIsSupportForwardLink(input_link):
+            resolveURLOK = True
+            break
         else:
             if isSubscribeQuest:
                 utitls.myLogger('_forwardToBilibili_Sync LOG: Unsupport ForwardLink:' + input_link)
