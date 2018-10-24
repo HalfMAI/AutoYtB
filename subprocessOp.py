@@ -150,12 +150,12 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                 questInfo.updateQuestInfo('Live_URL', subscribe_obj.get("cur_blive_url", ""), outputRTMP)
             tmp_retryTime = 0
             tmp_cmdStartTime = time.time()
-            while tmp_retryTime <= 2:  # must be <=
+            while tmp_retryTime <= 5:  # must be <=
                 # try to restream
                 out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
                 out = out.decode('utf-8') if isinstance(out, (bytes, bytearray)) else out
-                if '[cli][info] Stream ended' in out or (time.time() - tmp_cmdStartTime > 120):           # this will cause the retry out, it good as so far.
+                if errcode == 0 and ('[cli][info] Stream ended' in out) and (time.time() - tmp_cmdStartTime > 180):           # this will cause the retry out, it good as so far.
                     utitls.myLogger("_forwardStreamCMD_sync LOG: Stream ended=======<")
                     break
 
@@ -198,7 +198,7 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
     )
 
     # tmp_input = 'ffmpeg -loglevel error -i "{}"'.format(inputStreamLink)
-    tmp_input = 'streamlink --retry-streams 3 --retry-max 10 --retry-open 10 -O {} best|ffmpeg -loglevel error -i pipe:0'.format(inputStreamLink)
+    tmp_input = 'streamlink --retry-streams 6 --retry-max 10 --retry-open 10 --hls-timeout 120 --hls-playlist-reload-attempts 10 -O {} best|ffmpeg -loglevel error -i pipe:0'.format(inputStreamLink)
     tmp_out_rtmp = '-f flv "{}"'.format(outputRTMP)
     tmp_out_file = '-y -f flv "{}"'.format(recordFilePath)
 
