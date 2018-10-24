@@ -293,11 +293,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             else:
                 utitls.myLogger("verifySecert Failed with:" + secert)
         elif '/tweet' == request_path:
-            # check the secert
-            secert = self.headers.get('Authorization', '')
-            if secert == utitls.configJson().get('subSecert', ''):
-                try:
-                    postDict = json.loads(post_data)
+            try:
+                postDict = json.loads(post_data)
+                # check the secert
+                secert = postDict.get('auth', '')
+                if secert == utitls.configJson().get('subSecert', ''):
                     tmp_acc = postDict.get('twitter_acc', "")
                     tmp_body = postDict.get('twitter_body', "")
                     rc = 200
@@ -313,7 +313,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                             if cur_sub:
                                 tmp_area_id = cur_sub.get('area_id', '33')
                                 Async_forwardToBilibili(cur_sub, redirect_url, "THIS TITLE IS USENESS", tmp_area_id)
-                except Exception:
-                    utitls.myLogger(traceback.format_exc())
+            except Exception:
+                utitls.myLogger(traceback.format_exc())
         self.send_response(rc)
         self.end_headers()
