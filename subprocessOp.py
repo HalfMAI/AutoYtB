@@ -190,7 +190,7 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
         title = title.replace(val, '_')
 
     out, err, errcode = None, None, None
-    recordFileName_nosuffix = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "_" + utitls.remove_emoji(title.strip())
+    recordFileName_nosuffix = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S") + "_" + utitls.remove_emoji(title.strip())
     recordFilePath = os.path.join(
         os.getcwd(),
         'temp_videos',
@@ -227,13 +227,12 @@ def _forwardStreamCMD_sync(title, subscribe_obj, inputStreamLink, outputRTMP):
     cmd = cmd.strip()   #strip the last ' '
 
     out, err, errcode = __runCMDSync(cmd)
-    if errcode == 0:
-        try:
+    try:
+        if os.path.exists(recordFilePath):
             # move the video to archive floder and change container to mp4
             archive_path = os.path.join(os.getcwd(), 'archive_videos', recordFileName_nosuffix + '.mp4')
             __runCMDSync('ffmpeg -loglevel error -i {} -codec copy -y {}'.format(recordFilePath, archive_path))
-            if os.path.exists(recordFilePath):
-                os.remove(recordFilePath)
-        except Exception:
-            utitls.myLogger(traceback.format_exc())
+            os.remove(recordFilePath)
+    except Exception:
+        utitls.myLogger(traceback.format_exc())
     return out, err, errcode
