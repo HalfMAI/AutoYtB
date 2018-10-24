@@ -174,7 +174,7 @@ def perparingAllComingVideos_sync():
 
                             snippet = item.get('snippet', {})
                             tmp_title = snippet.get('title', "")
-                            tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(vid)
+                            tmp_live_link = 'https://www.youtube.com/watch?v={}'.format(vid)
                             scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
                                 (subObj, tmp_live_link, tmp_title, tmp_area_id)
                             )
