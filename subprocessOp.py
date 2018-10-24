@@ -150,7 +150,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                 questInfo.updateQuestInfo('Live_URL', subscribe_obj.get("cur_blive_url", ""), outputRTMP)
             tmp_retryTime = 0
             tmp_cmdStartTime = time.time()
-            while tmp_retryTime <= 5:  # must be <=
+            while tmp_retryTime <= 6:  # must be <=
                 # try to restream
                 out, err, errcode = _forwardStreamCMD_sync(tmp_title, subscribe_obj, tmp_forwardLink, outputRTMP)
 
@@ -168,7 +168,7 @@ def _forwardStream_sync(forwardLink, outputRTMP, isSubscribeQuest, subscribe_obj
                     tmp_retryTime += 1      # make it can exit
                 else:
                     tmp_retryTime = 0      # let every Connect success reset the retrytime
-                time.sleep(30)   # one m3u8 can hold 20 secounds or less
+                time.sleep(10)   # one m3u8 can hold 20 secounds or less
                 tmp_cmdStartTime = time.time()  #import should not miss it.
                 utitls.myLogger('_forwardStream_sync LOG: CURRENT RETRY TIME:%s' % tmp_retryTime)
                 utitls.myLogger("_forwardStream_sync LOG RETRYING___________THIS:\ninputM3U8:%s, \noutputRTMP:%s" % (forwardLink, outputRTMP))
