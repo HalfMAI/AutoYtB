@@ -24,7 +24,7 @@ def add_date_job(datetime_str, job_id, task, args_):
     run_time = run_time - timedelta(minutes=30)
 
     try:
-        g_main_scheduler.add_job(task, args=args_, id=job_id, name=task.__qualname__, next_run_time=run_time, misfire_grace_time=3600)
+        g_main_scheduler.add_job(task, args=args_, id=job_id, name=task.__qualname__, next_run_time=run_time, misfire_grace_time=3600*2)
     except ConflictingIdError:
         g_main_scheduler.modify_job(job_id, func=task, args=args_, name=task.__qualname__, next_run_time=run_time)
     log_jobs()
