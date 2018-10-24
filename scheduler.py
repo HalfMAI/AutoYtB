@@ -9,7 +9,7 @@ g_main_scheduler = None
 def __init__():
     global g_main_scheduler
     g_main_scheduler = BackgroundScheduler(timezone=utc)
-    g_main_scheduler.add_jobstore('sqlalchemy', url='sqlite:///jobs.sqlite')
+    # g_main_scheduler.add_jobstore('sqlalchemy', url='sqlite:///jobs.sqlite')
     g_main_scheduler.start()
 
     log_jobs()
