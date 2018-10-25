@@ -103,7 +103,7 @@ cd AutoYtB-master/
 {
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
     "serverPort": "80",       <-运行端口
-    "subSecert": "",          <-会自动生成的sercert,用于pubsubhub的订阅校验，以后可能还可以用在别的地方    
+    "subSecert": "",          <-会自动生成的sercert,用于pubsubhub的订阅校验和服务器身份校验  
     "is_auto_record": true,   <-是否自动录像，请自己看一下服务器空间来设置，默认是false
     "driver_type": "chrome",  <-account登录模式时使用的浏览器,可选值为chrome和firefox,请根据自己机器上安装的浏览器与驱动配置
     "login_retry_times": 3,   <-登录重试次数
@@ -115,10 +115,9 @@ cd AutoYtB-master/
             "bilibili_cookiesStr": "xxxxxxxxxxx",       <-cookies登录模式时必填,输入访问B站时的requestHeader的cookies
             "auto_send_dynamic": false,                 <-开播时是否自动发动态,注意如果你的账号以前没发过动态,先手动去发条动态同意一下协议
             "dynamic_template": "转播开始了哦~☞${roomUrl}",    <-开播动态内容,变量以${paramName}的形式表示,目前支持的变量仅有roomUrl:直播间地址
-            "forwardLink": "",                          <-还未有用
             "bilibili_areaid": "33",                    <-自动开播时的区域ID
             "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",     <-订阅的youtube channel_id
-            "twitcast": "kaguramea"                     <-以后可能可以做到twitcast的监控？先写着吧
+            "twitterId": "kaguramea"                    <-用于监控twitter的ID
         },
         {
             "mark": "账号标识或备注",                    <-账号标识或备注，用于在手动开播时会显示在列表中
@@ -128,10 +127,9 @@ cd AutoYtB-master/
             "password": "xxxxxxxxxxxx",                 <-登录密码,account登录模式时必填
             "auto_send_dynamic": false,
             "dynamic_template": "转播开始了哦~",
-            "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "xxxxxxxxxxx",
-            "twitcast": ""
+            "twitterId": ""
         }
     ]
 }
@@ -149,16 +147,24 @@ nohup python3.7 -u main.py > logfile.txt &
 ### 如何手动开播
 访问地址：http://{服务器IP或域名}/web/restream.html
 
+### 如何进行推特检测
+使用 ifttt 建立监控某个用户的推特，当某用户发推时，调用webhook:
+url :http://{服务器IP或域名}/tweet
+请求方法：POST
+请求内容：{ "twitter_acc": "<<<{{UserName}}>>>", "twitter_body":"<<<{{Text}}>>>", "auth": "XXXXXXXXXXX" }
+auth里的XXXXXX是指config.json生成的 "subSecert"，用来做服务器身份验证的    
+
 ### TODO LIST
 - [X] 环境自动安装脚本
 - [X] 添加手动下播功能，只需要对应rtmp就可以了
 - [ ] 订阅列表添加到config.json的可视化界面和接口吧
 - [X] twitcast 支持？
-- [ ] openREC 支持？
+- [X] openREC 支持？
 - [X] showroom 支持？
 - [ ] Mirrativ 支持？
 - [ ] 17live 支持？
 - [ ] RELITIY 支持？？
-- [ ] 使用microsoft flow 监控推特自动监控上面的其它平台？？
+- [X] ifttt 监控推特自动监控上面的其它平台？？
 - [X] account登录模式cookies过期自动重新登录
 - [ ] 开播动态内容支持更多变量(如来源频道标题等)
+- [ ] 等一个有心人做一个预定开播页面

@@ -13,7 +13,7 @@ from mimetypes import types_map
 import utitls
 from myRequests import getYoutubeLiveStreamInfo
 from subprocessOp import async_forwardStream
-from AutoOperate import Async_forwardToBilibili
+from AutoOperate import Async_forwardToBilibili, getBilibiliProxy
 
 from questInfo import checkIfInQuest, getQuestListStr, getQuestList_AddStarts, updateQuestInfo, _getObjWithRTMPLink, _getObjWithAccMark
 import scheduler
@@ -151,6 +151,36 @@ class RequestHandler(BaseHTTPRequestHandler):
                 else:
                     rc = 200
                     rb = json.dumps({"code": -4, "msg": "RTMPLink格式错误!!! bilibili的RTMPLink格式是两串合起来。\nEXAMPLE：rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX"})
+        elif request_path.startswith('/bilibili_opt?'):
+            rc = 200
+            acc_list = params.get('acc', None)
+            opt_code_list = params.get('opt_code', None)
+            dynamic_words_list = params.get('sendDynamic', None)
+            b_title_list = params.get('changeTitle', None)
+            refreshRTMP_list = params.get('refreshRTMP', None)
+            if acc_list and opt_code_list:
+                acc = acc_list[0]
+                opt_code = opt_code_list[0]
+
+                curSub = utitls.getSubWithKey('mark', acc)
+                if curSub.get('opt_code') == opt_code:
+                    b = getBilibiliProxy(curSub)
+                    if dynamic_words_list:
+                        dynamic_words = dynamic_words_list[0]
+                        t_room_id = b.getLiveRoomId()
+                        t_cur_blive_url = 'https://live.bilibili.com/' + t_room_id
+                        b.send_dynamic("{}\n{}".format(dynamic_words, t_cur_blive_url))
+                    elif b_title_list:
+                        b_title = b_title_list[0]
+                        b.updateRoomTitle(b_title)
+                    elif refreshRTMP_list:
+                        refreshRTMP = refreshRTMP_list[0]
+                        if refreshRTMP == '1':
+                            t_room_id = b.getLiveRoomId()
+                            b.startLive(t_room_id, '33')
+                    rb = json.dumps({"code": 0, "msg": "操作成功"})
+                else:
+                    rb = json.dumps({"code": -5, "msg": "当前账号不存在或者账号操作码错误：{}".format(acc)})
         elif request_path.startswith('/kill_quest?'):
             rc = 200
             tmp_rtmpLink_list = params.get('rtmpLink', None)

@@ -11,14 +11,9 @@ import questInfo
 from myRequests import subscribe, getUpcomingLiveVideos, getYoutubeLiveStreamInfo
 import scheduler
 
-def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
-    curSub = subscribe_obj
+def getBilibiliProxy(subObj):
+    curSub = subObj
     curBiliAccCookie = curSub.get('bilibili_cookiesStr', "")
-
-    tmp_area_id = area_id
-    if tmp_area_id == None:
-        tmp_area_id = curSub.get('bilibili_areaid', '33')
-
     b = BilibiliProxy(curBiliAccCookie)
     if b.getAccInfo() == None:
         #relogin
@@ -27,18 +22,28 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
             if tmp_username and tmp_password:
                 curSub['bilibili_cookiesStr'] = login(tmp_username, tmp_password)
                 utitls.setSubInfoWithKey('username', tmp_username, curSub)
-                b, t_room_id, rtmp_link = bilibiliStartLive(curSub, room_title, area_id)
-                return b, t_room_id, rtmp_link
-                #retry the StartLive. TODO Maybe limit the retry time?
+                time.sleep(1)
+                return getBilibiliProxy(subObj)                         #retry the StartLive. TODO Maybe limit the retry time?
+    else:
+        return b
+
+def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
+    curSub = subscribe_obj
+
+    tmp_area_id = area_id
+    if tmp_area_id == None:
+        tmp_area_id = curSub.get('bilibili_areaid', '33')
+
+    b = getBilibiliProxy(curSub)
 
     t_room_id = b.getLiveRoomId()
+    t_cur_blive_url = 'https://live.bilibili.com/' + t_room_id
+    curSub['cur_blive_url'] = t_cur_blive_url
     # b.stopLive(t_room_id)   #Just don't care the Live status, JUST STARTLIVE
     t_b_title = curSub.get('change_b_title')
     if t_b_title:
         b.updateRoomTitle(t_room_id, t_b_title)
     rtmp_link = b.startLive(t_room_id, tmp_area_id)
-    t_cur_blive_url = 'https://live.bilibili.com/' + t_room_id
-    curSub['cur_blive_url'] = t_cur_blive_url
 
     if curSub.get('auto_send_dynamic') and rtmp_link and questInfo._getObjWithRTMPLink(rtmp_link) is None:
         if curSub.get('dynamic_template'):

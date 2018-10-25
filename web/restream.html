@@ -1,46 +1,101 @@
 <html >
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-      p{ white-space: pre; }
-    </style>
-
-    <script type='text/javascript' src="./requests.js?v2314"></script>
-
-    <title>手动转播</title>
+    <title>手动转播台</title>
   </head>
-  <p>
-    转播地址例子：
-        Youtube地址：
-            https://www.youtube.com/watch?v=XXXXXX 或者 https://youtu.be/watch?v=XXXXXX
-            https://www.youtube.com/channel/XXXXXXX/live 或者 https://youtu.be/channel/XXXXXXX/live
-        Twitcasting地址:https://twitcasting.tv/XXXXXXXXXX
-        Twitch地址：https://www.twitch.tv/XXXXXXXXX
-        Showroom地址：https://www.showroom-live.com/XXXXXXXX
 
-        m3u8地址：
-          http://XXXXXXXXX.m3u8
-            或其它是m3u8的地址，可能后面带点东西的像 openREC的
-          http://XXXXXXXXX.m3u8?/video=1
 
-    推流地址例子：
-      B站的地址是两串合起来的，像youtube那些也是path+key,两串合起来
-      rtmp://XXXXXX.acg.tv/live-js/?streamname=live_XXXXXXX&key=XXXXXXXXXX
-  </p>
-  <hr />
-  <button id="addRestreamSrcBtn" onclick="addRestreamSrc()">添加转播源</button>
+<body>
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.slim.min.js"></script>
+  <script src="https://cdn.bootcss.com/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootbox.js/4.4.0/bootbox.js"></script>
+  <script type='text/javascript' src="./requests.js?v1616"></script>
+
+<div class="card mx-auto w-75">
+
+  <div class="card-header">手动转播台</div>
+  <div class="card-body">
+
+
+  <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#collapseStreamLink" aria-expanded="false" aria-controls="collapseStreamLink">来源地址例子</button>
+  <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#collapseRTMP" aria-expanded="false" aria-controls="collapseRTMP">推流地址例子</button>
+
+  <div class="collapse" id="collapseStreamLink">
+    <div class="card card-body" style="white-space: pre">
+转播地址例子：
+Youtube地址：
+    https://www.youtube.com/watch?v=XXXXXX
+    https://www.youtube.com/channel/XXXXXXX/live
+    https://youtu.be/channel/XXXXXXX/live
+Twitcasting地址:https://twitcasting.tv/XXXXXXXXXX
+Twitch地址：https://www.twitch.tv/XXXXXXXXX
+Showroom地址：https://www.showroom-live.com/XXXXXXXX
+OpenRec地址：https://www.openrec.tv/live/XXXXXX
+m3u8地址：http://XXXXXXXXX.m3u8 或其它是m3u8的地址
+    </div>
+  </div>
+
+  <div class="collapse" id="collapseRTMP">
+    <div class="card card-body">
+      <span >
+推流地址例子：
+  B站的地址是两串合起来的，像youtube那些也是path+key,两串合起来
+  rtmp://XXXXXX.acg.tv/XXXX<span style="color:red;font-size:20;font-weight:bold">/</span >?streamname=live_XXXXXXX&key=XXXXXXXXXX
+        </br>
+        <span>注意：有些rtmp的path结尾是没有'/'的，如果rtmp的地址结尾不是'/'，需要自己手动添加 </sapn>
+      </span>
+    </div>
+  </div>
+
+
+<hr />
+  <button class="btn" id="addRestreamSrcBtn" onclick="addRestreamSrc()">添加转播源</button>
+  <button class="btn" id="refreshBTitleBtn" onclick="requestChangeBTitle()">更新直播间标题</button>
+  <button class="btn" id="sendDynamicBtn" onclick="requestSendDynamic()">发送动态</button>
+  <button class="btn btn-error" id="requestRefreshRTMPBtn" onclick="requestRefreshRTMP()">刷新B站账号推流</button>
   <br /><br />
-  <label >转播源地址选择：</label> <select id="SelectSrc" onchange="onSelectSrc()"> <option value="" disabled selected>请选择转播源</option> <select/>
-  <label >推流目标账号选择：</label> <select id="SelectAcc" onchange="onSelectAcc()"> <option value="" disabled selected>请选择推流账号</option> <select/>
 
+  <div class="input-group mb-3">
+    <label class="input-group-text">转播源地址选择</label>
+    <select class="custom-select" id="SelectSrc" onchange="onSelectSrc()">
+      <option value="" disabled selected>请选择转播源</option>
+    <select/>
+  </div>
+
+  <div class="input-group mb-3">
+    <label class="input-group-text">推流目标账号选择</label>
+    <select class="custom-select" id="SelectAcc" onchange="onSelectAcc()">
+      <option value="" disabled selected>请选择推流账号</option>
+    <select/>
+  </div>
 
   <hr />
-  <label >转播源地址自定义：</label> <input type="text" id="forwardLink" name="forwardLink" size="128"><br /><br />
-  <label >推流目标地址自定义:</label> <input type="text" id="restreamRtmpLink" name ="restreamRtmpLink" size="128"><br /><br />
-  <button id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
-  <button id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
-  <button id="requestKillQuestBtn" onclick="requestKillQuest()">关闭自定义推流任务</button>
+
+  <div class="input-group mb-3">
+    <label class="input-group-text">转播源地址自定义</label>
+    <input class="input-group" type="text" id="forwardLink" name="forwardLink">
+  </div>
+  <div class="input-group mb-3">
+    <label class="input-group-text">推流目标地址自定义</label>
+    <input class="input-group" type="text" id="restreamRtmpLink" name="restreamRtmpLink">
+  </div>
+
   <hr />
-  <p id="responseMessage"><p/>
+
+  <button class="btn btn-primary" id="requestReStreamBtn" onclick="requestReStream()">开始转播</button>
+  <button class="btn btn-secondary" id="requestQuestListBtn" onclick="requestQuestList()">查看任务列表</button>
+  <button class="btn btn-warning" id="requestKillQuestBtn" onclick="requestKillQuest()">关闭自定义推流任务</button>
+  <hr />
+
+  <div class="card card-body">
+    <p id="responseMessage"><p/>
+  <div/>
+
+</div>
+</div>
+
+<body/>
 </html>

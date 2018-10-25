@@ -17,19 +17,20 @@ function getCookie(name) {
     }
     return null;
 }
-function _disableBtnWithId(id){
+function _disableBtnWithId(id, time){
     tmp_btn = document.getElementById(id);
     if (tmp_btn) {
       tmp_btn.disabled = true;
-      setTimeout(function(){document.getElementById(id).disabled = false;}, 3000);
+      setTimeout(function(){document.getElementById(id).disabled = false;}, time);
     }
 }
 function _disableAllBtn() {
-  _disableBtnWithId("requestReStreamBtn");
-  _disableBtnWithId("requestQuestListBtn");
-  _disableBtnWithId("requestKillQuestBtn");
-  _disableBtnWithId("addRestreamSrcBtn");
-  _disableBtnWithId("addRtmpDesBtn");
+  _disableBtnWithId("requestReStreamBtn", 3000);
+  _disableBtnWithId("requestQuestListBtn", 3000);
+  _disableBtnWithId("requestKillQuestBtn", 3000);
+  _disableBtnWithId("refreshBTitleBtn", 10000);
+  _disableBtnWithId("sendDynamicBtn", 10000);
+  _disableBtnWithId("requestRefreshRTMPBtn", 10000);
 }
 function _requestWithURL(url, res) {
   var xhttp = new XMLHttpRequest();
@@ -43,17 +44,48 @@ function _requestWithURL(url, res) {
   xhttp.send();
 }
 
+function _selectAcc(cb) {
+  alert("此操作需要较长时间,操作后请等待30秒左右");
+  var options_list = document.getElementById('SelectAcc').options;
+  var tmp_list = [];
+  for (var i = 1; i < options_list.length; i++) {
+    var option = {
+      text: options_list[i].text,
+      value: options_list[i].value
+    };
+    tmp_list.push(option);
+  }
+  bootbox.prompt({
+    title: "请选择操作的账号",
+    inputType: 'select',
+    inputOptions: tmp_list,
+    callback: function (acc) {
+      if (acc == null) { return; }
+      bootbox.prompt({
+        title: "请输入操作码",
+        value: getCookie(acc),
+        callback: function(opt_code){
+          if (opt_code != null) { setCookie(acc, opt_code); }
+          cb(acc, opt_code);
+        }
+      });
+    }
+  });
+}
+
 function requestReStream() {
   _disableAllBtn();
   var tmp_forwardLink = document.getElementById("forwardLink").value;
   var tmp_restreamRtmpLink = document.getElementById("restreamRtmpLink").value;
-  var tmp_requestURL = "../live_restream?forwardLink=" + encodeURIComponent(tmp_forwardLink) + "&restreamRtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
-  _requestWithURL(tmp_requestURL, function(res_json){
-    var tmp_responseMessageElement = document.getElementById("responseMessage");
-    tmp_responseMessageElement.innerHTML = "";
-    tmp_responseMessageElement.innerHTML += "请求返回码（为0或者1时说明当前任务已经添加成功）：" + res_json.code + '\n';
-    tmp_responseMessageElement.innerHTML += res_json.msg;
-  })
+  if (tmp_restreamRtmpLink != "" && tmp_forwardLink != "") {
+    var tmp_requestURL = "../live_restream?forwardLink=" + encodeURIComponent(tmp_forwardLink) + "&restreamRtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
+    _requestWithURL(tmp_requestURL, function(res_json){
+      var tmp_responseMessageElement = document.getElementById("responseMessage");
+      tmp_responseMessageElement.innerHTML = "";
+      tmp_responseMessageElement.innerHTML += "请求返回码（为0或者1时说明当前任务已经添加成功）：" + res_json.code + '\n';
+      tmp_responseMessageElement.innerHTML += res_json.msg;
+    })
+  }
 }
 function requestQuestList() {
   _disableAllBtn();
@@ -71,15 +103,70 @@ function requestQuestList() {
   })
 }
 function requestKillQuest() {
-  var tmp_restreamRtmpLink = prompt("请输入需要关闭的RTMP流", "rtmp://XXXXXXXXXXXXX");
-  if (tmp_restreamRtmpLink){
-    _disableAllBtn();
-    var tmp_requestURL = "../kill_quest?rtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
-    _requestWithURL(tmp_requestURL, function(res_json){
-      var tmp_responseMessageElement = document.getElementById("responseMessage");
-      tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+  bootbox.prompt({
+    title:"请输入需要关闭的RTMP流",
+    value:"rtmp://XXXXXXXXXXXXX",
+    callback: function(tmp_restreamRtmpLink) {
+      if (tmp_restreamRtmpLink == null || "rtmp://XXXXXXXXXXXXX" == tmp_restreamRtmpLink){ return; }
+      _disableAllBtn();
+      var tmp_requestURL = "../kill_quest?rtmpLink=" + encodeURIComponent(tmp_restreamRtmpLink);
+      _requestWithURL(tmp_requestURL, function(res_json){
+        var tmp_responseMessageElement = document.getElementById("responseMessage");
+        tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+      });
+    }
+  });
+}
+function requestChangeBTitle(){
+  _selectAcc(function(acc, opt_code){
+    bootbox.prompt("正在操作{" + acc + "},请输入直播间标题。\n如果不需要更改，请点击“取消”", function(b_title){
+      if (b_title == null) { return; }
+      bootbox.confirm("是否确认更改为：" + b_title, function(ret){
+        if (ret == false) { return; }
+        _disableAllBtn();
+        var tmp_requestURL = "../bilibili_opt?changeTitle=" + encodeURIComponent(b_title)
+            + "&acc=" + encodeURIComponent(acc)
+            + "&opt_code=" + encodeURIComponent(opt_code);
+        _requestWithURL(tmp_requestURL, function(res_json){
+          var tmp_responseMessageElement = document.getElementById("responseMessage");
+          tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+        });
+      });
     });
-  }
+  });
+}
+function requestSendDynamic(){
+  _selectAcc(function(acc, opt_code){
+    bootbox.prompt("正在操作{" + acc + "},请输入发送的动态。\n如果不需要发送，请点击“取消”", function(tmp_dynamic){
+      if (tmp_dynamic == null) { return; }
+      bootbox.confirm("是否确认发送动态：" + tmp_dynamic, function(ret){
+        if (ret == false) { return; }
+        _disableAllBtn();
+        var tmp_requestURL = "../bilibili_opt?sendDynamic=" + encodeURIComponent(tmp_dynamic)
+            + "&acc=" + encodeURIComponent(acc)
+            + "&opt_code=" + encodeURIComponent(opt_code);
+        _requestWithURL(tmp_requestURL, function(res_json){
+          var tmp_responseMessageElement = document.getElementById("responseMessage");
+          tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+        });
+      });
+    });
+  });
+}
+function requestRefreshRTMP(){
+  _selectAcc(function(acc, opt_code){
+    bootbox.confirm("是否确认刷新RTMP流？(以服务器的IP重新开播一次。只有在使用直播台开播了之后，不小心进行了b站直播后台才需要进行些操作。操作的人最好清楚这是在做什么)", function(ret){
+      if (ret == false) { return; }
+      _disableAllBtn();
+      var tmp_requestURL = "../bilibili_opt?refreshRTMP=1"
+          + "&acc=" + encodeURIComponent(acc)
+          + "&opt_code=" + encodeURIComponent(opt_code);
+      _requestWithURL(tmp_requestURL, function(res_json){
+        var tmp_responseMessageElement = document.getElementById("responseMessage");
+        tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+      });
+    });
+  });
 }
 
 function getManualJson() {
@@ -107,15 +194,32 @@ function getManualJson() {
 function addRestreamSrc(){
   var tmp_dummy_01 = "例：神乐mea_Youtube";
   var tmp_dummy_02 = "例：https://www.youtube.com/channel/XXX/live";
-  var tmp_srcNote = prompt("请输入转播源的备注名字", tmp_dummy_01);
-  var tmp_srcLink = prompt("请输入转播源的地址", tmp_dummy_02);
-  if ((tmp_srcNote && tmp_srcLink) && (tmp_srcNote != tmp_dummy_01 && tmp_srcLink != tmp_dummy_02)){
-    _disableAllBtn();
-    var tmp_requestURL = "../addRestreamSrc?srcNote=" + encodeURIComponent(tmp_srcNote) + "&srcLink=" + encodeURIComponent(tmp_srcLink);
-    _requestWithURL(tmp_requestURL, function(res_json){
-      location.reload();
-    });
-  }
+  bootbox.prompt({
+    title: "请输入转播源的备注名字",
+    value: tmp_dummy_01,
+    callback: function(tmp_srcNote) {
+      if (tmp_srcNote == null || tmp_srcNote == tmp_dummy_01) {return;}
+      bootbox.prompt({
+        title: "请输入转播源的地址",
+        value: tmp_dummy_02,
+        callback: function(tmp_srcLink) {
+          if (tmp_srcLink == null || tmp_srcLink == tmp_dummy_02) {return;}
+          bootbox.confirm({
+            title: "请确认添加信息是否正确",
+            message: "<p style=\"white-space: pre\">备注名字：\n" + tmp_srcNote + "\n转播源的地址:\n" + tmp_srcLink + "</p>",
+            callback: function(is_ok) {
+              if (is_ok == false) {return;}
+              _disableAllBtn();
+              var tmp_requestURL = "../addRestreamSrc?srcNote=" + encodeURIComponent(tmp_srcNote) + "&srcLink=" + encodeURIComponent(tmp_srcLink);
+              _requestWithURL(tmp_requestURL, function(res_json){
+                location.reload();
+              });
+            }
+          });
+        }
+      });
+    }
+  });
 }
 
 function onSelectSrc() {
@@ -133,7 +237,8 @@ function onSelectDes() {
 
 function onSelectAcc() {
   var tmp_dummy_01 = '请输入操作码';
-  alert("！！请注意！！\n如果当前账号是正在直播的状态，开播会覆盖当前任务.\n(同来源且同直播间不会覆盖)");
+  alert("请牢记，开播后 ！一定不能！进入B站直播中心页面操作");
+  alert("如果当前账号是正在直播的状态，开播会覆盖当前任务.\n(同来源且同直播间不会覆盖)");
   var val = document.getElementById("SelectAcc").value;
 
   var tmp_last_opt = getCookie(val);
@@ -147,17 +252,17 @@ function onSelectAcc() {
 
   var b_title = null;
   b_title = prompt("请输入直播间标题。\n如果不需要更改，请点击“取消”");
-  var is_send_dynamic = prompt("是否发送直播动态？\n发送写数字1，不发送写数字0.\n(默认不发送)", "0");
+  var is_send_dynamic = confirm("是否发送直播动态？");
+  is_send_dynamic = is_send_dynamic ? "1" : "0";
 
-  var dynamic_words = "开始直播了\n转播中\n";
-  if (is_send_dynamic == '1'){
+  var dynamic_words = "开始直播了,转播中";
+  if (is_send_dynamic == true){
     tmp_word = prompt("请输入动态内容,以\\n做分行\n例：'这是\\n分行'\n下面已经填入了默认内容,最终发送时会自动附带直播间地址。", dynamic_words);
     if (tmp_word != null) { dynamic_words = tmp_word; }
   }
 
-  var is_record = "0";
-  tmp_record = prompt("是否同时进行录像？\n录像写数字1，不录像写数字0\n默认不录像", is_record);
-  if (tmp_record != null) { is_record = tmp_record; }
+  var is_record = confirm("是否同时进行录像？");
+  is_record = is_record ? "1" : "0";
 
   if ((bpwd) && (bpwd != '请输入操作码')){
     var tb = document.getElementById("restreamRtmpLink");
@@ -180,7 +285,6 @@ function onSelectAcc() {
   } else {
     document.getElementById("SelectAcc")[0].selected = 'selected';
   }
-
 }
 
 getManualJson();

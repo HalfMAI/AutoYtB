@@ -13,20 +13,18 @@
             "bilibili_cookiesStr": "xxxxxxxxxxx",
             "auto_send_dynamic": false,
             "dynamic_template": "转播开始了哦~☞${roomUrl}",
-            "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",
-            "twitcast": "kaguramea"
+            "twitterId": "kaguramea"
         },
         {
             "mark": "账号标识或备注",
-            "opt_code": "XXXXXXX",   
+            "opt_code": "XXXXXXX",
             "login_type": "account",
             "auto_send_dynamic": false,
             "dynamic_template": "转播开始了哦~☞${roomUrl}",
             "username": "xxxxxxxxxxxx",
             "password": "xxxxxxxxxxxx",
-            "forwardLink": "",
             "bilibili_areaid": "33",
             "youtubeChannelId": "xxxxxxxxxxx",
             "twitcast": ""
