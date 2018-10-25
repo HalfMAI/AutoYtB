@@ -2,8 +2,6 @@ from pytz import utc
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
-
-from AutoOperate import Async_forwardToBilibili
 from utitls import myLogger
 
 g_main_scheduler = None
