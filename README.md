@@ -3,7 +3,7 @@
 
 感谢autolive的参考 : https://github.com/7rikka/autoLive
 
-## 一键安装，适合完全新手，而且服务器也没有别的其它设置的
+## 一键安装，适合完全新手，而且服务器也没有别的其它设置的(安装完毕后会重启机器，请注意)
 ```
 wget https://raw.githubusercontent.com/HalfMAI/AutoYtB/master/newInstall.sh && chmod +x newInstall.sh && bash newInstall.sh
 ```
@@ -98,7 +98,7 @@ cd AutoYtB-master/
 ```
 
 # 运行前的配置
-打开目录中的Config.json
+打开目录中的config.json
 ```
 {
     "serverIP": "XXXXX",      <-必需设置,用于pubsubhub的回调地址
