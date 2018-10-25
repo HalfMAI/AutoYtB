@@ -10,7 +10,7 @@ wget https://raw.githubusercontent.com/HalfMAI/AutoYtB/master/newInstall.sh && c
 如果服务器有别的设置的话建议参考下列各个软件进行选择性安装
 
 ## 软件依赖和环境安装
-#### youtube-dl, ffmpeg, python3
+#### streamlink, ffmpeg, python3
 #### 如果使用account登录模式, 还需要安装chrome与chromedriver或firefox与firefoxdriver
 
 ffmpeg安装,因为各系统不同安装方法也不同这里只提供vultr centos7的安装方法
