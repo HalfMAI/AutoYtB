@@ -53,10 +53,10 @@ https://intoli.com/blog/installing-google-chrome-on-centos/
 ```
 curl https://intoli.com/install-google-chrome.sh | bash
 ```
-安装chromedriver,chromedriver的版本要和你安装的chrome对应,具体对应版本请查看(例子中使用的是2.42)
+安装chromedriver,chromedriver的版本要和你安装的chrome对应,具体对应版本请查看(例子中使用的是2.43)
 http://chromedriver.chromium.org/downloads
 ```
-wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+wget -N https://chromedriver.storage.googleapis.com/2.43/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 chmod +x chromedriver
 mv chromedriver /usr/bin/
@@ -88,7 +88,7 @@ firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --reload
 ```
 
-### 如何把当前代码传到服务器上
+### 如何把当前代码传到服务器或者更新代码(请在服务器当前没有任务时进行更新，否则)
 ```
 cd ~
 wget https://github.com/HalfMAI/AutoYtB/archive/master.zip
@@ -116,8 +116,8 @@ cd AutoYtB-master/
             "auto_send_dynamic": false,                 <-开播时是否自动发动态,注意如果你的账号以前没发过动态,先手动去发条动态同意一下协议
             "dynamic_template": "转播开始了哦~☞${roomUrl}",    <-开播动态内容,变量以${paramName}的形式表示,目前支持的变量仅有roomUrl:直播间地址
             "bilibili_areaid": "33",                    <-自动开播时的区域ID
-            "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw",     <-订阅的youtube channel_id
-            "twitterId": "kaguramea"                    <-用于监控twitter的ID
+            "youtubeChannelId": "UCWCc8tO-uUl_7SJXIKJACMw,xxxxxxxxx,xxxxxxxxxx",     <-订阅的youtube channel_id,可以使用逗号分隔用于多频道(小写逗号)
+            "twitterId": "kaguramea,xxxxxxxxxxx,xxxxxxxxxx"                    <-用于监控twitter的ID,可以使用逗号分隔用于多频道(小写逗号)
         },
         {
             "mark": "账号标识或备注",                    <-账号标识或备注，用于在手动开播时会显示在列表中
@@ -146,6 +146,9 @@ nohup python3.7 -u main.py > logfile.txt &
 
 ### 如何手动开播
 访问地址：http://{服务器IP或域名}/web/restream.html
+
+### 录像的目录
+录像会临时在项目中的 temp_videos 文件里，以flv 的格式保存着，在任务结束 后会转码为mp4封装转移至 archive_videos 中
 
 ### 如何进行推特检测
 使用 ifttt 建立监控某个用户的推特，当某用户发推时，调用webhook:

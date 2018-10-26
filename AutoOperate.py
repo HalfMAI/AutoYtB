@@ -127,10 +127,11 @@ def subscribeTheList_sync():
         ip = utitls.configJson().get('serverIP')
         port = utitls.configJson().get('serverPort')
         for item in subscribeList:
-            tmp_subscribeId = item.get('youtubeChannelId', "")
-            if tmp_subscribeId != "":
-                tmp_callback_url = 'http://{}:{}/subscribe'.format(ip, port)
-                subscribe(tmp_callback_url, tmp_subscribeId)
+            tmp_subscribeId_list = item.get('youtubeChannelId', "").split(',')
+            for tmp_subscribeId in tmp_subscribeId_list:
+                if tmp_subscribeId != "":
+                    tmp_callback_url = 'http://{}:{}/subscribe'.format(ip, port)
+                    subscribe(tmp_callback_url, tmp_subscribeId)
         time.sleep(3600 * 24 * 4)   #update the subscribe every 4 Days
 
 def clearOldQuests():
@@ -159,30 +160,31 @@ def perparingAllComingVideos_sync():
     time.sleep(2)   #wait the server start preparing
     subscribeList = utitls.configJson().get('subscribeList', [])
     for subObj in subscribeList:
-        tmp_subscribeId = subObj.get('youtubeChannelId', "")
-        if tmp_subscribeId != "":
-            videoIds = getUpcomingLiveVideos(tmp_subscribeId)
-            for vid in videoIds:
-                item = getYoutubeLiveStreamInfo(vid)
-                if item:
-                    liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
-                    if liveStreamingDetailsDict:
-                        tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
-                        tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
-                        tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
-                        tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
+        tmp_subscribeId_list = subObj.get('youtubeChannelId', "").split(',')
+        for tmp_subscribeId in tmp_subscribeId_list:
+            if tmp_subscribeId != "":
+                videoIds = getUpcomingLiveVideos(tmp_subscribeId)
+                for vid in videoIds:
+                    item = getYoutubeLiveStreamInfo(vid)
+                    if item:
+                        liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
+                        if liveStreamingDetailsDict:
+                            tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
+                            tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
+                            tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
+                            tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
 
-                        if tmp_scheduled_start_time and tmp_is_end == None and tmp_is_live == None and tmp_actual_start_time == None:
-                            tmp_acc_mark = subObj.get('mark', "")
-                            tmp_area_id = subObj.get('area_id', '33')
-                            job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, vid)
+                            if tmp_scheduled_start_time and tmp_is_end == None and tmp_is_live == None and tmp_actual_start_time == None:
+                                tmp_acc_mark = subObj.get('mark', "")
+                                tmp_area_id = subObj.get('area_id', '33')
+                                job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, vid)
 
-                            snippet = item.get('snippet', {})
-                            tmp_title = snippet.get('title', "")
-                            tmp_live_link = 'https://www.youtube.com/watch?v={}'.format(vid)
-                            scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
-                                (subObj, tmp_live_link, tmp_title, tmp_area_id)
-                            )
+                                snippet = item.get('snippet', {})
+                                tmp_title = snippet.get('title', "")
+                                tmp_live_link = 'https://www.youtube.com/watch?v={}'.format(vid)
+                                scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
+                                    (subObj, tmp_live_link, tmp_title, tmp_area_id)
+                                )
 
 def preparingAllAccountsCookies():
     utitls.runFuncAsyncThread(preparingAllAccountsCookies_sync, ())

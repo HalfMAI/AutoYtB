@@ -284,39 +284,39 @@ class RequestHandler(BaseHTTPRequestHandler):
                                     tmp_entry_title, tmp_entry_videoId, tmp_entry_channelId, tmp_entry_link, tmp_entry_publishedTime, tmp_entry_updatedTime)
                                 )
                         #try to restream
-                        tmp_subscribe_obj = utitls.getSubWithKey('youtubeChannelId', tmp_entry_channelId)
-                        tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
-                        tmp_area_id = tmp_subscribe_obj.get('area_id', '33')
-                        # tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
-                        tmp_live_link = tmp_entry_link
+                        for tmp_subscribe_obj in utitls.getSubInfosWithSubChannelId(tmp_entry_channelId):
+                            tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
+                            tmp_area_id = tmp_subscribe_obj.get('area_id', '33')
+                            # tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
+                            tmp_live_link = tmp_entry_link
 
-                        item = getYoutubeLiveStreamInfo(tmp_entry_videoId)
-                        liveStreamingDetailsDict = None
-                        if item:
-                            liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
-                        if liveStreamingDetailsDict:
-                            utitls.myLogger("The Sub liveStreamingDetails:{}".format(liveStreamingDetailsDict))
-                            tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
-                            tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
-                            tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
-                            tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
+                            item = getYoutubeLiveStreamInfo(tmp_entry_videoId)
+                            liveStreamingDetailsDict = None
+                            if item:
+                                liveStreamingDetailsDict = item.get('liveStreamingDetails', None)
+                            if liveStreamingDetailsDict:
+                                utitls.myLogger("The Sub liveStreamingDetails:{}".format(liveStreamingDetailsDict))
+                                tmp_is_live = liveStreamingDetailsDict.get('concurrentViewers', None)
+                                tmp_actual_start_time = liveStreamingDetailsDict.get('actualStartTime', None)
+                                tmp_scheduled_start_time = liveStreamingDetailsDict.get('scheduledStartTime', None)
+                                tmp_is_end = liveStreamingDetailsDict.get('actualEndTime', None)
 
-                            if tmp_is_end:
-                                #kill the End stream proccess
-                                tmp_quest = _getObjWithAccMark(tmp_subscribe_obj.get('mark'))
-                                if tmp_quest != None:
-                                    utitls.kill_child_processes(tmp_quest.get('pid', None))
-                            elif tmp_is_live or tmp_actual_start_time:
-                                Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
-                            elif tmp_scheduled_start_time:
-                                # scheduled the quest
-                                job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, tmp_entry_videoId)
-                                # the job will run before 30 mins
-                                scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
-                                    (tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
-                                )
-                            else:
-                                Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
+                                if tmp_is_end:
+                                    #kill the End stream proccess
+                                    tmp_quest = _getObjWithAccMark(tmp_subscribe_obj.get('mark'))
+                                    if tmp_quest != None:
+                                        utitls.kill_child_processes(tmp_quest.get('pid', None))
+                                elif tmp_is_live or tmp_actual_start_time:
+                                    Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
+                                elif tmp_scheduled_start_time:
+                                    # scheduled the quest
+                                    job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, tmp_entry_videoId)
+                                    # the job will run before 30 mins
+                                    scheduler.add_date_job(tmp_scheduled_start_time, job_id, Async_forwardToBilibili,
+                                        (tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
+                                    )
+                                else:
+                                    Async_forwardToBilibili(tmp_subscribe_obj, tmp_live_link, tmp_entry_title, tmp_area_id)
                     except Exception:
                         rc = 404
                         utitls.myLogger(traceback.format_exc())
@@ -340,10 +340,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                         redirect_url = r.url      # get the redirect url
                         if 'twitter.com' not in redirect_url \
                             and utitls.checkIsSupportForwardLink(redirect_url):
-                            cur_sub = utitls.getSubWithKey('twitterId', tmp_acc)
-                            if cur_sub:
-                                tmp_area_id = cur_sub.get('area_id', '33')
-                                Async_forwardToBilibili(cur_sub, redirect_url, "THIS TITLE IS USENESS", tmp_area_id)
+                            for cur_sub in utitls.getSubInfosWithSubTwitterId(tmp_acc):                            
+                                if cur_sub:
+                                    tmp_area_id = cur_sub.get('area_id', '33')
+                                    Async_forwardToBilibili(cur_sub, redirect_url, "THIS TITLE IS USENESS", tmp_area_id)
             except Exception:
                 utitls.myLogger(traceback.format_exc())
         self.send_response(rc)

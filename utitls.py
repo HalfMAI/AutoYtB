@@ -75,8 +75,23 @@ def configJson():
         return configDict
 
 
-def getSubInfoWithSubChannelId(channelId):
-    return getSubWithKey('youtubeChannelId', channelId)
+def getSubInfosWithSubChannelId(channelId):
+    ret_list = []
+    confDict = configJson()
+    for subscribe in confDict.get('subscribeList', []):
+        if channelId in subscribe.get('youtubeChannelId', "").split(','):
+            if channelId != "":
+                ret_list.append(subscribe)
+    return ret_list
+
+def getSubInfosWithSubTwitterId(twitterId):
+    ret_list = []
+    confDict = configJson()
+    for subscribe in confDict.get('subscribeList', []):
+        if twitterId in subscribe.get('twitterId', "").split(','):
+            if twitterId != "":
+                ret_list.append(subscribe)
+    return ret_list
 
 def getSubWithKey(key, val):
     ret = None
@@ -87,8 +102,6 @@ def getSubWithKey(key, val):
     return ret
 
 
-def setSubInfoWithSubChannelId(channelId, subDict):
-    setSubInfoWithKey('youtubeChannelId', channelId, subDict)
 
 def setSubInfoWithKey(key, val, subDict):
     confDict = configJson()

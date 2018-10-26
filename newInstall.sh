@@ -13,7 +13,7 @@ chmod a+x ffmpeg-install
 rm -f ffmpeg-install
 
 curl https://intoli.com/install-google-chrome.sh | bash
-wget -N https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+wget -N https://chromedriver.storage.googleapis.com/2.43/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 chmod +x chromedriver
 mv chromedriver /usr/bin/
