@@ -100,17 +100,15 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
                 break
 
     if resolveURLOK:
-        b, t_room_id, rtmp_link = bilibiliStartLive(subscribe_obj, room_title, area_id)
-        if rtmp_link:   #kill the old proccess
-            tmp_quest = questInfo._getObjWithRTMPLink(rtmp_link)
-            if tmp_quest != None:
-                try:
-                    utitls.kill_child_processes(tmp_quest.get('pid', None))
-                except Exception:
-                    utitls.myLogger(traceback.format_exc())
-                time.sleep(5)
-            # force stream
-            _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest, subscribe_obj)
+        tmp_acc_mark = subscribe_obj.get('mark', None)
+        if tmp_acc_mark:
+            quest = questInfo._getObjWithAccMark(tmp_acc_mark)
+            if quest != None:
+                b, t_room_id, rtmp_link = bilibiliStartLive(subscribe_obj, room_title, area_id)
+                # force stream
+                _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest, subscribe_obj)
+            else:
+                utitls.myLogger("THIS ACC IS CURRENTLY STREAMING :{}, SKIP THE QUEST".format(tmp_acc_mark))
 
     if input_quest in __g_try_bili_quest_list:
         utitls.myLogger('REMOVE QUEST Async_forwardToBilibili:\n{}'.format(input_quest))

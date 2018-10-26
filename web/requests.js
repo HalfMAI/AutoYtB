@@ -31,6 +31,7 @@ function _disableAllBtn() {
   _disableBtnWithId("refreshBTitleBtn", 10000);
   _disableBtnWithId("sendDynamicBtn", 10000);
   _disableBtnWithId("requestRefreshRTMPBtn", 10000);
+  _disableBtnWithId("requestKillBRTMPBtn", 10000);
 }
 function _requestWithURL(url, res) {
   var xhttp = new XMLHttpRequest();
@@ -159,6 +160,21 @@ function requestRefreshRTMP(){
       if (ret == false) { return; }
       _disableAllBtn();
       var tmp_requestURL = "../bilibili_opt?refreshRTMP=1"
+          + "&acc=" + encodeURIComponent(acc)
+          + "&opt_code=" + encodeURIComponent(opt_code);
+      _requestWithURL(tmp_requestURL, function(res_json){
+        var tmp_responseMessageElement = document.getElementById("responseMessage");
+        tmp_responseMessageElement.innerHTML = JSON.stringify(res_json);
+      });
+    });
+  });
+}
+function requestKillBRTMP() {
+  _selectAcc(function(acc, opt_code){
+    bootbox.confirm("是否确认关闭当前B站任务RTMP流？(关闭转播任务,设计用于撞车时切换转播源或者某些原因需要关闭转播任务))", function(ret){
+      if (ret == false) { return; }
+      _disableAllBtn();
+      var tmp_requestURL = "../bilibili_opt?killRTMP=1"
           + "&acc=" + encodeURIComponent(acc)
           + "&opt_code=" + encodeURIComponent(opt_code);
       _requestWithURL(tmp_requestURL, function(res_json){

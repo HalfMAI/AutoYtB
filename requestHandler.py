@@ -158,26 +158,36 @@ class RequestHandler(BaseHTTPRequestHandler):
             dynamic_words_list = params.get('sendDynamic', None)
             b_title_list = params.get('changeTitle', None)
             refreshRTMP_list = params.get('refreshRTMP', None)
+            killRTMP_list = params.get('killRTMP', None)
             if acc_list and opt_code_list:
                 acc = acc_list[0]
                 opt_code = opt_code_list[0]
 
                 curSub = utitls.getSubWithKey('mark', acc)
                 if curSub.get('opt_code') == opt_code:
-                    b = getBilibiliProxy(curSub)
                     if dynamic_words_list:
                         dynamic_words = dynamic_words_list[0]
+                        b = getBilibiliProxy(curSub)
                         t_room_id = b.getLiveRoomId()
                         t_cur_blive_url = 'https://live.bilibili.com/' + t_room_id
                         b.send_dynamic("{}\n{}".format(dynamic_words, t_cur_blive_url))
                     elif b_title_list:
                         b_title = b_title_list[0]
+                        b = getBilibiliProxy(curSub)
                         b.updateRoomTitle(b_title)
                     elif refreshRTMP_list:
                         refreshRTMP = refreshRTMP_list[0]
                         if refreshRTMP == '1':
+                            b = getBilibiliProxy(curSub)
                             t_room_id = b.getLiveRoomId()
                             b.startLive(t_room_id, '33')
+                    elif killRTMP_list:
+                        killRTMP = killRTMP_list[0]
+                        if killRTMP == '1':
+                            cur_quest = _getObjWithAccMark(acc)
+                            if cur_quest:
+                                updateQuestInfo('isDead', True, cur_quest.get('rtmpLink'))
+                                utitls.kill_child_processes(cur_quest.get('pid', None))
                     rb = json.dumps({"code": 0, "msg": "操作成功"})
                 else:
                     rb = json.dumps({"code": -5, "msg": "当前账号不存在或者账号操作码错误：{}".format(acc)})
@@ -340,7 +350,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         redirect_url = r.url      # get the redirect url
                         if 'twitter.com' not in redirect_url \
                             and utitls.checkIsSupportForwardLink(redirect_url):
-                            for cur_sub in utitls.getSubInfosWithSubTwitterId(tmp_acc):                            
+                            for cur_sub in utitls.getSubInfosWithSubTwitterId(tmp_acc):
                                 if cur_sub:
                                     tmp_area_id = cur_sub.get('area_id', '33')
                                     Async_forwardToBilibili(cur_sub, redirect_url, "THIS TITLE IS USENESS", tmp_area_id)
