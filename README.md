@@ -150,7 +150,7 @@ nohup python3.7 -u main.py > logfile.txt &
 ### 录像的目录
 录像会临时在项目中的 temp_videos 文件里，以flv 的格式保存着，在任务结束 后会转码为mp4封装转移至 archive_videos 中
 
-### 如何进行推特检测
+### 如何进行推特检测(此操作有一定延迟，最大延迟大概15分钟，并不能完全实时)
 使用 ifttt 建立监控某个用户的推特，当某用户发推时，调用webhook:
 url :http://{服务器IP或域名}/tweet
 请求方法：POST
