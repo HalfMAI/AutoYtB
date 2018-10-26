@@ -88,7 +88,7 @@ firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --reload
 ```
 
-### 如何把当前代码传到服务器或者更新代码(请在服务器当前没有任务时进行更新，否则)
+### 如何把当前代码传到服务器或者更新代码(请在服务器当前没有任务时进行更新，虽然已经运行的任务会继续运行，但它不会再自动转码变成mp4，会一直留在temp_videos文件夹里)
 ```
 cd ~
 wget https://github.com/HalfMAI/AutoYtB/archive/master.zip
