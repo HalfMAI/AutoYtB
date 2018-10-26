@@ -174,7 +174,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     elif b_title_list:
                         b_title = b_title_list[0]
                         b = getBilibiliProxy(curSub)
-                        b.updateRoomTitle(b_title)
+                        t_room_id = b.getLiveRoomId()
+                        b.updateRoomTitle(t_room_id, b_title)
                     elif refreshRTMP_list:
                         refreshRTMP = refreshRTMP_list[0]
                         if refreshRTMP == '1':
