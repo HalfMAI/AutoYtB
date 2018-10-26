@@ -103,7 +103,7 @@ def _forwardToBilibili_Sync(subscribe_obj, input_link, room_title, area_id=None,
         tmp_acc_mark = subscribe_obj.get('mark', None)
         if tmp_acc_mark:
             quest = questInfo._getObjWithAccMark(tmp_acc_mark)
-            if quest != None:
+            if quest == None:
                 b, t_room_id, rtmp_link = bilibiliStartLive(subscribe_obj, room_title, area_id)
                 # force stream
                 _forwardStream_sync(input_link, rtmp_link, isSubscribeQuest, subscribe_obj)
