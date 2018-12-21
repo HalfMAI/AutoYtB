@@ -32,7 +32,7 @@ def bilibiliStartLive(subscribe_obj, room_title, area_id=None):
 
     tmp_area_id = area_id
     if tmp_area_id == None:
-        tmp_area_id = curSub.get('bilibili_areaid', '33')
+        tmp_area_id = curSub.get('bilibili_areaid', '199')
 
     b = getBilibiliProxy(curSub)
 
@@ -174,7 +174,7 @@ def perparingAllComingVideos_sync():
 
                             if tmp_scheduled_start_time and tmp_is_end == None and tmp_is_live == None and tmp_actual_start_time == None:
                                 tmp_acc_mark = subObj.get('mark', "")
-                                tmp_area_id = subObj.get('area_id', '33')
+                                tmp_area_id = subObj.get('bilibili_areaid', '199')
                                 job_id = 'Acc:{},VideoID:{}'.format(tmp_acc_mark, vid)
 
                                 snippet = item.get('snippet', {})
