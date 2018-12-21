@@ -181,7 +181,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         if refreshRTMP == '1':
                             b = getBilibiliProxy(curSub)
                             t_room_id = b.getLiveRoomId()
-                            b.startLive(t_room_id, '33')
+                            b.startLive(t_room_id, '199')
                     elif killRTMP_list:
                         killRTMP = killRTMP_list[0]
                         if killRTMP == '1':
@@ -297,7 +297,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         #try to restream
                         for tmp_subscribe_obj in utitls.getSubInfosWithSubChannelId(tmp_entry_channelId):
                             tmp_acc_mark = tmp_subscribe_obj.get('mark', "")
-                            tmp_area_id = tmp_subscribe_obj.get('area_id', '33')
+                            tmp_area_id = tmp_subscribe_obj.get('bilibili_areaid', '199')
                             # tmp_live_link = 'https://www.youtube.com/channel/{}/live'.format(tmp_entry_channelId)
                             tmp_live_link = tmp_entry_link
 
@@ -353,7 +353,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                             and utitls.checkIsSupportForwardLink(redirect_url):
                             for cur_sub in utitls.getSubInfosWithSubTwitterId(tmp_acc):
                                 if cur_sub:
-                                    tmp_area_id = cur_sub.get('area_id', '33')
+                                    tmp_area_id = cur_sub.get('bilibili_areaid', '199')
                                     Async_forwardToBilibili(cur_sub, redirect_url, "THIS TITLE IS USENESS", tmp_area_id)
             except Exception:
                 utitls.myLogger(traceback.format_exc())
